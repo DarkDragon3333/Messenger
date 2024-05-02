@@ -12,6 +12,7 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
+import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -20,6 +21,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -29,7 +31,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.messenger.component.ElementOfChatsList
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import androidx.compose.material3.ModalNavigationDrawer
 
 @Composable
 fun ModalNavigationDrawer() {
@@ -41,82 +45,109 @@ fun ModalNavigationDrawer() {
         drawerState = drawerState,
         drawerContent = {
             ModalDrawerSheet {
-                Column(
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    Icon(Icons.Filled.Person, "Я")
-                    TextButton(
-                        onClick = {
-                            scope.launch { drawerState.close() }
-                            selectedItem.value = "Your profile"
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(4.dp),
-                    ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.Start
-                        ) {
-                            Text(
-                                "Your profile",
-                                fontSize = 22.sp,
-                            )
-                        }
-                    }
-                }
+                YourProfile(scope, drawerState, selectedItem)
                 Divider()
-                items.forEach { item ->
-                    TextButton(
-                        onClick = {
-                            scope.launch {
-                                drawerState.close()
-
-                            }
-                            selectedItem.value = item
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(4.dp),
-                    ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.Start
-                        ) {
-                            Text(
-                                item,
-                                fontSize = 22.sp,
-                            )
-                        }
-                    }
-                }
+                OtherNavItem(scope, drawerState, selectedItem, items)
             }
         },
         scrimColor = Color.DarkGray,
         content = {
-            Column {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    IconButton(onClick = {
-                        scope.launch { drawerState.open() }
-                    }) {
-                        Icon(Icons.Filled.Menu, "Меню")
-                    }
-                    Text(text = "Курсовая 'Мессенджер'", fontSize = 18.sp)
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.End
-                    ) {
-                        Button(onClick = { /*TODO*/ }) {
-                            Icon(Icons.Default.Search, contentDescription = "Menu")
-                        }
-                    }
+            MainContentOfModalNavigationDrawer(scope, drawerState)
+        }
+    )
+}
+
+@Composable
+fun YourProfile(
+    scope: CoroutineScope,
+    drawerState: DrawerState,
+    selectedItem: MutableState<String>
+) {
+    Column(
+        verticalArrangement = Arrangement.Center
+    ) {
+        Icon(Icons.Filled.Person, "Я")
+        TextButton(
+            onClick = {
+                scope.launch { drawerState.close() }
+                selectedItem.value = "Your profile"
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(4.dp),
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Start
+            ) {
+                Text(
+                    "Your profile",
+                    fontSize = 22.sp,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun OtherNavItem(
+    scope: CoroutineScope,
+    drawerState: DrawerState,
+    selectedItem: MutableState<String>,
+    items: List<String>
+) {
+    items.forEach { item ->
+        TextButton(
+            onClick = {
+                scope.launch {
+                    drawerState.close()
+
                 }
-                Divider()
-                LazyColumn {
-                    item { ElementOfChatsList() }
-                    item { ElementOfChatsList() }
+                selectedItem.value = item
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(4.dp),
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Start
+            ) {
+                Text(
+                    item,
+                    fontSize = 22.sp,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun MainContentOfModalNavigationDrawer(
+    scope: CoroutineScope,
+    drawerState: DrawerState,
+) {
+    Column {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            IconButton(onClick = {
+                scope.launch { drawerState.open() }
+            }) {
+                Icon(Icons.Filled.Menu, "Меню")
+            }
+            Text(text = "Курсовая 'Мессенджер'", fontSize = 18.sp)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End
+            ) {
+                Button(onClick = { /*TODO*/ }) {
+                    Icon(Icons.Default.Search, contentDescription = "Menu")
                 }
             }
         }
-    )
+        Divider()
+        LazyColumn {
+            item { ElementOfChatsList() }
+            item { ElementOfChatsList() }
+        }
+    }
 }
