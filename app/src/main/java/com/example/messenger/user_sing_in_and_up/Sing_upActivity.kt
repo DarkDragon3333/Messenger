@@ -1,13 +1,11 @@
 package com.example.messenger.user_sing_in_and_up
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -23,7 +21,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.messenger.user_sing_in_and_up.ui.theme.MessengerTheme
@@ -31,92 +28,66 @@ import com.example.messenger.user_sing_in_and_up.ui.theme.MessengerTheme
 class Sing_upActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val intent = Intent(this, LoginActivity::class.java)
         enableEdgeToEdge()
         setContent {
             MessengerTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     GreetingInRegisterActivity(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
+                        modifier = Modifier.padding(innerPadding),
+                        intent
                     )
                 }
             }
         }
     }
-}
 
-@Composable
-fun GreetingInRegisterActivity(name: String, modifier: Modifier = Modifier) {
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    Column {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(0.dp, 100.dp, 0.dp, 0.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        )
-        {
-            TextField(
-                value = email,
-                onValueChange = { email = it },
-                modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text("Email") }
-            )
-            Spacer(modifier = Modifier.padding(8.dp))
-            TextField(
-                value = password,
-                onValueChange = { password = it },
-                modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text("Password") }
-            )
-            Spacer(modifier = Modifier.padding(120.dp))
-            Button(
-                onClick = {
-
-                }
-            ) {
-                Text("Sing in", fontSize = 18.sp)
-            }
-            Box(
-                contentAlignment = Alignment.BottomCenter, modifier = Modifier
+    @Composable
+    fun GreetingInRegisterActivity(modifier: Modifier = Modifier, intent: Intent) {
+        var email by remember { mutableStateOf("") }
+        var password by remember { mutableStateOf("") }
+        Column {
+            Column(
+                modifier = Modifier
                     .fillMaxSize()
-                    .padding(0.dp, 0.dp, 0.dp, 40.dp)
-            ) {
-                SingUpInRegisterActivity()
-            }
-
-        }
-    }
-
-
-}
-
-@Composable
-fun SingUpInRegisterActivity() {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = "Don't have an account?\nLet's go to sing up!",
-            modifier = Modifier.padding(10.dp, 0.dp, 0.dp, 0.dp)
-        )
-        Row(
-            horizontalArrangement = Arrangement.End,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(0.dp, 0.dp, 60.dp, 0.dp)
-        ) {
-            Button(
-                onClick = {
-
+                    .padding(0.dp, 100.dp, 0.dp, 0.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            )
+            {
+                TextField(
+                    value = email,
+                    onValueChange = { email = it },
+                    modifier = Modifier.fillMaxWidth(),
+                    placeholder = { Text("Email") }
+                )
+                Spacer(modifier = Modifier.padding(8.dp))
+                TextField(
+                    value = password,
+                    onValueChange = { password = it },
+                    modifier = Modifier.fillMaxWidth(),
+                    placeholder = { Text("Password") }
+                )
+                Spacer(modifier = Modifier.padding(8.dp))
+                TextField(
+                    value = password,
+                    onValueChange = { password = it },
+                    modifier = Modifier.fillMaxWidth(),
+                    placeholder = { Text("Repeat password") }
+                )
+                Spacer(modifier = Modifier.padding(120.dp))
+                Button(
+                    onClick = {
+                        startActivity(intent)
+                    }
+                ) {
+                    Text("Sing up", fontSize = 18.sp)
                 }
-            ) {
-                Text("Sing up", fontSize = 18.sp)
+
+
             }
         }
 
-
     }
 }
+
+
