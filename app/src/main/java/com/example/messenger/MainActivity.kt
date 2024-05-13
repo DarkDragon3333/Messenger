@@ -28,6 +28,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -36,32 +37,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
 import com.example.messenger.component.ElementOfChatsList
+import com.example.messenger.navigation.Screens
+import com.example.messenger.screens.NavDrawer
 import com.example.messenger.ui.theme.MessengerTheme
 import kotlinx.coroutines.launch
-import com.example.messenger.screens.ModalNavigationDrawer
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             MessengerTheme {
-                Scaffold(
-                    floatingActionButton = {
-                        FloatingActionButton(onClick = {  }) {
-                            Icon(Icons.Default.Add, contentDescription = "Add")
-                        }
-                    }
-                ) { innerPadding ->
-                    Column(
-                        modifier = Modifier
-                        .padding(innerPadding),
-                        verticalArrangement = Arrangement.spacedBy(16.dp),)
-                    {
-                        ModalNavigationDrawer()
-                    }
-
-                }
+                NavDrawer()
             }
         }
     }

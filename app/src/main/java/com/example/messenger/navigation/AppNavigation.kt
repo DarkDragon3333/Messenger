@@ -5,10 +5,12 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -20,55 +22,58 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 
 @Composable
-fun AppNavigation() {
-    val navController: NavHostController = rememberNavController()
-
-    Scaffold(
-        bottomBar = {
-            NavigationBar {
-                val navBackStackEntry: NavBackStackEntry? by navController.currentBackStackEntryAsState()
-                val currentDestination: NavDestination? = navBackStackEntry?.destination
-
-                listOfNavItems.forEach { navItem ->
-                    NavigationBarItem(
-                        selected = currentDestination?.hierarchy?.any { it.route == navItem.route } == true,
-                        onClick = {
-                            navController.navigate(navItem.route) {
-                                popUpTo(navController.graph.findStartDestination().id) {
-                                    saveState = true
-                                }
-                                launchSingleTop = true
-                                restoreState = true
-                            }
-                        },
-                        icon = {
-                            Icon(
-                                painter = painterResource(id = navItem.selectedIcon),
-                                contentDescription = null
-                            )
-                        },
-                    )
-                }
-            }
+fun DrawerNavigation(navController: NavHostController) {
+    NavHost(
+        navController = navController,
+        startDestination = Screens.Inbox.route
+    ) {
+        composable(Screens.YourProfile.route){
+            YourProfile()
         }
-    ) { paddingValues ->
-        NavHost(
-            navController = navController,
-            startDestination = Screens.AlarmScreen.name,
-            modifier = Modifier
-                .padding(paddingValues)
-        ) {
-            composable(route = Screens.AlarmScreen.name) {
-                //AlarmScreen(navController)
-            }
-
-            composable(route = Screens.MusicScreen.name) {
-                //MusicScreen()
-            }
-
-            composable(route = Screens.ArticlesScreen.name) {
-                //ArticlesScreen()
-            }
+        composable(Screens.Inbox.route) {
+            InboxScreen()
+        }
+        composable(Screens.Sent.route) {
+            SentScreen()
+        }
+        composable(Screens.Starred.route) {
+            StarredScreen()
+        }
+        composable(Screens.Spam.route) {
+            SpamScreen()
+        }
+        composable(Screens.Bin.route) {
+            BinScreen()
         }
     }
+}
+
+@Composable
+fun BinScreen() {
+    Text(text = "BinScreen", fontSize = 30.sp)
+}
+
+@Composable
+fun SpamScreen() {
+    Text(text = "Sent Screen", fontSize = 30.sp)
+}
+
+@Composable
+fun StarredScreen() {
+    Text(text = "Starred Screen", fontSize = 30.sp)
+}
+
+@Composable
+fun SentScreen() {
+    Text(text = "Spam Screen", fontSize = 30.sp)
+}
+
+@Composable
+fun InboxScreen() {
+    Text(text = "Inbox Screen", fontSize = 30.sp)
+}
+
+@Composable
+fun YourProfile() {
+    Text(text = "Your Profile Screen", fontSize = 30.sp)
 }
