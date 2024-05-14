@@ -25,7 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.messenger.user_sing_in_and_up.ui.theme.MessengerTheme
 
-class Sing_upActivity : ComponentActivity() {
+class SingUpActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val intent = Intent(this, LoginActivity::class.java)

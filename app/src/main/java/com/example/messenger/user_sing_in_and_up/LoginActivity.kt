@@ -33,7 +33,7 @@ class LoginActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val logInIntent = Intent(this, MainActivity::class.java)
-        val singUpIntent = Intent(this, Sing_upActivity::class.java)
+        val singUpIntent = Intent(this, SingUpActivity::class.java)
         enableEdgeToEdge()
         setContent {
             MessengerTheme {

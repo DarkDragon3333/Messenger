@@ -5,6 +5,7 @@ import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Send
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -43,10 +44,10 @@ sealed class Screens(
         route = "spam",
         icon = Icons.Default.Warning
     )
-    data object Bin: Screens(
-        title = "Bin",
-        route = "bin",
-        icon = Icons.Default.Delete
+    data object Settings: Screens(
+        title = "Settings",
+        route = "Settings",
+        icon = Icons.Default.Settings
     )
     data object YourProfile: Screens(
         title = "YourProfile",
