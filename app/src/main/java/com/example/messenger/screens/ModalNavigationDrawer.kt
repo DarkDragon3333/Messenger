@@ -1,42 +1,49 @@
 package com.example.messenger.screens
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material3.Badge
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
-import androidx.compose.material3.Text
-import androidx.compose.material3.rememberDrawerState
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.launch
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberDrawerState
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.messenger.navigation.DrawerNavigation
 import com.example.messenger.navigation.Screens
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -47,7 +54,9 @@ fun NavDrawer() {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val coroutineScope = rememberCoroutineScope()
 
-    val screens = listOf(
+    var flagYouInSettings by remember { mutableIntStateOf(-1) }
+
+    val screens = listOf( //Созданные экраны в виде объектов
         Screens.YourProfile,
         Screens.Inbox,
         Screens.Sent,
@@ -59,27 +68,30 @@ fun NavDrawer() {
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
-            ModalDrawerSheet {
+            ModalDrawerSheet {//Элемент выдвигающегося меню
                 Divider(thickness = 1.dp, modifier = Modifier.padding(bottom = 20.dp))
 
                 Column(modifier = Modifier.padding(15.dp, 0.dp)) {
                     Spacer(modifier = Modifier.padding(10.dp))
-                    Icon(Icons.Default.Person, contentDescription = "", modifier = Modifier.clickable {
-                        navController.navigate(Screens.YourProfile.route) {
-                            launchSingleTop = true
-                        }
-                        coroutineScope.launch {
-                            drawerState.close()
-                        }
-                    })
+                    Icon(
+                        Icons.Default.AccountCircle,
+                        contentDescription = "",
+                        modifier = Modifier.clickable {
+                            navController.navigate(Screens.YourProfile.route) {//Используем navController для перемещения по экранам
+                                launchSingleTop = true
+                            }
+                            coroutineScope.launch {
+                                drawerState.close()
+                            }
+                        })
                     Spacer(modifier = Modifier.padding(10.dp))
                     Text(text = "Максим")
                     Spacer(modifier = Modifier.padding(10.dp))
                     Text(text = "+7 918 898 98-98")
                 }
-                Spacer(modifier = Modifier.padding(10.dp))
-                Divider(thickness = 1.dp, modifier = Modifier.padding(bottom = 10.dp))
-                screens.forEach { screen ->
+                Spacer(modifier = Modifier.padding(10.dp)) //Отступ
+                Divider(thickness = 1.dp, modifier = Modifier.padding(bottom = 10.dp)) //Линия
+                screens.forEach { screen ->//Циклом генерируем элементы выдвигающегося меню
                     NavigationDrawerItem(
                         label = { Text(text = screen.title) },
                         icon = {
@@ -90,18 +102,8 @@ fun NavDrawer() {
                         },
                         selected = currentRoute == screen.route,
                         modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
-                        badge = {
-                            screen.badgeCount?.let {
-                                Badge(
-                                    modifier = Modifier.size(30.dp),
-                                    containerColor = MaterialTheme.colorScheme.primaryContainer
-                                ) {
-                                    Text(text = screen.badgeCount.toString())
-                                }
-                            }
-                        },
                         onClick = {
-                            navController.navigate(screen.route) {
+                            navController.navigate(screen.route) {//Используем navController для перемещения по экранам
                                 launchSingleTop = true
                             }
                             coroutineScope.launch {
@@ -125,6 +127,22 @@ fun NavDrawer() {
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = MaterialTheme.colorScheme.primaryContainer
                     ),
+                    actions = {//Элементы в конце TopAppBar
+                        navController.addOnDestinationChangedListener { _, destination, _ -> //Хочу, чтобы выпадающий список появлялся только на странице настроек
+                            flagYouInSettings =
+                                if ((destination.route == Screens.Settings.route)) {
+                                    1
+                                } else {
+                                    -1
+                                }
+
+                        }
+                        if (flagYouInSettings == 1) {
+                            DropdownMenuItems()
+                        }
+
+                    },
+
                     navigationIcon = {
                         IconButton(
                             onClick = {
@@ -133,8 +151,9 @@ fun NavDrawer() {
                         ) {
                             Icon(imageVector = Icons.Default.Menu, contentDescription = "Menu icon")
                         }
-                    }
-                )
+                    },
+
+                    )
             }
         ) {
             Surface(
@@ -144,6 +163,37 @@ fun NavDrawer() {
             ) {
                 DrawerNavigation(navController)
             }
+        }
+    }
+}
+
+@Composable
+fun DropdownMenuItems() {
+    var expanded by remember { mutableStateOf(false) }
+    var selectedOption by remember { mutableStateOf("") }
+    Box {
+        Row {
+            IconButton(onClick = { expanded = true }) {
+                Icon(Icons.Default.MoreVert, contentDescription = "Показать меню")
+            }
+        }
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            DropdownMenuItem(
+                onClick = { selectedOption = "Copy" },
+                text = { Text("Изменить имя") }
+            )
+            DropdownMenuItem(
+                onClick = { selectedOption = "Paste" },
+                text = { Text("Изменить фото") }
+            )
+            Divider()
+            DropdownMenuItem(
+                onClick = { selectedOption = "Settings" },
+                text = { Text("Выйти из аккаунта") }
+            )
         }
     }
 }

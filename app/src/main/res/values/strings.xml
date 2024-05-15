@@ -2,4 +2,6 @@
     <string name="app_name">Messenger</string>
     <string name="title_activity_login">LoginActivity</string>
     <string name="title_activity_sing_up">Sing_upActivity</string>
+    <string name="title_activity_change_number">ChangeNumber</string>
+    <string name="title_activity_send_message">SendMessage</string>
 </resources>

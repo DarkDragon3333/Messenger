@@ -17,6 +17,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -24,6 +25,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.messenger.MainActivity
@@ -66,16 +68,35 @@ class LoginActivity : ComponentActivity() {
             {
                 TextField(
                     value = email,
-                    onValueChange = { email = it },
+                    onValueChange =
+                    {
+                        email = it
+                    },
                     modifier = Modifier.fillMaxWidth(),
-                    placeholder = { Text("Email") }
+                    placeholder = { Text("") },
+                    maxLines = 1,
+                    label = { Text(text = "Email", fontSize = 14.sp) },
+                    colors = TextFieldDefaults.colors(
+                        unfocusedContainerColor = Color(0xFFFDFAFE),
+                        unfocusedTextColor = Color(0xff888888),
+                        focusedContainerColor = Color(0xFFFDFAFE),
+                        focusedTextColor = Color(0xff222222),
+                    )
                 )
                 Spacer(modifier = Modifier.padding(8.dp))
                 TextField(
                     value = password,
                     onValueChange = { password = it },
                     modifier = Modifier.fillMaxWidth(),
-                    placeholder = { Text("Password") }
+                    placeholder = { Text("") },
+                    maxLines = 1,
+                    label = { Text(text = "Password", fontSize = 14.sp) },
+                    colors = TextFieldDefaults.colors(
+                        unfocusedContainerColor = Color(0xFFFDFAFE),
+                        unfocusedTextColor = Color(0xff888888),
+                        focusedContainerColor = Color(0xFFFDFAFE),
+                        focusedTextColor = Color(0xff222222),
+                    )
                 )
                 Spacer(modifier = Modifier.padding(120.dp))
                 Button(

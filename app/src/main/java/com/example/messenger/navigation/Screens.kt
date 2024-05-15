@@ -2,7 +2,6 @@ package com.example.messenger.navigation
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.filled.Settings
@@ -53,5 +52,10 @@ sealed class Screens(
         title = "YourProfile",
         route = "yourProfile",
         icon = Icons.Default.AccountCircle
+    )
+    data object ChangePhoneNumber: Screens(
+        title = "ChangePhoneNumber",
+        route = "changePhoneNumber",
+        icon = Icons.Default.Star
     )
 }

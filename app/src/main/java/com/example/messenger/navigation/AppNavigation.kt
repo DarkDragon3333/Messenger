@@ -32,9 +32,16 @@ fun DrawerNavigation(navController: NavHostController) {
         composable(Screens.Settings.route) {
             SettingsScreen()
         }
+        composable(Screens.ChangePhoneNumber.route) {
+            ChangePhoneNumber()
+        }
     }
 }
 
+@Composable
+fun ChangePhoneNumber() {
+    Text(text = "ChangePhoneNumber Screen", fontSize = 30.sp)
+}
 
 
 @Composable

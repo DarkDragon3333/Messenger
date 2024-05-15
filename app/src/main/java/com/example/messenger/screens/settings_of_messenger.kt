@@ -1,8 +1,8 @@
 package com.example.messenger.screens
 
+import android.content.Intent
 import android.widget.Toast
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -12,11 +12,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Divider
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -34,22 +33,22 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.compose.rememberNavController
+import com.example.messenger.changeNumberPhone.ChangeNumber
 
 @Composable
 fun SettingsScreen() {
     Column {
         HeaderOfSettings()
-
         BodyOfSettings()
-
         FooterOfSettings()
     }
-
 
 }
 
 @Composable
 fun HeaderOfSettings() {
+    Spacer(modifier = Modifier.padding(4.dp))
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -67,21 +66,6 @@ fun HeaderOfSettings() {
             Text(text = "Имя", color = Color.Black)
             Text(text = "Статус", color = Color.Black)
         }
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(0.dp, 0.dp, 30.dp, 0.dp),
-            horizontalArrangement = Arrangement.End
-        ) {
-            Column {
-                FloatingActionButton(onClick = { /*TODO*/ }, ) {
-                    Icon(Icons.Default.Add, contentDescription = "")
-                }
-                Spacer(modifier = Modifier.padding(0.dp, 2.dp, 0.dp, 0.dp))
-                Text(text = "Новое фото", fontSize = 10.sp)
-            }
-            
-        }
 
     }
     Spacer(modifier = Modifier.padding(4.dp))
@@ -90,25 +74,42 @@ fun HeaderOfSettings() {
 
 @Composable
 fun BodyOfSettings() {
-    var account by remember { mutableStateOf("") }
+    var phone by remember { mutableStateOf("") }
     var idAccount by remember { mutableStateOf("") }
     var aboutYou by remember { mutableStateOf("") }
+    val navController = rememberNavController()
+    val context = LocalContext.current
+
+    var flag2 by remember { mutableIntStateOf(-1) }
+
     Column {
         Spacer(modifier = Modifier.padding(8.dp))
-        Text(text = "Аккаунт", modifier = Modifier.padding(10.dp, 0.dp, 0.dp, 0.dp))
+        Text(text = "Аккаунт", modifier = Modifier.padding(15.dp, 0.dp, 0.dp, 0.dp))
         Spacer(modifier = Modifier.padding(16.dp))
 
         TextField(
-            value = account,
-            onValueChange = { account = it },
-            modifier = Modifier.fillMaxWidth(),
-            placeholder = { Text("") },
-            label = { Text(text = "Нажмите, чтобы изменить номер телефона", fontSize = 12.sp) },
+            value = phone,
+            onValueChange = { phone = it },
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable {
+                    context.startActivity(Intent(context, ChangeNumber::class.java))
+                },
+            placeholder = { Text("+7 916 987 31-31") },
+            label = { Text(text = "Нажмите, чтобы изменить номер", fontSize = 12.sp) },
+
+            enabled = false,
             colors = TextFieldDefaults.colors(
-                unfocusedContainerColor = Color.White,
+                unfocusedContainerColor = Color(0xFFFDFAFE),
                 unfocusedTextColor = Color(0xff888888),
-                focusedContainerColor = Color.White,
+
+                focusedContainerColor = Color(0xFFFDFAFE),
                 focusedTextColor = Color(0xff222222),
+
+                disabledContainerColor = Color(0xFFFDFAFE),
+                disabledTextColor = Color.Black,
+                disabledPlaceholderColor = Color(0xff222222)
+
             )
         )
         Spacer(modifier = Modifier.padding(8.dp))
@@ -117,11 +118,12 @@ fun BodyOfSettings() {
             onValueChange = { idAccount = it },
             modifier = Modifier.fillMaxWidth(),
             placeholder = { Text("") },
+            maxLines = 1,
             label = { Text(text = "Имя пользователя", fontSize = 12.sp) },
             colors = TextFieldDefaults.colors(
-                unfocusedContainerColor = Color.White,
+                unfocusedContainerColor = Color(0xFFFDFAFE),
                 unfocusedTextColor = Color(0xff888888),
-                focusedContainerColor = Color.White,
+                focusedContainerColor = Color(0xFFFDFAFE),
                 focusedTextColor = Color(0xff222222),
             )
         )
@@ -131,11 +133,12 @@ fun BodyOfSettings() {
             onValueChange = { aboutYou = it },
             modifier = Modifier.fillMaxWidth(),
             placeholder = { Text("") },
+            maxLines = 3,
             label = { Text(text = "Напишите немного о себе", fontSize = 12.sp) },
             colors = TextFieldDefaults.colors(
-                unfocusedContainerColor = Color.White,
+                unfocusedContainerColor = Color(0xFFFDFAFE),
                 unfocusedTextColor = Color(0xff888888),
-                focusedContainerColor = Color.White,
+                focusedContainerColor = Color(0xFFFDFAFE),
                 focusedTextColor = Color(0xff222222),
             )
         )
@@ -148,15 +151,16 @@ fun BodyOfSettings() {
 fun FooterOfSettings() {
     Spacer(modifier = Modifier.padding(8.dp))
     Column {
-        Text(text = "Настройки", modifier = Modifier.padding(10.dp, 0.dp, 0.dp, 0.dp))
+        Text(text = "Настройки", modifier = Modifier.padding(15.dp, 0.dp, 0.dp, 0.dp))
         Spacer(modifier = Modifier.padding(16.dp))
 
-        val arrayOfIcons = listOf(Icons.Default.Notifications, Icons.Default.Lock)
-        val arrayOfName = listOf("Уведомление и звук", "Конфиденциальность")
+        val arrayOfIcons =
+            listOf(Icons.Default.Notifications, Icons.Default.Lock, Icons.Default.Settings)
+        val arrayOfName = listOf("Уведомление и звук", "Конфиденциальность", "Тема")
         var index = 0
 
         while (index < arrayOfIcons.size) {
-            ElementOfFooter(arrayOfIcons[index], arrayOfName[index], index)
+            ElementOfFooter(arrayOfIcons[index], arrayOfName[index])
             index++
         }
 
@@ -164,7 +168,7 @@ fun FooterOfSettings() {
 }
 
 @Composable
-fun ElementOfFooter(lock: ImageVector, s: String, index: Int) {
+fun ElementOfFooter(lock: ImageVector, s: String) {
     val context = LocalContext.current
     Row(
         modifier = Modifier
@@ -187,16 +191,7 @@ fun ElementOfFooter(lock: ImageVector, s: String, index: Int) {
 }
 
 @Composable
-fun ListenerOfElement(index: Int){
-    if (index == 0){
-        MakeToast(msg = "Конфиденциальность")
-    } else if (index == 1){
-        MakeToast(msg = "Уведомление и звук")
-    }
-}
-
-@Composable
-fun MakeToast(msg: String){
+fun MakeToast(msg: String) {
     val context = LocalContext.current
     Toast
         .makeText(context, msg, Toast.LENGTH_SHORT)
