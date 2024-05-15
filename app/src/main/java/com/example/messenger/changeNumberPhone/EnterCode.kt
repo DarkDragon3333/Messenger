@@ -52,6 +52,7 @@ class EnterCode : ComponentActivity() {
 fun Greeting2(name: String, modifier: Modifier = Modifier) {
     var phone by remember { mutableStateOf("") }
     val context = LocalContext.current
+    val maxCount = 6
     Column(modifier = Modifier.fillMaxSize()) {
         Spacer(modifier = Modifier.padding(100.dp))
         Column(modifier = Modifier.fillMaxSize(),
@@ -66,11 +67,23 @@ fun Greeting2(name: String, modifier: Modifier = Modifier) {
             Spacer(modifier = Modifier.padding(40.dp))
             TextField(
                 value = phone,
-                onValueChange = { phone = it },
+                onValueChange =
+                    {
+                        if (it.length <= maxCount)
+                            phone = it
+                    },
+                supportingText = {
+                    Text(
+                        text = "${phone.length} / $maxCount",
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.End,
+                    )
+                },
                 modifier = Modifier.fillMaxWidth(),
                 placeholder = { Text("") },
                 maxLines = 1,
-                label = { Text(text = "Новый номер телефона", fontSize = 12.sp) },
+
+                label = { Text(text = "СМС код", fontSize = 12.sp) },
                 colors = TextFieldDefaults.colors(
                     unfocusedContainerColor = Color(0xFFFDFAFE),
                     unfocusedTextColor = Color(0xff888888),
