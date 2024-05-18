@@ -27,6 +27,7 @@ import com.example.messenger.changeNumberPhone.EnterCode
 import com.example.messenger.user_sing_in_and_up.ui.theme.MessengerTheme
 import com.example.messenger.utilis.AUTH
 import com.example.messenger.utilis.goTo
+import com.example.messenger.utilis.initFirebase
 import com.example.messenger.utilis.makeToast
 import com.google.firebase.FirebaseException
 import com.google.firebase.auth.FirebaseAuth
@@ -39,11 +40,10 @@ class SingUpActivity : ComponentActivity() {
     private lateinit var callBack: PhoneAuthProvider.OnVerificationStateChangedCallbacks //Типы вызовов по время аунтетификации пользователя
     private lateinit var phoneNumberFromSignUp: String  //Вводимый номер телефона
     private lateinit var context: SingUpActivity //Переменная для отправки по приложению и отправки Toast
+    private lateinit var password: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        context = this
-        phoneNumberFromSignUp = ""
         enableEdgeToEdge()
         setContent {
             MessengerTheme {
@@ -58,14 +58,22 @@ class SingUpActivity : ComponentActivity() {
 
     override fun onStart() {
         super.onStart()
+        init()
+    }
+
+    private fun init(){
+        context = this
+        phoneNumberFromSignUp = ""
+        password = ""
+        initFirebase()
         initCallBack()
     }
 
     @Composable
     fun GreetingInRegisterActivity(modifier: Modifier = Modifier) {
-        var phone by remember { mutableStateOf("") }
-        var password by remember { mutableStateOf("") }
-        var rePassword by remember { mutableStateOf("") }
+        var phoneField by remember { mutableStateOf("") }
+        var passwordField by remember { mutableStateOf("") }
+        var rePasswordField by remember { mutableStateOf("") }
 
         Column {
             Column(
@@ -76,9 +84,9 @@ class SingUpActivity : ComponentActivity() {
             )
             {
                 TextField(
-                    value = phone,
+                    value = phoneField,
                     onValueChange = {
-                        phone = it
+                        phoneField = it
                     },
                     modifier = Modifier
                         .fillMaxWidth(),
@@ -86,31 +94,32 @@ class SingUpActivity : ComponentActivity() {
                 )
                 Spacer(modifier = Modifier.padding(8.dp))
                 TextField(
-                    value = password,
-                    onValueChange = { password = it },
+                    value = passwordField,
+                    onValueChange = { passwordField = it },
                     modifier = Modifier.fillMaxWidth(),
                     placeholder = { Text("Password") }
                 )
                 Spacer(modifier = Modifier.padding(8.dp))
                 TextField(
-                    value = rePassword,
-                    onValueChange = { rePassword = it },
+                    value = rePasswordField,
+                    onValueChange = { rePasswordField = it },
                     modifier = Modifier.fillMaxWidth(),
                     placeholder = { Text("Repeat password") }
                 )
                 Spacer(modifier = Modifier.padding(120.dp))
                 Button(
                     onClick = {
-                        if (phone == ""){
+                        if (phoneField == ""){
                             makeToast("Введите номер телефона!", context)
-                        } else if (password == ""){
+                        } else if (passwordField == ""){
                             makeToast("Придумайте пароль", context)
                         }
-                        else if (rePassword != password){
+                        else if (rePasswordField != passwordField){
                             makeToast("Проверьте повтореный пароль", context)
                         }
                         else{
-                            phoneNumberFromSignUp = phone
+                            phoneNumberFromSignUp = phoneField
+                            password = passwordField
                             authUser()
                         }
                     }
@@ -155,7 +164,7 @@ class SingUpActivity : ComponentActivity() {
             }
             //Отправка кода
             override fun onCodeSent(verificationId: String, token: PhoneAuthProvider.ForceResendingToken) {
-                goTo(EnterCode::class.java, context, verificationId, phoneNumberFromSignUp)
+                goTo(EnterCode::class.java, context, verificationId, phoneNumberFromSignUp, password)
             }
         }
     }

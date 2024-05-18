@@ -1,7 +1,20 @@
 package com.example.messenger.utilis
 
 import com.google.firebase.auth.FirebaseAuth
-import kotlin.properties.Delegates
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
 
 lateinit var AUTH: FirebaseAuth
-var DATA_FROM_SING_UP_ACTIVITY by Delegates.notNull<Int>()
+
+lateinit var REF_DATABASE_ROOT: DatabaseReference
+
+const val NODE_USERS = "users"
+const val CHILD_ID = "id"
+const val CHILD_PHONE = "phone"
+const val CHILD_PASSWORD = "password"
+const val CHILD_USER_NAME = "username"
+
+fun initFirebase(){
+    AUTH = FirebaseAuth.getInstance()
+    REF_DATABASE_ROOT = FirebaseDatabase.getInstance().reference
+}

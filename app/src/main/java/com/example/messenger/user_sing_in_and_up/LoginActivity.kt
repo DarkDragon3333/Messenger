@@ -31,9 +31,9 @@ import com.example.messenger.MainActivity
 import com.example.messenger.user_sing_in_and_up.ui.theme.MessengerTheme
 import com.example.messenger.utilis.AUTH
 import com.example.messenger.utilis.goTo
+import com.example.messenger.utilis.initFirebase
 import com.example.messenger.utilis.makeToast
 import com.google.firebase.Firebase
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.firestore.firestore
 
@@ -56,7 +56,7 @@ class LoginActivity : ComponentActivity() {
     }
     private fun init(){
         context = this
-        AUTH = FirebaseAuth.getInstance()
+        initFirebase()
         if (AUTH.currentUser != null){
             goTo(MainActivity::class.java, context)
         }

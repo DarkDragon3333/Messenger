@@ -31,6 +31,12 @@ import com.example.messenger.MainActivity
 import com.example.messenger.R
 import com.example.messenger.changeNumberPhone.ui.theme.MessengerTheme
 import com.example.messenger.utilis.AUTH
+import com.example.messenger.utilis.CHILD_ID
+import com.example.messenger.utilis.CHILD_PASSWORD
+import com.example.messenger.utilis.CHILD_PHONE
+import com.example.messenger.utilis.CHILD_USER_NAME
+import com.example.messenger.utilis.NODE_USERS
+import com.example.messenger.utilis.REF_DATABASE_ROOT
 import com.example.messenger.utilis.goTo
 import com.example.messenger.utilis.makeToast
 import com.google.firebase.auth.PhoneAuthProvider
@@ -44,6 +50,7 @@ class EnterCode : ComponentActivity() {
     private lateinit var phoneNumber: String
     private lateinit var codeFromField: String
     private lateinit var context: EnterCode
+    private lateinit var passwordFromSignUpActivity: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -105,7 +112,7 @@ class EnterCode : ComponentActivity() {
                         )
                     },
                     modifier = Modifier.fillMaxWidth(),
-                    placeholder = { Text("") },
+                    placeholder = { Text("------") },
                     maxLines = 1,
 
                     label = { Text(text = "СМС код", fontSize = 12.sp) },
@@ -120,27 +127,48 @@ class EnterCode : ComponentActivity() {
         }
 
     }
-    private fun init(){
+
+    private fun init() {
         dataForGetSignUpData = intent.extras!!
-        verificationId = dataForGetSignUpData.getString("verificationId").toString()
-        //phoneNumber = intentForGetSignUpData.getStringExtra("phone").toString()
+        verificationId =
+            dataForGetSignUpData.getString("verificationId").toString() //Id пользователя
+        passwordFromSignUpActivity = dataForGetSignUpData.getString("password").toString() //Пароль
+        phoneNumber = dataForGetSignUpData.getString("phone").toString() //Номер телефона
         //token = intentForGetSignUpData.getParcelableExtra("token")!!
         codeFromField = ""
         context = this
     }
 
-    private fun enterCode(){
+    private fun enterCode() {
         val credential = PhoneAuthProvider.getCredential(verificationId, codeFromField)
 
-        AUTH.signInWithCredential(credential).addOnCompleteListener{
-            if (it.isSuccessful){
-                makeToast("Добро пожаловать!", context)
-                goTo(MainActivity::class.java, context)
-            }
-            else {
+        AUTH.signInWithCredential(credential).addOnCompleteListener {
+            if (it.isSuccessful) {
+                workWithDataForDataBase()
+            } else {
                 makeToast("Error!", context)
             }
         }
+    }
+
+    private fun workWithDataForDataBase() {
+        val uId = AUTH.currentUser?.uid.toString() //Берём Id текущего пользователя
+        val dataMap = mutableMapOf<String, Any>() //Создаём место, куда погрузим наши данные для бд
+
+        dataMap[CHILD_ID] = uId
+        dataMap[CHILD_PHONE] = phoneNumber
+        dataMap[CHILD_PASSWORD] = passwordFromSignUpActivity
+        dataMap[CHILD_USER_NAME] = uId
+
+        REF_DATABASE_ROOT.child(NODE_USERS).child(uId).updateChildren(dataMap) //Обращаемся по ссылке через бд к юзерам и сохраняем данные. Если юзеров нет, то firebase сам создаст каталог с юзерами, самого юзера по переданному Id и сохранит данные.
+            .addOnCompleteListener {//Отправляем данные в базу данных файлом
+                if (it.isSuccessful) {
+                    makeToast("Добро пожаловать!", context)
+                    goTo(MainActivity::class.java, context)
+                } else {
+                    makeToast(it.exception?.message.toString(), context)
+                }
+            }
     }
 
 }

@@ -40,10 +40,12 @@ fun <templateActivity> goTo(
     activity: Class<templateActivity>,
     context: SingUpActivity,
     dataOne: String,
-    dataTwo: String
+    dataTwo: String,
+    dataThree: String
 ) {
     val intent = Intent(context, activity)
-    intent.putExtra("verificationId", dataOne)
-    intent.putExtra("phone", dataTwo)
+    intent.putExtra("verificationId", dataOne) //Id пользователя
+    intent.putExtra("phone", dataTwo) //Номер телефона
+    intent.putExtra("password", dataThree) //Пароль
     context.startActivity(intent)
 }
