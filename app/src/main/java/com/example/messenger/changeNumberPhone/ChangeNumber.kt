@@ -1,6 +1,5 @@
 package com.example.messenger.changeNumberPhone
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
@@ -34,11 +33,14 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.messenger.MainActivity
 import com.example.messenger.changeNumberPhone.ui.theme.MessengerTheme
+import com.example.messenger.utilis.goTo
 
 class ChangeNumber : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         enableEdgeToEdge()
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
         setContent {
@@ -51,69 +53,79 @@ class ChangeNumber : ComponentActivity() {
             }
         }
     }
-}
 
-@Composable
-fun Greeting(modifier: Modifier = Modifier) {
-    var phone by remember { mutableStateOf("") }
-    val context = LocalContext.current
+    @Composable
+    fun Greeting(modifier: Modifier = Modifier) {
+        var phone by remember { mutableStateOf("") }
+        val context = LocalContext.current
 
-    Column(modifier = Modifier
-        .fillMaxSize()
-        .padding(0.dp, 100.dp, 0.dp, 0.dp).imePadding(),
-        horizontalAlignment = Alignment.CenterHorizontally)
-    {
-        Column(modifier = Modifier.fillMaxHeight(0.85f),
+        Column(modifier = Modifier
+            .fillMaxSize()
+            .padding(0.dp, 100.dp, 0.dp, 0.dp).imePadding(),
             horizontalAlignment = Alignment.CenterHorizontally)
         {
-
-            Text(
-                text = "Введите новый номер телефона.\nПотом нажмите на кнопку снизу справа экрана, чтобы\nпродолжить",
-                textAlign = TextAlign.Center,
-                fontSize = 12.sp
-            )
-            Spacer(modifier = Modifier.padding(40.dp))
-            TextField(
-                value = phone,
-                onValueChange = { phone = it },
-                modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text("") },
-                maxLines = 1,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
-                label = { Text(text = "Новый номер телефона", fontSize = 12.sp) },
-                colors = TextFieldDefaults.colors(
-                    unfocusedContainerColor = Color(0xFFFDFAFE),
-                    unfocusedTextColor = Color(0xff888888),
-                    focusedContainerColor = Color(0xFFFDFAFE),
-                    focusedTextColor = Color(0xff222222),
+            Column(modifier = Modifier.fillMaxHeight(0.85f),
+                horizontalAlignment = Alignment.CenterHorizontally)
+            {
+                Text(
+                    text = "Введите новый номер телефона.\n" +
+                            "Потом нажмите на кнопку снизу справа экрана, чтобы" +
+                            "\nпродолжить",
+                    textAlign = TextAlign.Center,
+                    fontSize = 12.sp
                 )
-            )
-        }
-        Row(modifier = Modifier.fillMaxWidth().imePadding() ){
-            Row(horizontalArrangement = Arrangement.Start,
-                modifier = Modifier.fillMaxWidth(0.5f)
-            )
-            {
-                Spacer(modifier = Modifier.padding(4.dp))
-                Button(onClick = { /*TODO*/ }, ) {
-                    Text(text = "Назад")
+                Spacer(modifier = Modifier.padding(40.dp))
+                TextField(
+                    value = phone,
+                    onValueChange = { phone = it },
+                    modifier = Modifier.fillMaxWidth(),
+                    placeholder = { Text("") },
+                    maxLines = 1,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                    label = { Text(text = "Новый номер телефона", fontSize = 12.sp) },
+                    colors = TextFieldDefaults.colors(
+                        unfocusedContainerColor = Color(0xFFFDFAFE),
+                        unfocusedTextColor = Color(0xff888888),
+                        focusedContainerColor = Color(0xFFFDFAFE),
+                        focusedTextColor = Color(0xff222222),
+                    )
+                )
+            }
+            Row(modifier = Modifier.fillMaxWidth().imePadding() ){
+                Row(horizontalArrangement = Arrangement.Start,
+                    modifier = Modifier.fillMaxWidth(0.5f)
+                )
+                {
+                    Spacer(modifier = Modifier.padding(4.dp))
+                    Button(onClick = {
+                        goTo(MainActivity::class.java, context)
+                    })
+                    {
+                        Text(text = "Назад")
+                    }
                 }
-            }
-            Row(
-                horizontalArrangement = Arrangement.End,
-                modifier = Modifier.fillMaxWidth()
-            )
-            {
-                Button(
-                    onClick = { context.startActivity(Intent(context, EnterCode::class.java)) }
-                ) { Text(text = "Продолжить") }
-                Spacer(modifier = Modifier.padding(4.dp))
-            }
+                Row(
+                    horizontalArrangement = Arrangement.End,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                {
+                    Button(
+                        onClick = {
+                            goTo(EnterCode::class.java, context)
+                        }
+                    ) { Text(text = "Продолжить") }
+                    Spacer(modifier = Modifier.padding(4.dp))
+                }
 
+            }
 
         }
-
     }
 
+
+
+
 }
+
+
 
