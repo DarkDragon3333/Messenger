@@ -42,8 +42,7 @@ class LoginActivity : ComponentActivity() {
     private lateinit var context: LoginActivity
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        context = this
-        AUTH = FirebaseAuth.getInstance()
+        init()
         enableEdgeToEdge()
         setContent {
             MessengerTheme {
@@ -53,6 +52,13 @@ class LoginActivity : ComponentActivity() {
                     )
                 }
             }
+        }
+    }
+    private fun init(){
+        context = this
+        AUTH = FirebaseAuth.getInstance()
+        if (AUTH.currentUser != null){
+            goTo(MainActivity::class.java, context)
         }
     }
 

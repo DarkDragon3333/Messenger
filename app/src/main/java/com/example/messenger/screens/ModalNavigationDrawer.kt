@@ -38,11 +38,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.messenger.navigation.DrawerNavigation
 import com.example.messenger.navigation.Screens
+import com.example.messenger.user_sing_in_and_up.LoginActivity
+import com.example.messenger.utilis.AUTH
+import com.example.messenger.utilis.goTo
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -135,7 +139,6 @@ fun NavDrawer() {
                                 } else {
                                     -1
                                 }
-
                         }
                         if (flagYouInSettings == 1) {
                             DropdownMenuItems()
@@ -171,6 +174,7 @@ fun NavDrawer() {
 fun DropdownMenuItems() {
     var expanded by remember { mutableStateOf(false) }
     var selectedOption by remember { mutableStateOf("") }
+    val context = LocalContext.current
     Box {
         Row {
             IconButton(onClick = { expanded = true }) {
@@ -182,16 +186,20 @@ fun DropdownMenuItems() {
             onDismissRequest = { expanded = false }
         ) {
             DropdownMenuItem(
-                onClick = { selectedOption = "Copy" },
+                onClick = { selectedOption = "Change name" },
                 text = { Text("Изменить имя") }
             )
             DropdownMenuItem(
-                onClick = { selectedOption = "Paste" },
+                onClick = { selectedOption = "Change photo" },
                 text = { Text("Изменить фото") }
             )
             Divider()
             DropdownMenuItem(
-                onClick = { selectedOption = "Settings" },
+                onClick = {
+                    selectedOption = "Out of account"
+                    AUTH.signOut()
+                    goTo(LoginActivity::class.java, context)
+                },
                 text = { Text("Выйти из аккаунта") }
             )
         }

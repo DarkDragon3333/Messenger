@@ -154,9 +154,16 @@ fun FooterOfSettings() {
         Text(text = "Настройки", modifier = Modifier.padding(15.dp, 0.dp, 0.dp, 0.dp))
         Spacer(modifier = Modifier.padding(16.dp))
 
-        val arrayOfIcons =
-            listOf(Icons.Default.Notifications, Icons.Default.Lock, Icons.Default.Settings)
-        val arrayOfName = listOf("Уведомление и звук", "Конфиденциальность", "Тема")
+        val arrayOfIcons = listOf(
+            Icons.Default.Notifications,
+            Icons.Default.Lock,
+            Icons.Default.Settings
+        )
+        val arrayOfName = listOf(
+            "Уведомление и звук",
+            "Конфиденциальность",
+            "Тема"
+        )
         var index = 0
 
         while (index < arrayOfIcons.size) {
