@@ -9,14 +9,16 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material3.Divider
+import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -40,6 +42,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.messenger.navigation.DrawerNavigation
@@ -47,6 +50,7 @@ import com.example.messenger.navigation.Screens
 import com.example.messenger.user_sing_in_and_up.LoginActivity
 import com.example.messenger.utilis.AUTH
 import com.example.messenger.utilis.goTo
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -54,26 +58,28 @@ import kotlinx.coroutines.launch
 fun NavDrawer() {
     val navController = rememberNavController()
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentRoute = currentBackStackEntry?.destination?.route ?: Screens.Inbox
+    val currentRoute = currentBackStackEntry?.destination?.route ?: Screens.Chats
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val coroutineScope = rememberCoroutineScope()
 
     var flagYouInSettings by remember { mutableIntStateOf(-1) }
+    var flagYouInChats by remember { mutableIntStateOf(1) }
 
     val screens = listOf( //Созданные экраны в виде объектов
         Screens.YourProfile,
-        Screens.Inbox,
+        Screens.Chats,
         Screens.Sent,
         Screens.Starred,
         Screens.Spam,
-        Screens.Settings
+        Screens.Settings,
+        Screens.ChangeName
     )
 
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
             ModalDrawerSheet {//Элемент выдвигающегося меню
-                Divider(thickness = 1.dp, modifier = Modifier.padding(bottom = 20.dp))
+                HorizontalDivider(modifier = Modifier.padding(bottom = 20.dp), thickness = 1.dp)
 
                 Column(modifier = Modifier.padding(15.dp, 0.dp)) {
                     Spacer(modifier = Modifier.padding(10.dp))
@@ -94,27 +100,37 @@ fun NavDrawer() {
                     Text(text = "+7 918 898 98-98")
                 }
                 Spacer(modifier = Modifier.padding(10.dp)) //Отступ
-                Divider(thickness = 1.dp, modifier = Modifier.padding(bottom = 10.dp)) //Линия
+                HorizontalDivider(
+                    thickness = 1.dp,
+                    modifier = Modifier.padding(bottom = 10.dp)
+                ) //Линия
+
                 screens.forEach { screen ->//Циклом генерируем элементы выдвигающегося меню
-                    NavigationDrawerItem(
-                        label = { Text(text = screen.title) },
-                        icon = {
-                            Icon(
-                                imageVector = screen.icon,
-                                contentDescription = "${screen.title} icon"
+                    if (screen != Screens.Chats) {
+                        if (screen != Screens.ChangeName) {
+                            NavigationDrawerItem(
+                                label = { Text(text = screen.title) },
+                                icon = {
+                                    Icon(
+                                        imageVector = screen.icon,
+                                        contentDescription = "${screen.title} icon"
+                                    )
+                                },
+                                selected = currentRoute == screen.route,
+                                modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
+                                onClick = {
+                                    navController.navigate(screen.route) {//Используем navController для перемещения по экранам
+                                        launchSingleTop = true
+                                    }
+                                    coroutineScope.launch {
+                                        drawerState.close()
+                                    }
+                                }
                             )
-                        },
-                        selected = currentRoute == screen.route,
-                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
-                        onClick = {
-                            navController.navigate(screen.route) {//Используем navController для перемещения по экранам
-                                launchSingleTop = true
-                            }
-                            coroutineScope.launch {
-                                drawerState.close()
-                            }
                         }
-                    )
+
+                    }
+
                 }
 
             }
@@ -141,22 +157,49 @@ fun NavDrawer() {
                                 }
                         }
                         if (flagYouInSettings == 1) {
-                            DropdownMenuItems()
+                            DropdownMenuItems(drawerState, coroutineScope, navController)
                         }
 
                     },
 
                     navigationIcon = {
-                        IconButton(
-                            onClick = {
-                                coroutineScope.launch { drawerState.open() }
-                            }
-                        ) {
-                            Icon(imageVector = Icons.Default.Menu, contentDescription = "Menu icon")
-                        }
-                    },
+                        navController.addOnDestinationChangedListener { _, destination, _ ->
+                            flagYouInChats =
+                                if (destination.route == Screens.Chats.route) {
+                                    1
 
-                    )
+                                } else {
+                                    -1
+                                }
+                        }
+                        if (flagYouInChats == 1) {
+                            IconButton(
+                                onClick = {
+                                    coroutineScope.launch { drawerState.open() }
+                                }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Menu,
+                                    contentDescription = "Menu icon"
+                                )
+                            }
+                        } else {
+                            IconButton(
+                                onClick = {
+                                    coroutineScope.launch {
+                                        navController.navigate(Screens.Chats.route)
+                                    }
+                                }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                    contentDescription = "Back icon"
+                                )
+                            }
+                        }
+
+                    },
+                )
             }
         ) {
             Surface(
@@ -171,10 +214,15 @@ fun NavDrawer() {
 }
 
 @Composable
-fun DropdownMenuItems() {
+fun DropdownMenuItems(
+    drawerState: DrawerState,
+    coroutineScope: CoroutineScope,
+    navController: NavController,
+) {
     var expanded by remember { mutableStateOf(false) }
     var selectedOption by remember { mutableStateOf("") }
     val context = LocalContext.current
+
     Box {
         Row {
             IconButton(onClick = { expanded = true }) {
@@ -186,14 +234,22 @@ fun DropdownMenuItems() {
             onDismissRequest = { expanded = false }
         ) {
             DropdownMenuItem(
-                onClick = { selectedOption = "Change name" },
-                text = { Text("Изменить имя") }
+                onClick = {
+                    selectedOption = "Change name"
+                    navController.navigate(Screens.ChangeName.route) {//Используем navController для перемещения по экранам
+                        launchSingleTop = true
+                    }
+                    coroutineScope.launch {
+                        drawerState.close()
+                    }
+                },
+                text = { Text("Изменить ФИО") }
             )
             DropdownMenuItem(
                 onClick = { selectedOption = "Change photo" },
                 text = { Text("Изменить фото") }
             )
-            Divider()
+            HorizontalDivider()
             DropdownMenuItem(
                 onClick = {
                     selectedOption = "Out of account"

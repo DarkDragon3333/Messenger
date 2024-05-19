@@ -160,7 +160,8 @@ class EnterCode : ComponentActivity() {
         dataMap[CHILD_PASSWORD] = passwordFromSignUpActivity
         dataMap[CHILD_USER_NAME] = uId
 
-        REF_DATABASE_ROOT.child(NODE_USERS).child(uId).updateChildren(dataMap) //Обращаемся по ссылке через бд к юзерам и сохраняем данные. Если юзеров нет, то firebase сам создаст каталог с юзерами, самого юзера по переданному Id и сохранит данные.
+        REF_DATABASE_ROOT.child(NODE_USERS).child(uId)
+            .updateChildren(dataMap) //Обращаемся по ссылке через бд к юзерам и сохраняем данные. Если юзеров нет, то firebase сам создаст каталог с юзерами, самого юзера по переданному Id и сохранит данные.
             .addOnCompleteListener {//Отправляем данные в базу данных файлом
                 if (it.isSuccessful) {
                     makeToast("Добро пожаловать!", context)

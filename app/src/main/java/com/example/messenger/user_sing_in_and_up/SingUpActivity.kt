@@ -61,7 +61,7 @@ class SingUpActivity : ComponentActivity() {
         init()
     }
 
-    private fun init(){
+    private fun init() {
         context = this
         phoneNumberFromSignUp = ""
         password = ""
@@ -109,15 +109,13 @@ class SingUpActivity : ComponentActivity() {
                 Spacer(modifier = Modifier.padding(120.dp))
                 Button(
                     onClick = {
-                        if (phoneField == ""){
+                        if (phoneField == "") {
                             makeToast("Введите номер телефона!", context)
-                        } else if (passwordField == ""){
+                        } else if (passwordField == "") {
                             makeToast("Придумайте пароль", context)
-                        }
-                        else if (rePasswordField != passwordField){
+                        } else if (rePasswordField != passwordField) {
                             makeToast("Проверьте повтореный пароль", context)
-                        }
-                        else{
+                        } else {
                             phoneNumberFromSignUp = phoneField
                             password = passwordField
                             authUser()
@@ -130,7 +128,7 @@ class SingUpActivity : ComponentActivity() {
         }
     }
 
-    private fun authUser(){
+    private fun authUser() {
         PhoneAuthProvider.verifyPhoneNumber(
             PhoneAuthOptions
                 .newBuilder(FirebaseAuth.getInstance())
@@ -144,27 +142,37 @@ class SingUpActivity : ComponentActivity() {
     }
 
     //Прописываем варианты исхода аунтетификации
-    private fun initCallBack(){
+    private fun initCallBack() {
         callBack = object : PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
             //Выполнение
             override fun onVerificationCompleted(credential: PhoneAuthCredential) {
-                AUTH.signInWithCredential(credential).addOnCompleteListener{
-                    if (it.isSuccessful){
+                AUTH.signInWithCredential(credential).addOnCompleteListener {
+                    if (it.isSuccessful) {
                         makeToast("Добро пожаловать!", context)
                         goTo(MainActivity::class.java, context)
-                    }
-                    else {
+                    } else {
                         makeToast("Error!", context)
                     }
                 }
             }
+
             //Ошибка
             override fun onVerificationFailed(e: FirebaseException) {
                 makeToast(e.message.toString(), context)
             }
+
             //Отправка кода
-            override fun onCodeSent(verificationId: String, token: PhoneAuthProvider.ForceResendingToken) {
-                goTo(EnterCode::class.java, context, verificationId, phoneNumberFromSignUp, password)
+            override fun onCodeSent(
+                verificationId: String,
+                token: PhoneAuthProvider.ForceResendingToken
+            ) {
+                goTo(
+                    EnterCode::class.java,
+                    context,
+                    verificationId,
+                    phoneNumberFromSignUp,
+                    password
+                )
             }
         }
     }

@@ -16,13 +16,13 @@ import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -79,8 +79,6 @@ fun BodyOfSettings() {
     var aboutYou by remember { mutableStateOf("") }
     val navController = rememberNavController()
     val context = LocalContext.current
-
-    var flag2 by remember { mutableIntStateOf(-1) }
 
     Column {
         Spacer(modifier = Modifier.padding(8.dp))
@@ -144,7 +142,7 @@ fun BodyOfSettings() {
         )
     }
     Spacer(modifier = Modifier.padding(16.dp))
-    Divider(thickness = 5.dp, modifier = Modifier.padding(bottom = 10.dp))
+    HorizontalDivider(modifier = Modifier.padding(bottom = 10.dp), thickness = 5.dp)
 }
 
 @Composable
@@ -191,16 +189,8 @@ fun ElementOfFooter(lock: ImageVector, s: String) {
         Column {
             Text(text = s)
             Spacer(modifier = Modifier.padding(8.dp))
-            Divider(thickness = 1.dp, modifier = Modifier.padding(bottom = 10.dp))
+            HorizontalDivider(modifier = Modifier.padding(bottom = 10.dp), thickness = 1.dp)
         }
 
     }
-}
-
-@Composable
-fun MakeToast(msg: String) {
-    val context = LocalContext.current
-    Toast
-        .makeText(context, msg, Toast.LENGTH_SHORT)
-        .show()
 }

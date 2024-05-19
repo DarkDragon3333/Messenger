@@ -2,6 +2,7 @@ package com.example.messenger.navigation
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.filled.Settings
@@ -9,23 +10,15 @@ import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.ui.graphics.vector.ImageVector
 
-enum class Screens1 {
-    AlarmScreen,
-    MusicScreen,
-    ArticlesScreen
-}
-
 sealed class Screens(
     val title: String,
     val route: String,
-    val icon: ImageVector,
-    val badgeCount: Int? = null
+    val icon: ImageVector
 ) {
-    data object Inbox: Screens(
-        title = "Inbox",
-        route = "inbox",
-        icon = Icons.Default.Email,
-        badgeCount = 31
+    data object Chats: Screens(
+        title = "Chats",
+        route = "chats",
+        icon = Icons.Default.Email
     )
     data object Sent: Screens(
         title = "Sent",
@@ -35,8 +28,7 @@ sealed class Screens(
     data object Starred: Screens(
         title = "Starred",
         route = "starred",
-        icon = Icons.Default.Star,
-        badgeCount = 15
+        icon = Icons.Default.Star
     )
     data object Spam: Screens(
         title = "Spam",
@@ -53,9 +45,9 @@ sealed class Screens(
         route = "yourProfile",
         icon = Icons.Default.AccountCircle
     )
-    data object ChangePhoneNumber: Screens(
-        title = "ChangePhoneNumber",
-        route = "changePhoneNumber",
-        icon = Icons.Default.Star
+    data object ChangeName: Screens(
+        title = "ChangeName",
+        route = "changeName",
+        icon = Icons.Default.Edit
     )
 }

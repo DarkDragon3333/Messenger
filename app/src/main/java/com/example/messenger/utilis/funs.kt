@@ -6,6 +6,7 @@ import android.content.Intent
 import android.widget.Toast
 import com.example.messenger.user_sing_in_and_up.SingUpActivity
 import com.google.firebase.auth.PhoneAuthProvider
+
 /*
 Служебные функции приложения
 */
@@ -19,7 +20,7 @@ fun makeToast(msg: String, context: Context) {
 fun <templateActivity : Activity> goTo(
     activity: Class<templateActivity>,
     context: Context
-){
+) {
     val intent = Intent(context, activity)
     context.startActivity(intent)
 }
@@ -28,8 +29,8 @@ fun <templateActivity> goTo(
     activity: Class<templateActivity>,
     context: SingUpActivity,
     dataOne: String,
-    token: PhoneAuthProvider.ForceResendingToken)
-{
+    token: PhoneAuthProvider.ForceResendingToken
+) {
     val intent = Intent(context, activity)
     intent.putExtra("verificationId", dataOne)
     intent.putExtra("token", token)

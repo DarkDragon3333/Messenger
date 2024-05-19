@@ -54,16 +54,17 @@ class LoginActivity : ComponentActivity() {
             }
         }
     }
-    private fun init(){
+
+    private fun init() {
         context = this
-        initFirebase()
-        if (AUTH.currentUser != null){
+        initFirebase() //Инициализируем БД
+        if (AUTH.currentUser != null) { //Если пользователь уже есть
             goTo(MainActivity::class.java, context)
         }
     }
 
     @Composable
-    fun GreetingInLoginActivity(modifier: Modifier = Modifier, ) {
+    fun GreetingInLoginActivity(modifier: Modifier = Modifier) {
         var phone by remember { mutableStateOf("") }
         var password by remember { mutableStateOf("") }
 
@@ -162,12 +163,11 @@ class LoginActivity : ComponentActivity() {
         phone: String,
         password: String,
     ): Boolean {
-        if (phone.isEmpty() or password.isEmpty()){
-            makeToast( "Please, enter all data",this,)
-        } else if (!phone.contains("@")){
-            makeToast( "Please, check email", this,)
-        }
-        else {
+        if (phone.isEmpty() or password.isEmpty()) {
+            makeToast("Please, enter all data", this)
+        } else if (!phone.contains("@")) {
+            makeToast("Please, check email", this)
+        } else {
             return true
         }
         return false
@@ -185,7 +185,7 @@ class LoginActivity : ComponentActivity() {
                 checkEnterDataWithBD(phone, password, result)
             }
             .addOnFailureListener {
-                makeToast( "Error", context)
+                makeToast("Error", context)
             }
     }
 
@@ -208,7 +208,7 @@ class LoginActivity : ComponentActivity() {
             }
 
             if (flag == result.size() - 1) {
-                makeToast( "Error of sing in. Check Enter data", context,)
+                makeToast("Error of sing in. Check Enter data", context)
             } else if (flag == -1) {
                 //saveSingIn.edit().putString("phone", phone.text.toString()).apply()
                 //saveSingIn.edit().putString("password", password.text.toString()).apply()

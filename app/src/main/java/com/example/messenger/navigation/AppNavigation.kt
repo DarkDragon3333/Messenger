@@ -6,19 +6,20 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.messenger.screens.ChangeName
 import com.example.messenger.screens.SettingsScreen
 
 @Composable
 fun DrawerNavigation(navController: NavHostController) {
     NavHost(
         navController = navController,
-        startDestination = Screens.Inbox.route
+        startDestination = Screens.Chats.route
     ) {
-        composable(Screens.YourProfile.route){
+        composable(Screens.YourProfile.route) {
             YourProfile()
         }
-        composable(Screens.Inbox.route) {
-            InboxScreen()
+        composable(Screens.Chats.route) {
+            ChatsScreen()
         }
         composable(Screens.Sent.route) {
             SentScreen()
@@ -32,17 +33,11 @@ fun DrawerNavigation(navController: NavHostController) {
         composable(Screens.Settings.route) {
             SettingsScreen()
         }
-        composable(Screens.ChangePhoneNumber.route) {
-            ChangePhoneNumber()
+        composable(Screens.ChangeName.route) {
+            ChangeName()
         }
     }
 }
-
-@Composable
-fun ChangePhoneNumber() {
-    Text(text = "ChangePhoneNumber Screen", fontSize = 30.sp)
-}
-
 
 @Composable
 fun SpamScreen() {
@@ -60,8 +55,8 @@ fun SentScreen() {
 }
 
 @Composable
-fun InboxScreen() {
-    Text(text = "Inbox Screen", fontSize = 30.sp)
+fun ChatsScreen() {
+    Text(text = "Chats Screen", fontSize = 30.sp)
 }
 
 @Composable
