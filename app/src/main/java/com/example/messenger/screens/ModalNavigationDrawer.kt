@@ -49,6 +49,7 @@ import com.example.messenger.navigation.DrawerNavigation
 import com.example.messenger.navigation.Screens
 import com.example.messenger.user_sing_in_and_up.LoginActivity
 import com.example.messenger.utilis.AUTH
+import com.example.messenger.utilis.USER
 import com.example.messenger.utilis.goTo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -95,9 +96,9 @@ fun NavDrawer() {
                             }
                         })
                     Spacer(modifier = Modifier.padding(10.dp))
-                    Text(text = "Максим")
+                    Text(text = USER.fullname)
                     Spacer(modifier = Modifier.padding(10.dp))
-                    Text(text = "+7 918 898 98-98")
+                    Text(text = USER.phone)
                 }
                 Spacer(modifier = Modifier.padding(10.dp)) //Отступ
                 HorizontalDivider(

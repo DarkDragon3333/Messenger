@@ -15,7 +15,6 @@ import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.Divider
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -69,7 +68,7 @@ fun HeaderOfSettings() {
 
     }
     Spacer(modifier = Modifier.padding(4.dp))
-    Divider(thickness = 5.dp, modifier = Modifier.padding(bottom = 10.dp))
+    HorizontalDivider(modifier = Modifier.padding(bottom = 10.dp), thickness = 5.dp)
 }
 
 @Composable

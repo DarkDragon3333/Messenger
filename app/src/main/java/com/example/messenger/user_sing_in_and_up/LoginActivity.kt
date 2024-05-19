@@ -32,6 +32,7 @@ import com.example.messenger.user_sing_in_and_up.ui.theme.MessengerTheme
 import com.example.messenger.utilis.AUTH
 import com.example.messenger.utilis.goTo
 import com.example.messenger.utilis.initFirebase
+import com.example.messenger.utilis.initUser
 import com.example.messenger.utilis.makeToast
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.QuerySnapshot
@@ -53,6 +54,11 @@ class LoginActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        initUser(context)//Инициализируем пользователя
     }
 
     private fun init() {
@@ -216,6 +222,8 @@ class LoginActivity : ComponentActivity() {
             }
         }
     }
+
+
 
 }
 
