@@ -4,7 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.widget.Toast
-import com.example.messenger.user_sing_in_and_up.SingUpActivity
+import com.example.messenger.user_sing_in_and_up.AddInfo
 import com.google.firebase.auth.PhoneAuthProvider
 
 /*
@@ -27,7 +27,7 @@ fun <templateActivity : Activity> goTo(
 
 fun <templateActivity> goTo(
     activity: Class<templateActivity>,
-    context: SingUpActivity,
+    context: Activity,
     dataOne: String,
     token: PhoneAuthProvider.ForceResendingToken
 ) {
@@ -39,7 +39,7 @@ fun <templateActivity> goTo(
 
 fun <templateActivity> goTo(
     activity: Class<templateActivity>,
-    context: SingUpActivity,
+    context: Activity,
     dataOne: String,
     dataTwo: String,
     dataThree: String
@@ -48,5 +48,23 @@ fun <templateActivity> goTo(
     intent.putExtra("verificationId", dataOne) //Id пользователя
     intent.putExtra("phone", dataTwo) //Номер телефона
     intent.putExtra("password", dataThree) //Пароль
+    context.startActivity(intent)
+}
+
+fun <templateActivity> goTo(
+    activity: Class<templateActivity>,
+    context: AddInfo,
+    verificationId: String,
+    fullname: String,
+    userName: String,
+    phone: String,
+    password: String
+) {
+    val intent = Intent(context, activity)
+    intent.putExtra("verificationId", verificationId) //Id пользователя
+    intent.putExtra("phone", phone) //Номер телефона
+    intent.putExtra("password", password) //Пароль
+    intent.putExtra("fullname", fullname) //Id пользователя
+    intent.putExtra("userName", userName) //Номер телефона
     context.startActivity(intent)
 }

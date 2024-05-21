@@ -1,7 +1,9 @@
 package com.example.messenger.utilis
 
+import android.app.Activity
+import android.content.Context
+import com.example.messenger.MainActivity
 import com.example.messenger.modals.User
-import com.example.messenger.user_sing_in_and_up.LoginActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -20,6 +22,7 @@ const val CHILD_PHONE = "phone"
 const val CHILD_PASSWORD = "password"
 const val CHILD_USER_NAME = "username"
 const val CHILD_FULLNAME = "fullname"
+const val CHILD_BIO = "bio"
 
 
 fun initFirebase() {
@@ -29,7 +32,7 @@ fun initFirebase() {
     UID = AUTH.currentUser?.uid.toString()
 }
 
-fun initUser(context: LoginActivity) {
+fun initUser(context: Activity) {
     REF_DATABASE_ROOT
         .child(NODE_USERS)
         .child(UID)
@@ -44,6 +47,43 @@ fun initUser(context: LoginActivity) {
                 }
             }
         )
+
+}
+
+fun changeInfo(changeInfo: String, typeInfo: String, context: Context) {
+    REF_DATABASE_ROOT
+        .child(NODE_USERS)
+        .child(UID)
+        .child(CHILD_FULLNAME)
+        .setValue(changeInfo).addOnCompleteListener {
+            if (it.isSuccessful) {
+                makeToast("Данные обновлены!", context)
+                choseChangeInformation(changeInfo, typeInfo)
+                goTo(MainActivity::class.java, context)
+            }
+        }
+
+}
+
+fun choseChangeInformation(changeInfo: String, typeInfo: String) {
+    when (typeInfo) {
+        CHILD_FULLNAME -> {
+            USER.fullname = changeInfo
+        }
+        CHILD_USER_NAME -> {
+            USER.username = changeInfo
+        }
+        CHILD_BIO -> {
+            USER.bio = changeInfo
+        }
+        CHILD_PHONE -> {
+            USER.phone = changeInfo
+        }
+        CHILD_PASSWORD -> {
+            USER.password = changeInfo
+        }
+    }
+
 }
 
 

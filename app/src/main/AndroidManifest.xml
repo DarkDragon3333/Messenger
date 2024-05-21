@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -10,17 +11,22 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Messenger">
         <activity
-            android:name=".changeNumberPhone.EnterCode"
+            android:name=".user_sing_in_and_up.AddInfo"
             android:exported="false"
-            android:windowSoftInputMode="stateVisible|adjustResize"
-            android:label="@string/title_activity_send_message"
+            android:label="@string/title_activity_add_name"
             android:theme="@style/Theme.Messenger" />
         <activity
-            android:name=".changeNumberPhone.ChangeNumber"
+            android:name=".user_sing_in_and_up.EnterCode"
             android:exported="false"
-            android:windowSoftInputMode="stateVisible|adjustResize"
+            android:label="@string/title_activity_send_message"
+            android:theme="@style/Theme.Messenger"
+            android:windowSoftInputMode="stateVisible|adjustResize" />
+        <activity
+            android:name=".changeInfo.ChangeNumber"
+            android:exported="false"
             android:label="@string/title_activity_change_number"
-            android:theme="@style/Theme.Messenger" />
+            android:theme="@style/Theme.Messenger"
+            android:windowSoftInputMode="stateVisible|adjustResize" />
         <activity
             android:name=".user_sing_in_and_up.SingUpActivity"
             android:exported="false"

@@ -1,4 +1,4 @@
-package com.example.messenger.changeNumberPhone.ui.theme
+package com.example.messenger.changeInfo.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

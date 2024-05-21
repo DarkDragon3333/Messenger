@@ -15,16 +15,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.messenger.MainActivity
@@ -33,6 +29,7 @@ import com.example.messenger.utilis.AUTH
 import com.example.messenger.utilis.goTo
 import com.example.messenger.utilis.initFirebase
 import com.example.messenger.utilis.initUser
+import com.example.messenger.utilis.mainFieldStyle
 import com.example.messenger.utilis.makeToast
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.QuerySnapshot
@@ -56,14 +53,10 @@ class LoginActivity : ComponentActivity() {
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-        initUser(context)//Инициализируем пользователя
-    }
-
     private fun init() {
         context = this
         initFirebase() //Инициализируем БД
+        initUser(context)//Инициализируем пользователя
         if (AUTH.currentUser != null) { //Если пользователь уже есть
             goTo(MainActivity::class.java, context)
         }
@@ -71,8 +64,8 @@ class LoginActivity : ComponentActivity() {
 
     @Composable
     fun GreetingInLoginActivity(modifier: Modifier = Modifier) {
-        var phone by remember { mutableStateOf("") }
-        var password by remember { mutableStateOf("") }
+        val phone by remember { mutableStateOf("") }
+        val password by remember { mutableStateOf("") }
 
         Column {
             Column(
@@ -82,39 +75,19 @@ class LoginActivity : ComponentActivity() {
                 horizontalAlignment = Alignment.CenterHorizontally
             )
             {
-                TextField(
-                    value = phone,
-                    onValueChange =
-                    {
-                        phone = it
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    placeholder = { Text("") },
-                    maxLines = 1,
-                    label = { Text(text = "Email", fontSize = 14.sp) },
-                    colors = TextFieldDefaults.colors(
-                        unfocusedContainerColor = Color(0xFFFDFAFE),
-                        unfocusedTextColor = Color(0xff888888),
-                        focusedContainerColor = Color(0xFFFDFAFE),
-                        focusedTextColor = Color(0xff222222),
-                    )
-                )
+                mainFieldStyle(
+                    //rememberText = phone,
+                    labelText = "Email",
+                    enable = true,
+                    maxLine = 1
+                ) {}
                 Spacer(modifier = Modifier.padding(8.dp))
-                TextField(
-                    value = password,
-                    onValueChange = { password = it },
-                    modifier = Modifier.fillMaxWidth(),
-                    placeholder = { Text("") },
-                    maxLines = 1,
-                    label = { Text(text = "Password", fontSize = 14.sp) },
-                    colors = TextFieldDefaults.colors(
-                        unfocusedContainerColor = Color(0xFFFDFAFE),
-                        unfocusedTextColor = Color(0xff888888),
-                        focusedContainerColor = Color(0xFFFDFAFE),
-                        focusedTextColor = Color(0xff222222),
-                    )
-                )
+                mainFieldStyle(
+                    //rememberText = password,
+                    labelText = "Password",
+                    enable = true,
+                    maxLine = 1
+                ) {}
                 Spacer(modifier = Modifier.padding(120.dp))
 
                 Button(
@@ -145,14 +118,14 @@ class LoginActivity : ComponentActivity() {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Don't have an account?\nLet's go to sing up!",
+                text = "У вас нет аккаунта?\nДавайте зарегистрируемся!",
                 modifier = Modifier.padding(10.dp, 0.dp, 0.dp, 0.dp)
             )
             Row(
                 horizontalArrangement = Arrangement.End,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(0.dp, 0.dp, 60.dp, 0.dp)
+                    .padding(0.dp, 0.dp, 35.dp, 0.dp)
             ) {
                 Button(
                     onClick = {

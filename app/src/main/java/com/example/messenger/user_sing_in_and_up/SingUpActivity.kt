@@ -7,27 +7,21 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.messenger.MainActivity
-import com.example.messenger.changeNumberPhone.EnterCode
 import com.example.messenger.user_sing_in_and_up.ui.theme.MessengerTheme
 import com.example.messenger.utilis.AUTH
 import com.example.messenger.utilis.goTo
 import com.example.messenger.utilis.initFirebase
+import com.example.messenger.utilis.mainFieldStyle
 import com.example.messenger.utilis.makeToast
 import com.google.firebase.FirebaseException
 import com.google.firebase.auth.FirebaseAuth
@@ -71,9 +65,9 @@ class SingUpActivity : ComponentActivity() {
 
     @Composable
     fun GreetingInRegisterActivity(modifier: Modifier = Modifier) {
-        var phoneField by remember { mutableStateOf("") }
-        var passwordField by remember { mutableStateOf("") }
-        var rePasswordField by remember { mutableStateOf("") }
+        //val phoneField by remember { mutableStateOf("") }
+        //val passwordField by remember { mutableStateOf("") }
+        //val rePasswordField by remember { mutableStateOf("") }
 
         Column {
             Column(
@@ -83,29 +77,27 @@ class SingUpActivity : ComponentActivity() {
                 horizontalAlignment = Alignment.CenterHorizontally
             )
             {
-                TextField(
-                    value = phoneField,
-                    onValueChange = {
-                        phoneField = it
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    placeholder = { Text("+7 880 555 55-55") }
-                )
+                val phoneField = mainFieldStyle(
+                    labelText = "Номер телефона",
+                    enable = true,
+                    maxLine = 1
+                ) {}
+
                 Spacer(modifier = Modifier.padding(8.dp))
-                TextField(
-                    value = passwordField,
-                    onValueChange = { passwordField = it },
-                    modifier = Modifier.fillMaxWidth(),
-                    placeholder = { Text("Password") }
-                )
+                val passwordField = mainFieldStyle(
+                    labelText = "Пароль",
+                    enable = true,
+                    maxLine = 1
+                ) {}
+
                 Spacer(modifier = Modifier.padding(8.dp))
-                TextField(
-                    value = rePasswordField,
-                    onValueChange = { rePasswordField = it },
-                    modifier = Modifier.fillMaxWidth(),
-                    placeholder = { Text("Repeat password") }
-                )
+                val rePasswordField = mainFieldStyle(
+                    //rememberText = rePasswordField,
+                    labelText = "Повторите пароль",
+                    enable = true,
+                    maxLine = 1
+                ) {}
+
                 Spacer(modifier = Modifier.padding(120.dp))
                 Button(
                     onClick = {

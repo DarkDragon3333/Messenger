@@ -1,4 +1,4 @@
-package com.example.messenger.changeNumberPhone
+package com.example.messenger.user_sing_in_and_up
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -27,16 +27,9 @@ import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.messenger.MainActivity
 import com.example.messenger.R
-import com.example.messenger.changeNumberPhone.ui.theme.MessengerTheme
+import com.example.messenger.changeInfo.ui.theme.MessengerTheme
 import com.example.messenger.utilis.AUTH
-import com.example.messenger.utilis.CHILD_ID
-import com.example.messenger.utilis.CHILD_PASSWORD
-import com.example.messenger.utilis.CHILD_PHONE
-import com.example.messenger.utilis.CHILD_USER_NAME
-import com.example.messenger.utilis.NODE_USERS
-import com.example.messenger.utilis.REF_DATABASE_ROOT
 import com.example.messenger.utilis.goTo
 import com.example.messenger.utilis.makeToast
 import com.google.firebase.auth.PhoneAuthProvider
@@ -45,7 +38,7 @@ import com.google.firebase.auth.PhoneAuthProvider
 @Suppress("DEPRECATION")
 class EnterCode : ComponentActivity() {
     private lateinit var verificationId: String
-    private lateinit var dataForGetSignUpData: Bundle
+    private lateinit var dataFromSignUpData: Bundle
     private lateinit var token: PhoneAuthProvider.ForceResendingToken
     private lateinit var phoneNumber: String
     private lateinit var codeFromField: String
@@ -117,9 +110,9 @@ class EnterCode : ComponentActivity() {
 
                     label = { Text(text = "СМС код", fontSize = 12.sp) },
                     colors = TextFieldDefaults.colors(
-                        unfocusedContainerColor = Color(0xFFFDFAFE),
+                        unfocusedContainerColor = Color(0xFFF6F8FE),
                         unfocusedTextColor = Color(0xff888888),
-                        focusedContainerColor = Color(0xFFFDFAFE),
+                        focusedContainerColor = Color(0xFFF6F8FE),
                         focusedTextColor = Color(0xff222222),
                     )
                 )
@@ -129,11 +122,11 @@ class EnterCode : ComponentActivity() {
     }
 
     private fun init() {
-        dataForGetSignUpData = intent.extras!!
+        dataFromSignUpData = intent.extras!!
         verificationId =
-            dataForGetSignUpData.getString("verificationId").toString() //Id пользователя
-        passwordFromSignUpActivity = dataForGetSignUpData.getString("password").toString() //Пароль
-        phoneNumber = dataForGetSignUpData.getString("phone").toString() //Номер телефона
+            dataFromSignUpData.getString("verificationId").toString() //Id пользователя
+        passwordFromSignUpActivity = dataFromSignUpData.getString("password").toString() //Пароль
+        phoneNumber = dataFromSignUpData.getString("phone").toString() //Номер телефона
         //token = intentForGetSignUpData.getParcelableExtra("token")!!
         codeFromField = ""
         context = this
@@ -144,33 +137,18 @@ class EnterCode : ComponentActivity() {
 
         AUTH.signInWithCredential(credential).addOnCompleteListener {
             if (it.isSuccessful) {
-                workWithDataForDataBase()
+                goTo(AddInfo::class.java, context,
+                    verificationId,
+                    phoneNumber,
+                    passwordFromSignUpActivity
+                )
             } else {
                 makeToast("Error!", context)
             }
         }
     }
 
-    private fun workWithDataForDataBase() {
-        val uId = AUTH.currentUser?.uid.toString() //Берём Id текущего пользователя
-        val dataMap = mutableMapOf<String, Any>() //Создаём место, куда погрузим наши данные для бд
 
-        dataMap[CHILD_ID] = uId
-        dataMap[CHILD_PHONE] = phoneNumber
-        dataMap[CHILD_PASSWORD] = passwordFromSignUpActivity
-        dataMap[CHILD_USER_NAME] = uId
-
-        REF_DATABASE_ROOT.child(NODE_USERS).child(uId)
-            .updateChildren(dataMap) //Обращаемся по ссылке через бд к юзерам и сохраняем данные. Если юзеров нет, то firebase сам создаст каталог с юзерами, самого юзера по переданному Id и сохранит данные.
-            .addOnCompleteListener {//Отправляем данные в базу данных файлом
-                if (it.isSuccessful) {
-                    makeToast("Добро пожаловать!", context)
-                    goTo(MainActivity::class.java, context)
-                } else {
-                    makeToast(it.exception?.message.toString(), context)
-                }
-            }
-    }
 
 }
 

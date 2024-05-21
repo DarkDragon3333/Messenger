@@ -1,4 +1,4 @@
-package com.example.messenger.changeNumberPhone
+package com.example.messenger.changeInfo
 
 import android.os.Bundle
 import android.view.WindowManager
@@ -34,7 +34,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.messenger.MainActivity
-import com.example.messenger.changeNumberPhone.ui.theme.MessengerTheme
+import com.example.messenger.changeInfo.ui.theme.MessengerTheme
+import com.example.messenger.user_sing_in_and_up.EnterCode
 import com.example.messenger.utilis.goTo
 
 class ChangeNumber : ComponentActivity() {
@@ -84,9 +85,9 @@ class ChangeNumber : ComponentActivity() {
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
                     label = { Text(text = "Новый номер телефона", fontSize = 12.sp) },
                     colors = TextFieldDefaults.colors(
-                        unfocusedContainerColor = Color(0xFFFDFAFE),
+                        unfocusedContainerColor = Color(0xFFF6F8FE),
                         unfocusedTextColor = Color(0xff888888),
-                        focusedContainerColor = Color(0xFFFDFAFE),
+                        focusedContainerColor = Color(0xFFF6F8FE),
                         focusedTextColor = Color(0xff222222),
                     )
                 )

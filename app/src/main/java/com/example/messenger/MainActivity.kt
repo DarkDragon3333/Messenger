@@ -10,23 +10,22 @@ import com.google.firebase.auth.FirebaseAuth
 
 
 class MainActivity : ComponentActivity() {
+    lateinit var context: MainActivity
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        init()
         setContent {
             MessengerTheme {
                 NavDrawer()
             }
         }
-        init()
     }
 
     private fun init(){
+        context = this
         AUTH = FirebaseAuth.getInstance()
     }
 }
-//Todo. Доделать дизайн.
-// Сделать макет страниц профиля, настроек, о программе, инструкцию
 
 
 
