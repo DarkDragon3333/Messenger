@@ -30,10 +30,6 @@ import com.example.messenger.utilis.goTo
 import com.example.messenger.utilis.initFirebase
 import com.example.messenger.utilis.initUser
 import com.example.messenger.utilis.mainFieldStyle
-import com.example.messenger.utilis.makeToast
-import com.google.firebase.Firebase
-import com.google.firebase.firestore.QuerySnapshot
-import com.google.firebase.firestore.firestore
 
 class LoginActivity : ComponentActivity() {
 
@@ -76,14 +72,12 @@ class LoginActivity : ComponentActivity() {
             )
             {
                 mainFieldStyle(
-                    //rememberText = phone,
                     labelText = "Email",
                     enable = true,
                     maxLine = 1
                 ) {}
                 Spacer(modifier = Modifier.padding(8.dp))
                 mainFieldStyle(
-                    //rememberText = password,
                     labelText = "Password",
                     enable = true,
                     maxLine = 1
@@ -137,66 +131,6 @@ class LoginActivity : ComponentActivity() {
             }
         }
     }
-
-    private fun checkEnterData(
-        phone: String,
-        password: String,
-    ): Boolean {
-        if (phone.isEmpty() or password.isEmpty()) {
-            makeToast("Please, enter all data", this)
-        } else if (!phone.contains("@")) {
-            makeToast("Please, check email", this)
-        } else {
-            return true
-        }
-        return false
-    }
-
-    private fun workWithBDInLoginActivity(
-        phone: String,
-        password: String,
-    ) {
-        val db = Firebase.firestore
-
-        db.collection("users")
-            .get()
-            .addOnSuccessListener { result ->
-                checkEnterDataWithBD(phone, password, result)
-            }
-            .addOnFailureListener {
-                makeToast("Error", context)
-            }
-    }
-
-    private fun checkEnterDataWithBD(
-        phone: String,
-        password: String,
-        result: QuerySnapshot,
-        //saveSingIn: SharedPreferences
-    ) {
-        var flag = 0
-        for (document in result) {
-            if ((phone == document.getString("phone")) and
-                (password == document.getString("password"))
-            ) {
-                flag = -1
-            } else if ((phone != document.getString("phone")) or
-                (password != document.getString("password"))
-            ) {
-                flag += 1
-            }
-
-            if (flag == result.size() - 1) {
-                makeToast("Error of sing in. Check Enter data", context)
-            } else if (flag == -1) {
-                //saveSingIn.edit().putString("phone", phone.text.toString()).apply()
-                //saveSingIn.edit().putString("password", password.text.toString()).apply()
-                goTo(MainActivity::class.java, context)
-            }
-        }
-    }
-
-
 
 }
 

@@ -75,7 +75,7 @@ fun BodyOfSettings() {
         Spacer(modifier = Modifier.padding(16.dp))
         val phone = mainFieldStyle(
             labelText = "Нажмите, чтобы изменить номер",
-            enable = true,
+            enable = false,
             3
         ) { goTo(ChangeNumber::class.java, context) }
 

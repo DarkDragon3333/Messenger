@@ -65,10 +65,6 @@ class SingUpActivity : ComponentActivity() {
 
     @Composable
     fun GreetingInRegisterActivity(modifier: Modifier = Modifier) {
-        //val phoneField by remember { mutableStateOf("") }
-        //val passwordField by remember { mutableStateOf("") }
-        //val rePasswordField by remember { mutableStateOf("") }
-
         Column {
             Column(
                 modifier = Modifier
@@ -92,7 +88,6 @@ class SingUpActivity : ComponentActivity() {
 
                 Spacer(modifier = Modifier.padding(8.dp))
                 val rePasswordField = mainFieldStyle(
-                    //rememberText = rePasswordField,
                     labelText = "Повторите пароль",
                     enable = true,
                     maxLine = 1

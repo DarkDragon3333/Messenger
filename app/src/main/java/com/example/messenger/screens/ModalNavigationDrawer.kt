@@ -221,7 +221,6 @@ fun DropdownMenuItems(
     navController: NavController,
 ) {
     var expanded by remember { mutableStateOf(false) }
-    var selectedOption by remember { mutableStateOf("") }
     val context = LocalContext.current
 
     Box {
@@ -236,7 +235,6 @@ fun DropdownMenuItems(
         ) {
             DropdownMenuItem(
                 onClick = {
-                    selectedOption = "Change name"
                     navController.navigate(Screens.ChangeName.route) {//Используем navController для перемещения по экранам
                         launchSingleTop = true
                     }
@@ -247,13 +245,12 @@ fun DropdownMenuItems(
                 text = { Text("Изменить ФИО") }
             )
             DropdownMenuItem(
-                onClick = { selectedOption = "Change photo" },
+                onClick = {  },
                 text = { Text("Изменить фото") }
             )
             HorizontalDivider()
             DropdownMenuItem(
                 onClick = {
-                    selectedOption = "Out of account"
                     AUTH.signOut()
                     goTo(LoginActivity::class.java, context)
                 },

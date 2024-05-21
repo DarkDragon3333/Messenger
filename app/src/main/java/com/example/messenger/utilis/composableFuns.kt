@@ -50,3 +50,40 @@ fun mainFieldStyle (
     )
     return text
 }
+@Composable
+fun mainFieldStyle (
+    labelText: String,
+    enable: Boolean,
+    maxLine: Int,
+    mText: String,
+    action: () -> Unit,
+): String {
+    var text by remember { mutableStateOf(mText) }
+
+    TextField(
+        value = text,
+        onValueChange = { text = it },
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable {
+                action()
+            },
+        label = { Text(text = labelText, fontSize = 12.sp) },
+        maxLines = maxLine,
+        enabled = enable,
+        colors = TextFieldDefaults.colors(
+            unfocusedContainerColor = Color(0xFFF6F8FE),
+            unfocusedTextColor = Color(0xff222222),
+
+            focusedContainerColor = Color(0xFFF6F8FE),
+            focusedTextColor = Color(0xff222222),
+
+            disabledContainerColor = Color(0xFFF6F8FE),
+            disabledTextColor = Color(0xff222222),
+            disabledLabelColor = Color(0xff222222),
+            disabledIndicatorColor = Color(0xff222222),
+
+            )
+    )
+    return text
+}

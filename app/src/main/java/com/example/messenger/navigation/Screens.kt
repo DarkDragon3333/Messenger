@@ -50,4 +50,9 @@ sealed class Screens(
         route = "changeName",
         icon = Icons.Default.Edit
     )
+    data object ChangeUserName: Screens(
+        title = "ChangeUserName",
+        route = "changeUserName",
+        icon = Icons.Default.Edit
+    )
 }
