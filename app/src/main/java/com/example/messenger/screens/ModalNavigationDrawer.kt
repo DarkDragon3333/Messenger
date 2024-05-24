@@ -49,6 +49,7 @@ import com.example.messenger.navigation.DrawerNavigation
 import com.example.messenger.navigation.Screens
 import com.example.messenger.user_sing_in_and_up.LoginActivity
 import com.example.messenger.utilis.AUTH
+import com.example.messenger.utilis.ON_SETTINGS_SCREEN
 import com.example.messenger.utilis.USER
 import com.example.messenger.utilis.goTo
 import kotlinx.coroutines.CoroutineScope
@@ -190,7 +191,21 @@ fun NavDrawer() {
                             IconButton(
                                 onClick = {
                                     coroutineScope.launch {
-                                        navController.navigate(Screens.Settings.route)
+                                        navController.addOnDestinationChangedListener { _, destination, _ ->
+                                            ON_SETTINGS_SCREEN = destination.route == Screens.ChangeName.route ||
+                                                destination.route == Screens.ChangeUserName.route ||
+                                                destination.route == Screens.ChangeBIO.route
+                                        }
+
+                                        if(ON_SETTINGS_SCREEN) {
+                                            navController.navigate(Screens.Settings.route) {
+                                                launchSingleTop = true
+                                            }
+                                        } else {
+                                            navController.navigate(Screens.Chats.route) {
+                                                launchSingleTop = true
+                                            }
+                                        }
                                     }
                                 }
                             ) {
