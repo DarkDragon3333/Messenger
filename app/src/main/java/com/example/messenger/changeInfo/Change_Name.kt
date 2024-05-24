@@ -13,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import com.example.messenger.utilis.CHILD_FULLNAME
 import com.example.messenger.utilis.USER
 import com.example.messenger.utilis.changeInfo
@@ -20,11 +21,11 @@ import com.example.messenger.utilis.mainFieldStyle
 import com.example.messenger.utilis.makeToast
 
 @Composable
-fun ChangeName() {
+fun ChangeName(navController: NavHostController) {
     val context = LocalContext.current
     val fullname = USER.fullname.split(" ")
 
-    var name = fullname[0]
+    val name = fullname[0]
 
     var surname = ""
 
@@ -59,7 +60,7 @@ fun ChangeName() {
                 if (nameField == "") {
                     makeToast("Введите имя", context)
                 } else {
-                    changeInfo("$nameField $surnameField", CHILD_FULLNAME, context)
+                    changeInfo("$nameField $surnameField", CHILD_FULLNAME, context, navController)
                 }
 
             }

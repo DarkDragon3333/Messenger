@@ -15,34 +15,37 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.example.messenger.utilis.CHILD_USER_NAME
+import com.example.messenger.utilis.CHILD_BIO
+import com.example.messenger.utilis.USER
 import com.example.messenger.utilis.changeInfo
 import com.example.messenger.utilis.mainFieldStyle
 import com.example.messenger.utilis.makeToast
 
 @Composable
-fun ChangeUserName(navController: NavHostController) {
+fun ChangeBIO(navController: NavHostController) {
     val context = LocalContext.current
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally)
     {
         Spacer(modifier = Modifier.padding(0.dp, 100.dp, 0.dp, 0.dp))
-        Text(text = "Введите ваш новый никнейм:")
+        Text(text = "Напишите о себе:")
         Spacer(modifier = Modifier.padding(0.dp, 40.dp, 0.dp, 0.dp))
-        val phoneField = mainFieldStyle(
-            labelText = "Никнейм",
+        val bio = mainFieldStyle(
+            labelText = "О себе",
             enable = true,
-            maxLine = 1
+            maxLine = 1,
+            USER.bio
         ) {}
         Spacer(modifier = Modifier.padding(0.dp, 40.dp, 0.dp, 0.dp))
         Button(
             onClick = {
-                if (phoneField == ""){
-                    makeToast("Введите никнейм!", context)
+                if (bio == ""){
+                    makeToast("Напишите о себе!", context)
                 }
                 else {
-                    changeInfo(phoneField, CHILD_USER_NAME, context, navController)
+                    changeInfo(bio, CHILD_BIO, context, navController)
+
                 }
             }
         ) {
@@ -53,4 +56,3 @@ fun ChangeUserName(navController: NavHostController) {
     }
 
 }
-

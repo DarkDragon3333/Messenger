@@ -1,7 +1,7 @@
 package com.example.messenger.modals
 
 data class User(
-    val id: String = "",
+    var id: String = "",
     var username: String = "",
     var bio: String = "",
     var fullname: String = "",

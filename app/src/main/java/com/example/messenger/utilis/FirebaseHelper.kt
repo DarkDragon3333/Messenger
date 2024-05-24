@@ -2,8 +2,9 @@ package com.example.messenger.utilis
 
 import android.app.Activity
 import android.content.Context
-import com.example.messenger.MainActivity
+import androidx.navigation.NavHostController
 import com.example.messenger.modals.User
+import com.example.messenger.navigation.Screens
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -50,16 +51,22 @@ fun initUser(context: Activity) {
 
 }
 
-fun changeInfo(changeInfo: String, typeInfo: String, context: Context) {
+fun changeInfo(
+    changeInfo: String,
+    typeInfo: String,
+    context: Context,
+    navController: NavHostController
+) {
     REF_DATABASE_ROOT
         .child(NODE_USERS)
         .child(UID)
-        .child(CHILD_FULLNAME)
+        .child(typeInfo)
         .setValue(changeInfo).addOnCompleteListener {
             if (it.isSuccessful) {
                 makeToast("Данные обновлены!", context)
                 choseChangeInformation(changeInfo, typeInfo)
-                goTo(MainActivity::class.java, context)
+                navController.navigate(Screens.Settings.route) {
+                }
             }
         }
 

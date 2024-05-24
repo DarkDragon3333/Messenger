@@ -66,6 +66,8 @@ fun NavDrawer() {
     var flagYouInSettings by remember { mutableIntStateOf(-1) }
     var flagYouInChats by remember { mutableIntStateOf(1) }
 
+    val title = ""
+
     val screens = listOf( //Созданные экраны в виде объектов
         Screens.YourProfile,
         Screens.Chats,
@@ -188,7 +190,7 @@ fun NavDrawer() {
                             IconButton(
                                 onClick = {
                                     coroutineScope.launch {
-                                        navController.navigate(Screens.Chats.route)
+                                        navController.navigate(Screens.Settings.route)
                                     }
                                 }
                             ) {

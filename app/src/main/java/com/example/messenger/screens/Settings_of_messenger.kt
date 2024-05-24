@@ -24,15 +24,18 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import com.example.messenger.changeInfo.ChangeNumber
+import com.example.messenger.navigation.Screens
+import com.example.messenger.utilis.USER
 import com.example.messenger.utilis.goTo
 import com.example.messenger.utilis.mainFieldStyle
 
 @Composable
-fun SettingsScreen() {
+fun SettingsScreen(navController: NavHostController) {
     Column {
         HeaderOfSettings()
-        BodyOfSettings()
+        BodyOfSettings(navController)
         FooterOfSettings()
     }
 
@@ -55,8 +58,8 @@ fun HeaderOfSettings() {
         )
         Spacer(modifier = Modifier.padding(4.dp))
         Column {
-            Text(text = "Имя", color = Color.Black)
-            Text(text = "Статус", color = Color.Black)
+            Text(text = USER.fullname, color = Color.Black)
+            Text(text = USER.phone, color = Color.Black)
         }
 
     }
@@ -65,33 +68,43 @@ fun HeaderOfSettings() {
 }
 
 @Composable
-fun BodyOfSettings() {
+fun BodyOfSettings(navController: NavHostController) {
     val context = LocalContext.current
 
     Column {
         Spacer(modifier = Modifier.padding(8.dp))
         Text(text = "Аккаунт", modifier = Modifier.padding(15.dp, 0.dp, 0.dp, 0.dp))
 
-        Spacer(modifier = Modifier.padding(16.dp))
+        Spacer(modifier = Modifier.padding(8.dp))
         val phone = mainFieldStyle(
             labelText = "Нажмите, чтобы изменить номер",
             enable = false,
-            3
+            3,
+            USER.phone
         ) { goTo(ChangeNumber::class.java, context) }
 
         Spacer(modifier = Modifier.padding(8.dp))
         val idAccount = mainFieldStyle(
-            labelText = "Нажмите, чтобы ваш ние",
+            labelText = "Нажмите, чтобы изменить ваш ник",
             enable = false,
-            1
-        ) {}
+            1,
+            USER.username,
+        ) {
+            navController.navigate(Screens.ChangeUserName.route) {//Используем navController для перемещения по экранам
+                launchSingleTop = true
+            }
+        }
 
         Spacer(modifier = Modifier.padding(8.dp))
         val bioField = mainFieldStyle(
             labelText = "Напишите немного о себе",
             enable = false,
-            1
-        ) {}
+            1,
+            USER.bio,
+        ) {
+            navController.navigate(Screens.ChangeBIO.route) {//Используем navController для перемещения по экранам
+            launchSingleTop = true
+        }}
     }
     Spacer(modifier = Modifier.padding(16.dp))
     HorizontalDivider(modifier = Modifier.padding(bottom = 10.dp), thickness = 5.dp)

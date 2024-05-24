@@ -16,13 +16,13 @@ sealed class Screens(
     val icon: ImageVector
 ) {
     data object Chats: Screens(
-        title = "Chats",
-        route = "chats",
+        title = "Чаты",
+        route = "чаты",
         icon = Icons.Default.Email
     )
     data object Sent: Screens(
-        title = "Sent",
-        route = "sent",
+        title = "Отправить",
+        route = "отправить",
         icon = Icons.Default.Send
     )
     data object Starred: Screens(
@@ -31,28 +31,33 @@ sealed class Screens(
         icon = Icons.Default.Star
     )
     data object Spam: Screens(
-        title = "Spam",
-        route = "spam",
+        title = "Спам",
+        route = "спам",
         icon = Icons.Default.Warning
     )
     data object Settings: Screens(
-        title = "Settings",
-        route = "Settings",
+        title = "Настройки",
+        route = "настройки",
         icon = Icons.Default.Settings
     )
     data object YourProfile: Screens(
-        title = "YourProfile",
-        route = "yourProfile",
+        title = "Ваш профиль",
+        route = "ваш профиль",
         icon = Icons.Default.AccountCircle
     )
     data object ChangeName: Screens(
-        title = "ChangeName",
-        route = "changeName",
+        title = "Смена имени",
+        route = "смена имени",
         icon = Icons.Default.Edit
     )
     data object ChangeUserName: Screens(
-        title = "ChangeUserName",
-        route = "changeUserName",
+        title = "Смена никнейма",
+        route = "смена никнейма",
+        icon = Icons.Default.Edit
+    )
+    data object ChangeBIO: Screens (
+        title = "Смена описания",
+        route = "смена описания",
         icon = Icons.Default.Edit
     )
 }

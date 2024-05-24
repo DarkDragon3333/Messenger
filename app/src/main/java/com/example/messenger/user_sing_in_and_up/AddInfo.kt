@@ -29,6 +29,7 @@ import com.example.messenger.utilis.CHILD_PHONE
 import com.example.messenger.utilis.CHILD_USER_NAME
 import com.example.messenger.utilis.NODE_USERS
 import com.example.messenger.utilis.REF_DATABASE_ROOT
+import com.example.messenger.utilis.USER
 import com.example.messenger.utilis.goTo
 import com.example.messenger.utilis.mainFieldStyle
 import com.example.messenger.utilis.makeToast
@@ -82,10 +83,6 @@ class AddInfo : ComponentActivity() {
 
     @Composable
     fun Greeting(name: String, modifier: Modifier = Modifier) {
-
-        //var statusField by remember { mutableStateOf("") }
-        //var photoUrlField by remember { mutableStateOf("") }
-
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.fillMaxSize()
@@ -104,7 +101,7 @@ class AddInfo : ComponentActivity() {
             Spacer(modifier = Modifier.padding(0.dp, 20.dp, 0.dp, 0.dp))
             val surnameField = mainFieldStyle(
                 labelText = "Ваша фамилия",
-                enable = false,
+                enable = true,
                 1
             ) {}
 
@@ -158,19 +155,22 @@ class AddInfo : ComponentActivity() {
             .addOnCompleteListener {//Отправляем данные в базу данных файлом
                 if (it.isSuccessful) {
                     makeToast("Добро пожаловать!", context)
-                    goTo(
-                        MainActivity::class.java,
-                        context,
-                        verificationId,
-                        fullname,
-                        userName,
-                        phoneNumber,
-                        passwordFromSignUpActivity
-                    )
+                    initUSER()
+                    goTo(MainActivity::class.java, context)
                 } else {
                     makeToast(it.exception?.message.toString(), context)
                 }
             }
+    }
+
+    private fun initUSER() {
+        USER.id = verificationId
+        USER.fullname = fullname
+        USER.username = userName
+        USER.bio = bio
+        //USER.photoURL = photoURL
+        USER.phone = phoneNumber
+        USER.password =  passwordFromSignUpActivity
     }
 
 }
