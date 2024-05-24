@@ -34,7 +34,6 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -43,15 +42,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.messenger.navigation.DrawerNavigation
 import com.example.messenger.navigation.Screens
 import com.example.messenger.user_sing_in_and_up.LoginActivity
 import com.example.messenger.utilis.AUTH
-import com.example.messenger.utilis.ON_SETTINGS_SCREEN
 import com.example.messenger.utilis.USER
+import com.example.messenger.utilis.flagNavButtonOnChatsScreen
+import com.example.messenger.utilis.flagNavButtonOnSettingsScreen
 import com.example.messenger.utilis.goTo
+import com.example.messenger.utilis.on_settings_screen
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -63,11 +65,6 @@ fun NavDrawer() {
     val currentRoute = currentBackStackEntry?.destination?.route ?: Screens.Chats
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val coroutineScope = rememberCoroutineScope()
-
-    var flagYouInSettings by remember { mutableIntStateOf(-1) }
-    var flagYouInChats by remember { mutableIntStateOf(1) }
-
-    val title = ""
 
     val screens = listOf( //Созданные экраны в виде объектов
         Screens.YourProfile,
@@ -153,30 +150,27 @@ fun NavDrawer() {
                     ),
                     actions = {//Элементы в конце TopAppBar
                         navController.addOnDestinationChangedListener { _, destination, _ -> //Хочу, чтобы выпадающий список появлялся только на странице настроек
-                            flagYouInSettings =
+                            flagNavButtonOnSettingsScreen =
                                 if ((destination.route == Screens.Settings.route)) {
                                     1
                                 } else {
                                     -1
                                 }
                         }
-                        if (flagYouInSettings == 1) {
+                        if (flagNavButtonOnSettingsScreen == 1) {
                             DropdownMenuItems(drawerState, coroutineScope, navController)
                         }
-
                     },
-
                     navigationIcon = {
                         navController.addOnDestinationChangedListener { _, destination, _ ->
-                            flagYouInChats =
+                            flagNavButtonOnChatsScreen =
                                 if (destination.route == Screens.Chats.route) {
                                     1
-
                                 } else {
                                     -1
                                 }
                         }
-                        if (flagYouInChats == 1) {
+                        if (flagNavButtonOnChatsScreen == 1) {
                             IconButton(
                                 onClick = {
                                     coroutineScope.launch { drawerState.open() }
@@ -191,21 +185,7 @@ fun NavDrawer() {
                             IconButton(
                                 onClick = {
                                     coroutineScope.launch {
-                                        navController.addOnDestinationChangedListener { _, destination, _ ->
-                                            ON_SETTINGS_SCREEN = destination.route == Screens.ChangeName.route ||
-                                                destination.route == Screens.ChangeUserName.route ||
-                                                destination.route == Screens.ChangeBIO.route
-                                        }
-
-                                        if(ON_SETTINGS_SCREEN) {
-                                            navController.navigate(Screens.Settings.route) {
-                                                launchSingleTop = true
-                                            }
-                                        } else {
-                                            navController.navigate(Screens.Chats.route) {
-                                                launchSingleTop = true
-                                            }
-                                        }
+                                        navButtonBack(navController)
                                     }
                                 }
                             ) {
@@ -227,6 +207,25 @@ fun NavDrawer() {
             ) {
                 DrawerNavigation(navController)
             }
+        }
+    }
+}
+
+
+private fun navButtonBack(navController: NavHostController) {
+    navController.addOnDestinationChangedListener { _, destination, _ ->
+        on_settings_screen = destination.route == Screens.ChangeName.route ||
+                destination.route == Screens.ChangeUserName.route ||
+                destination.route == Screens.ChangeBIO.route
+    }
+
+    if (on_settings_screen) {
+        navController.navigate(Screens.Settings.route) {
+            launchSingleTop = true
+        }
+    } else {
+        navController.navigate(Screens.Chats.route) {
+            launchSingleTop = true
         }
     }
 }
