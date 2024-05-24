@@ -18,10 +18,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.messenger.screens.navButtonBack
+import com.example.messenger.user_sing_in_and_up.ui.theme.BlackText
+import com.example.messenger.user_sing_in_and_up.ui.theme.BlueButton
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -46,16 +47,16 @@ fun mainFieldStyle(
         maxLines = maxLine,
         enabled = enable,
         colors = TextFieldDefaults.colors(
-            unfocusedContainerColor = Color(0xFFF6F8FE),
-            unfocusedTextColor = Color(0xff888888),
+            unfocusedContainerColor = BlueButton,
+            unfocusedTextColor = BlackText,
 
-            focusedContainerColor = Color(0xFFF6F8FE),
-            focusedTextColor = Color(0xff222222),
+            focusedContainerColor = BlueButton,
+            focusedTextColor = BlackText,
 
-            disabledContainerColor = Color(0xFFF6F8FE),
-            disabledTextColor = Color(0xff222222),
-            disabledLabelColor = Color(0xff222222),
-            disabledIndicatorColor = Color(0xff222222),
+            disabledContainerColor = BlueButton,
+            disabledTextColor = BlackText,
+            disabledLabelColor = BlackText,
+            disabledIndicatorColor = BlackText,
 
             )
     )
@@ -83,23 +84,23 @@ fun mainFieldStyle(
         maxLines = maxLine,
         enabled = enable,
         colors = TextFieldDefaults.colors(
-            unfocusedContainerColor = Color(0xFFF6F8FE),
-            unfocusedTextColor = Color(0xff222222),
+            unfocusedContainerColor = BlueButton,
+            unfocusedTextColor = BlackText,
 
-            focusedContainerColor = Color(0xFFF6F8FE),
-            focusedTextColor = Color(0xff222222),
+            focusedContainerColor = BlueButton,
+            focusedTextColor = BlackText,
 
-            disabledContainerColor = Color(0xFFF6F8FE),
-            disabledTextColor = Color(0xff222222),
-            disabledLabelColor = Color(0xff222222),
-            disabledIndicatorColor = Color(0xff222222),
+            disabledContainerColor = BlueButton,
+            disabledTextColor = BlackText,
+            disabledLabelColor = BlackText,
+            disabledIndicatorColor = BlackText,
         )
     )
     return text
 }
 
 @Composable
-fun mainFieldStyle(
+fun MainFieldStyle(
     labelText: String,
     enable: Boolean,
     maxLine: Int,
@@ -122,16 +123,16 @@ fun mainFieldStyle(
         enabled = enable,
         keyboardOptions = keyboardOptions,
         colors = TextFieldDefaults.colors(
-            unfocusedContainerColor = Color(0xFFF6F8FE),
-            unfocusedTextColor = Color(0xff222222),
+            unfocusedContainerColor = BlueButton,
+            unfocusedTextColor = BlackText,
 
-            focusedContainerColor = Color(0xFFF6F8FE),
-            focusedTextColor = Color(0xff222222),
+            focusedContainerColor = BlueButton,
+            focusedTextColor = BlackText,
 
-            disabledContainerColor = Color(0xFFF6F8FE),
-            disabledTextColor = Color(0xff222222),
-            disabledLabelColor = Color(0xff222222),
-            disabledIndicatorColor = Color(0xff222222),
+            disabledContainerColor = BlueButton,
+            disabledTextColor = BlackText,
+            disabledLabelColor = BlackText,
+            disabledIndicatorColor = BlackText,
         )
     )
 }

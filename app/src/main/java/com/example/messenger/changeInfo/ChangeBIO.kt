@@ -17,7 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.messenger.utilis.CHILD_BIO
 import com.example.messenger.utilis.USER
-import com.example.messenger.utilis.changeInfo
+import com.example.messenger.utilis.choseChangeInformation
 import com.example.messenger.utilis.mainFieldStyle
 import com.example.messenger.utilis.makeToast
 
@@ -44,7 +44,7 @@ fun ChangeBIO(navController: NavHostController) {
                     makeToast("Напишите о себе!", context)
                 }
                 else {
-                    changeInfo(bio, CHILD_BIO, context, navController)
+                    choseChangeInformation(bio, CHILD_BIO, context, navController)
 
                 }
             }

@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Context
 import androidx.navigation.NavHostController
 import com.example.messenger.modals.User
+import com.example.messenger.modals.setLocalDataForUser
 import com.example.messenger.navigation.Screens
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
@@ -18,6 +19,7 @@ lateinit var USER: User
 lateinit var UID: String //Уникальный индификационный номер
 
 const val NODE_USERS = "users"
+const val NODE_USERNAMES = "usernames"
 const val CHILD_ID = "id"
 const val CHILD_PHONE = "phone"
 const val CHILD_PASSWORD = "password"
@@ -52,6 +54,37 @@ fun initUser(context: Activity) {
 
 }
 
+
+fun choseChangeInformation(
+    changeInfo: String,
+    typeInfo: String,
+    context: Context,
+    navController: NavHostController
+) {
+    when (typeInfo) {
+        CHILD_FULLNAME -> {
+            changeInfo(changeInfo, typeInfo, context, navController)
+        }
+
+        CHILD_USER_NAME -> {
+            checkUsername(changeInfo, context, navController)
+        }
+
+        CHILD_BIO -> {
+            changeInfo(changeInfo, typeInfo, context, navController)
+        }
+
+        CHILD_PHONE -> {
+            changeInfo(changeInfo, typeInfo, context, navController)
+        }
+
+        CHILD_PASSWORD -> {
+            changeInfo(changeInfo, typeInfo, context, navController)
+        }
+    }
+
+}
+
 fun changeInfo(
     changeInfo: String,
     typeInfo: String,
@@ -64,37 +97,68 @@ fun changeInfo(
         .child(typeInfo)
         .setValue(changeInfo).addOnCompleteListener {
             if (it.isSuccessful) {
-                makeToast("Данные обновлены!", context)
-                choseChangeInformation(changeInfo, typeInfo)
-                navController.navigate(Screens.Settings.route) {}
-            }
+                setLocalDataForUser(changeInfo, typeInfo)
+                navController.navigate(Screens.Settings.route) {
+                    launchSingleTop = true
+                }
+            } else
+                makeToast("Ошибка", context)
         }
+
 
 }
 
-fun choseChangeInformation(changeInfo: String, typeInfo: String) {
-    when (typeInfo) {
-        CHILD_FULLNAME -> {
-            USER.fullname = changeInfo
+fun checkUsername(changeInfo: String, context: Context, navController: NavHostController) {
+    REF_DATABASE_ROOT.child(NODE_USERNAMES).addListenerForSingleValueEvent(object :
+        ValueEventListener { //Создаём запрос на проверку ника.
+        override fun onDataChange(snapshot: DataSnapshot) {
+            val usernames = snapshot.children.map { snapshot.value.toString() }.toString()
+            val regex = Regex("[^\\w\\d_]+")
+
+            val tempArray = usernames.split("=").toMutableList()
+
+            val oldUserName = tempArray[0].replace(regex, "")
+
+            if (oldUserName == changeInfo.lowercase()) {// Проверяем, есть ли такой ник в базе.
+                makeToast(
+                    "Имя пользователя занято",
+                    context
+                )// Если есть, то выводим сообщение, что ник занят
+            } else {
+                changeUserName()
+            }
         }
 
-        CHILD_USER_NAME -> {
-            USER.username = changeInfo
+        private fun changeUserName() {
+            deleteOldUsername() //И удаляем старый ник из базы
+            REF_DATABASE_ROOT.child(NODE_USERNAMES).child(changeInfo.lowercase())
+                .setValue(UID) //Если нет, то записываем в ноду никнеймов ник
+            REF_DATABASE_ROOT.child(NODE_USERS).child(UID).child(CHILD_USER_NAME)
+                .setValue(changeInfo) //И записываем в юзера новый ник
+
+            makeToast("Ник пользователя изменён", context)
+            navController.navigate(Screens.Settings.route) {
+                launchSingleTop = true
+            } //Переходим на страницу настроек
         }
 
-        CHILD_BIO -> {
-            USER.bio = changeInfo
+        private fun deleteOldUsername() {
+            REF_DATABASE_ROOT.child(NODE_USERNAMES).child(USER.username).removeValue()
+                .addOnCompleteListener {
+                    if (it.isSuccessful) {
+                        setLocalDataForUser(
+                            changeInfo.lowercase(),
+                            CHILD_USER_NAME
+                        )  //И обновляем нашу локальную модель юзера
+                    }
+                }
+
         }
 
-        CHILD_PHONE -> {
-            USER.phone = changeInfo
+        override fun onCancelled(error: DatabaseError) {
+            makeToast(error.message, context)
         }
-
-        CHILD_PASSWORD -> {
-            USER.password = changeInfo
-        }
-    }
-
+    })
 }
 
 

@@ -33,7 +33,7 @@ import com.example.messenger.changeInfo.ui.theme.MessengerTheme
 import com.example.messenger.user_sing_in_and_up.EnterCode
 import com.example.messenger.utilis.USER
 import com.example.messenger.utilis.goTo
-import com.example.messenger.utilis.mainFieldStyle
+import com.example.messenger.utilis.MainFieldStyle
 
 class ChangeNumber : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -70,7 +70,7 @@ class ChangeNumber : ComponentActivity() {
                     fontSize = 12.sp
                 )
                 Spacer(modifier = Modifier.padding(40.dp))
-                mainFieldStyle(
+                MainFieldStyle(
                     labelText = "Новый номер телефона",
                     enable = true,
                     maxLine = 1,

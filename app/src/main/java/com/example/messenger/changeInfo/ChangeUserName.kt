@@ -16,7 +16,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.messenger.utilis.CHILD_USER_NAME
-import com.example.messenger.utilis.changeInfo
+import com.example.messenger.utilis.USER
+import com.example.messenger.utilis.choseChangeInformation
 import com.example.messenger.utilis.mainFieldStyle
 import com.example.messenger.utilis.makeToast
 
@@ -28,21 +29,22 @@ fun ChangeUserName(navController: NavHostController) {
         horizontalAlignment = Alignment.CenterHorizontally)
     {
         Spacer(modifier = Modifier.padding(0.dp, 100.dp, 0.dp, 0.dp))
-        Text(text = "Введите ваш новый никнейм:")
+        Text(text = "Введите ваш новый никнейм. Пишите всё с маленькой буквы!")
         Spacer(modifier = Modifier.padding(0.dp, 40.dp, 0.dp, 0.dp))
-        val phoneField = mainFieldStyle(
+        val changeUserNameField = mainFieldStyle(
             labelText = "Никнейм",
             enable = true,
-            maxLine = 1
+            maxLine = 1,
+            USER.username
         ) {}
         Spacer(modifier = Modifier.padding(0.dp, 40.dp, 0.dp, 0.dp))
         Button(
             onClick = {
-                if (phoneField == ""){
+                if (changeUserNameField == ""){
                     makeToast("Введите никнейм!", context)
                 }
                 else {
-                    changeInfo(phoneField, CHILD_USER_NAME, context, navController)
+                    choseChangeInformation(changeUserNameField, CHILD_USER_NAME, context, navController)
                 }
             }
         ) {
