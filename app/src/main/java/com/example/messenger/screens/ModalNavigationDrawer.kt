@@ -9,9 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
@@ -42,6 +40,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.navigation.NavDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
@@ -49,9 +48,10 @@ import com.example.messenger.navigation.DrawerNavigation
 import com.example.messenger.navigation.Screens
 import com.example.messenger.user_sing_in_and_up.LoginActivity
 import com.example.messenger.utilis.AUTH
+import com.example.messenger.utilis.NavIconButton
 import com.example.messenger.utilis.USER
+import com.example.messenger.utilis.flagDropMenuButtonOnSettingsScreen
 import com.example.messenger.utilis.flagNavButtonOnChatsScreen
-import com.example.messenger.utilis.flagNavButtonOnSettingsScreen
 import com.example.messenger.utilis.goTo
 import com.example.messenger.utilis.on_settings_screen
 import kotlinx.coroutines.CoroutineScope
@@ -150,50 +150,20 @@ fun NavDrawer() {
                     ),
                     actions = {//Элементы в конце TopAppBar
                         navController.addOnDestinationChangedListener { _, destination, _ -> //Хочу, чтобы выпадающий список появлялся только на странице настроек
-                            flagNavButtonOnSettingsScreen =
-                                if ((destination.route == Screens.Settings.route)) {
-                                    1
-                                } else {
-                                    -1
-                                }
+                            checkButtonOnSettingsScreen(destination)
                         }
-                        if (flagNavButtonOnSettingsScreen == 1) {
+                        if (flagDropMenuButtonOnSettingsScreen == 1) {
                             DropdownMenuItems(drawerState, coroutineScope, navController)
                         }
                     },
                     navigationIcon = {
                         navController.addOnDestinationChangedListener { _, destination, _ ->
-                            flagNavButtonOnChatsScreen =
-                                if (destination.route == Screens.Chats.route) {
-                                    1
-                                } else {
-                                    -1
-                                }
+                            checkButtonOnChatScreen(destination)
                         }
                         if (flagNavButtonOnChatsScreen == 1) {
-                            IconButton(
-                                onClick = {
-                                    coroutineScope.launch { drawerState.open() }
-                                }
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Menu,
-                                    contentDescription = "Menu icon"
-                                )
-                            }
+                            NavIconButton(coroutineScope, drawerState)
                         } else {
-                            IconButton(
-                                onClick = {
-                                    coroutineScope.launch {
-                                        navButtonBack(navController)
-                                    }
-                                }
-                            ) {
-                                Icon(
-                                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                    contentDescription = "Back icon"
-                                )
-                            }
+                            NavIconButton(coroutineScope, navController)
                         }
 
                     },
@@ -211,8 +181,27 @@ fun NavDrawer() {
     }
 }
 
+private fun checkButtonOnSettingsScreen(destination: NavDestination) {
+    flagDropMenuButtonOnSettingsScreen =
+        if ((destination.route == Screens.Settings.route)) {
+            1
+        } else {
+            -1
+        }
+}
 
-private fun navButtonBack(navController: NavHostController) {
+
+private fun checkButtonOnChatScreen(destination: NavDestination) {
+    flagNavButtonOnChatsScreen =
+        if (destination.route == Screens.Chats.route) {
+            1
+        } else {
+            -1
+        }
+}
+
+
+fun navButtonBack(navController: NavHostController) {
     navController.addOnDestinationChangedListener { _, destination, _ ->
         on_settings_screen = destination.route == Screens.ChangeName.route ||
                 destination.route == Screens.ChangeUserName.route ||
