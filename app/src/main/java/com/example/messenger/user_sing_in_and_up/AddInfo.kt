@@ -170,7 +170,7 @@ class AddInfo : ComponentActivity() {
         USER.bio = bio
         //USER.photoURL = photoURL
         USER.phone = phoneNumber
-        USER.password =  passwordFromSignUpActivity
+        USER.password = passwordFromSignUpActivity
     }
 
 }

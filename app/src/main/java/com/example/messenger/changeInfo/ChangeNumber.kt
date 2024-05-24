@@ -18,30 +18,26 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.messenger.MainActivity
+import com.example.messenger.R
 import com.example.messenger.changeInfo.ui.theme.MessengerTheme
 import com.example.messenger.user_sing_in_and_up.EnterCode
+import com.example.messenger.utilis.USER
 import com.example.messenger.utilis.goTo
+import com.example.messenger.utilis.mainFieldStyle
 
 class ChangeNumber : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         enableEdgeToEdge()
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
         setContent {
@@ -57,42 +53,34 @@ class ChangeNumber : ComponentActivity() {
 
     @Composable
     fun Greeting(modifier: Modifier = Modifier) {
-        var phone by remember { mutableStateOf("") }
         val context = LocalContext.current
 
         Column(modifier = Modifier
             .fillMaxSize()
-            .padding(0.dp, 100.dp, 0.dp, 0.dp).imePadding(),
+            .padding(0.dp, 100.dp, 0.dp, 0.dp)
+            .imePadding(),
             horizontalAlignment = Alignment.CenterHorizontally)
         {
             Column(modifier = Modifier.fillMaxHeight(0.85f),
                 horizontalAlignment = Alignment.CenterHorizontally)
             {
                 Text(
-                    text = "Введите новый номер телефона.\n" +
-                            "Потом нажмите на кнопку снизу справа экрана, чтобы" +
-                            "\nпродолжить",
+                    text = stringResource(R.string.change_number_text),
                     textAlign = TextAlign.Center,
                     fontSize = 12.sp
                 )
                 Spacer(modifier = Modifier.padding(40.dp))
-                TextField(
-                    value = phone,
-                    onValueChange = { phone = it },
-                    modifier = Modifier.fillMaxWidth(),
-                    placeholder = { Text("") },
-                    maxLines = 1,
+                mainFieldStyle(
+                    labelText = "Новый номер телефона",
+                    enable = true,
+                    maxLine = 1,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
-                    label = { Text(text = "Новый номер телефона", fontSize = 12.sp) },
-                    colors = TextFieldDefaults.colors(
-                        unfocusedContainerColor = Color(0xFFF6F8FE),
-                        unfocusedTextColor = Color(0xff888888),
-                        focusedContainerColor = Color(0xFFF6F8FE),
-                        focusedTextColor = Color(0xff222222),
-                    )
-                )
+                    mText = USER.phone
+                ) {}
             }
-            Row(modifier = Modifier.fillMaxWidth().imePadding() ){
+            Row(modifier = Modifier
+                .fillMaxWidth()
+                .imePadding() ){
                 Row(horizontalArrangement = Arrangement.Start,
                     modifier = Modifier.fillMaxWidth(0.5f)
                 )
@@ -122,6 +110,8 @@ class ChangeNumber : ComponentActivity() {
 
         }
     }
+
+
 }
 
 

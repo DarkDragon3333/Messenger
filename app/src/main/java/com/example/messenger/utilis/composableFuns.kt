@@ -2,6 +2,7 @@ package com.example.messenger.utilis
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Menu
@@ -25,7 +26,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
-fun mainFieldStyle (
+fun mainFieldStyle(
     labelText: String,
     enable: Boolean,
     maxLine: Int,
@@ -56,12 +57,13 @@ fun mainFieldStyle (
             disabledLabelColor = Color(0xff222222),
             disabledIndicatorColor = Color(0xff222222),
 
-        )
+            )
     )
     return text
 }
+
 @Composable
-fun mainFieldStyle (
+fun mainFieldStyle(
     labelText: String,
     enable: Boolean,
     maxLine: Int,
@@ -69,31 +71,69 @@ fun mainFieldStyle (
     action: () -> Unit,
 ): String {
     var text by remember { mutableStateOf(mText) }
-        TextField(
-            value = text,
-            onValueChange = { text = it },
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable {
-                    action()
-                },
-            label = { Text(text = labelText, fontSize = 12.sp) },
-            maxLines = maxLine,
-            enabled = enable,
-            colors = TextFieldDefaults.colors(
-                unfocusedContainerColor = Color(0xFFF6F8FE),
-                unfocusedTextColor = Color(0xff222222),
+    TextField(
+        value = text,
+        onValueChange = { text = it },
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable {
+                action()
+            },
+        label = { Text(text = labelText, fontSize = 12.sp) },
+        maxLines = maxLine,
+        enabled = enable,
+        colors = TextFieldDefaults.colors(
+            unfocusedContainerColor = Color(0xFFF6F8FE),
+            unfocusedTextColor = Color(0xff222222),
 
-                focusedContainerColor = Color(0xFFF6F8FE),
-                focusedTextColor = Color(0xff222222),
+            focusedContainerColor = Color(0xFFF6F8FE),
+            focusedTextColor = Color(0xff222222),
 
-                disabledContainerColor = Color(0xFFF6F8FE),
-                disabledTextColor = Color(0xff222222),
-                disabledLabelColor = Color(0xff222222),
-                disabledIndicatorColor = Color(0xff222222),
-            )
+            disabledContainerColor = Color(0xFFF6F8FE),
+            disabledTextColor = Color(0xff222222),
+            disabledLabelColor = Color(0xff222222),
+            disabledIndicatorColor = Color(0xff222222),
         )
+    )
     return text
+}
+
+@Composable
+fun mainFieldStyle(
+    labelText: String,
+    enable: Boolean,
+    maxLine: Int,
+    keyboardOptions:
+    KeyboardOptions,
+    mText: String,
+    function: () -> Unit
+) {
+    var text by remember { mutableStateOf(mText) }
+    TextField(
+        value = text,
+        onValueChange = { text = it },
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable {
+                function()
+            },
+        label = { Text(text = labelText, fontSize = 12.sp) },
+        maxLines = maxLine,
+        enabled = enable,
+        keyboardOptions = keyboardOptions,
+        colors = TextFieldDefaults.colors(
+            unfocusedContainerColor = Color(0xFFF6F8FE),
+            unfocusedTextColor = Color(0xff222222),
+
+            focusedContainerColor = Color(0xFFF6F8FE),
+            focusedTextColor = Color(0xff222222),
+
+            disabledContainerColor = Color(0xFFF6F8FE),
+            disabledTextColor = Color(0xff222222),
+            disabledLabelColor = Color(0xff222222),
+            disabledIndicatorColor = Color(0xff222222),
+        )
+    )
 }
 
 @Composable

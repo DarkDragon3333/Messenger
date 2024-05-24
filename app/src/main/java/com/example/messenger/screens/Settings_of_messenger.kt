@@ -1,6 +1,5 @@
 package com.example.messenger.screens
 
-import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -30,6 +29,7 @@ import com.example.messenger.navigation.Screens
 import com.example.messenger.utilis.USER
 import com.example.messenger.utilis.goTo
 import com.example.messenger.utilis.mainFieldStyle
+import com.example.messenger.utilis.makeToast
 
 @Composable
 fun SettingsScreen(navController: NavHostController) {
@@ -76,7 +76,7 @@ fun BodyOfSettings(navController: NavHostController) {
         Text(text = "Аккаунт", modifier = Modifier.padding(15.dp, 0.dp, 0.dp, 0.dp))
 
         Spacer(modifier = Modifier.padding(8.dp))
-        val phone = mainFieldStyle(
+        mainFieldStyle(
             labelText = "Нажмите, чтобы изменить номер",
             enable = false,
             3,
@@ -84,7 +84,7 @@ fun BodyOfSettings(navController: NavHostController) {
         ) { goTo(ChangeNumber::class.java, context) }
 
         Spacer(modifier = Modifier.padding(8.dp))
-        val idAccount = mainFieldStyle(
+        mainFieldStyle(
             labelText = "Нажмите, чтобы изменить ваш ник",
             enable = false,
             1,
@@ -96,15 +96,16 @@ fun BodyOfSettings(navController: NavHostController) {
         }
 
         Spacer(modifier = Modifier.padding(8.dp))
-        val bioField = mainFieldStyle(
+        mainFieldStyle(
             labelText = "Напишите немного о себе",
             enable = false,
             1,
             USER.bio,
         ) {
             navController.navigate(Screens.ChangeBIO.route) {//Используем navController для перемещения по экранам
-            launchSingleTop = true
-        }}
+                launchSingleTop = true
+            }
+        }
     }
     Spacer(modifier = Modifier.padding(16.dp))
     HorizontalDivider(modifier = Modifier.padding(bottom = 10.dp), thickness = 5.dp)
@@ -144,9 +145,7 @@ fun ElementOfFooter(lock: ImageVector, s: String) {
         modifier = Modifier
             .padding(10.dp, 0.dp, 0.dp, 0.dp)
             .clickable {
-                Toast
-                    .makeText(context, s, Toast.LENGTH_SHORT)
-                    .show()
+                makeToast(s, context)
             }
     ) {
         Icon(lock, contentDescription = "")

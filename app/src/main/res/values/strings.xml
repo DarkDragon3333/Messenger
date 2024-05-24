@@ -5,4 +5,5 @@
     <string name="title_activity_change_number">ChangeNumber</string>
     <string name="title_activity_send_message">SendMessage</string>
     <string name="title_activity_add_name">AddName</string>
+    <string name="change_number_text">Введите новый номер телефона.\nПотом нажмите на кнопку снизу справа экрана, чтобы\nпродолжить</string>
 </resources>

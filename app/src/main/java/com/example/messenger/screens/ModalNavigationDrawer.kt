@@ -250,7 +250,7 @@ fun DropdownMenuItems(
                 text = { Text("Изменить ФИО") }
             )
             DropdownMenuItem(
-                onClick = {  },
+                onClick = { },
                 text = { Text("Изменить фото") }
             )
             HorizontalDivider()

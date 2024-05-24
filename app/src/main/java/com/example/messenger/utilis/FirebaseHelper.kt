@@ -40,7 +40,8 @@ fun initUser(context: Activity) {
         .addListenerForSingleValueEvent(
             object : ValueEventListener { //Один раз при запуске обновляем наши данные
                 override fun onDataChange(snapshot: DataSnapshot) {
-                    USER = snapshot.getValue(User::class.java) ?: User() //Получаем данные через переменную snapshot. Если будет null поле, то вы инициализируем пустым пользователем
+                    USER = snapshot.getValue(User::class.java)
+                        ?: User() //Получаем данные через переменную snapshot. Если будет null поле, то вы инициализируем пустым пользователем
                 }
 
                 override fun onCancelled(error: DatabaseError) {
@@ -65,8 +66,7 @@ fun changeInfo(
             if (it.isSuccessful) {
                 makeToast("Данные обновлены!", context)
                 choseChangeInformation(changeInfo, typeInfo)
-                navController.navigate(Screens.Settings.route) {
-                }
+                navController.navigate(Screens.Settings.route) {}
             }
         }
 
@@ -77,15 +77,19 @@ fun choseChangeInformation(changeInfo: String, typeInfo: String) {
         CHILD_FULLNAME -> {
             USER.fullname = changeInfo
         }
+
         CHILD_USER_NAME -> {
             USER.username = changeInfo
         }
+
         CHILD_BIO -> {
             USER.bio = changeInfo
         }
+
         CHILD_PHONE -> {
             USER.phone = changeInfo
         }
+
         CHILD_PASSWORD -> {
             USER.password = changeInfo
         }
