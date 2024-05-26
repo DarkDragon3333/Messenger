@@ -4,6 +4,8 @@ import com.example.messenger.utilis.CHILD_BIO
 import com.example.messenger.utilis.CHILD_FULLNAME
 import com.example.messenger.utilis.CHILD_PASSWORD
 import com.example.messenger.utilis.CHILD_PHONE
+import com.example.messenger.utilis.CHILD_PHOTO_URL
+import com.example.messenger.utilis.CHILD_STATUS
 import com.example.messenger.utilis.CHILD_USER_NAME
 import com.example.messenger.utilis.USER
 
@@ -38,6 +40,14 @@ fun setLocalDataForUser(changeInfo: String, typeInfo: String) {
 
         CHILD_PASSWORD -> {
             USER.password = changeInfo
+        }
+
+        CHILD_STATUS -> {
+            USER.status = changeInfo
+        }
+
+        CHILD_PHOTO_URL -> {
+            USER.photoUrl = changeInfo
         }
     }
 }

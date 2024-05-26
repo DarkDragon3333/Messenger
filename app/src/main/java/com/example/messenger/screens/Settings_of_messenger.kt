@@ -7,9 +7,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Settings
@@ -24,8 +22,10 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.example.messenger.R
 import com.example.messenger.changeInfo.ChangeNumber
 import com.example.messenger.navigation.Screens
+import com.example.messenger.utilis.MainImage
 import com.example.messenger.utilis.USER
 import com.example.messenger.utilis.goTo
 import com.example.messenger.utilis.mainFieldStyle
@@ -51,11 +51,9 @@ fun HeaderOfSettings() {
         verticalAlignment = Alignment.CenterVertically
     ) {
         Spacer(modifier = Modifier.padding(4.dp))
-        Icon(
-            Icons.Default.AccountCircle,
-            contentDescription = "AccountCircle",
-            modifier = Modifier.size(64.dp)
-        )
+
+        MainImage(image = R.drawable.tank, dp = 64.dp) {}
+
         Spacer(modifier = Modifier.padding(4.dp))
         Column {
             Text(text = USER.fullname, color = Color.Black)
@@ -81,7 +79,9 @@ fun BodyOfSettings(navController: NavHostController) {
             enable = false,
             3,
             USER.phone
-        ) { goTo(ChangeNumber::class.java, context) }
+        ) {
+            goTo(ChangeNumber::class.java, context)
+        }
 
         Spacer(modifier = Modifier.padding(8.dp))
         mainFieldStyle(
@@ -90,9 +90,7 @@ fun BodyOfSettings(navController: NavHostController) {
             1,
             USER.username,
         ) {
-            navController.navigate(Screens.ChangeUserName.route) {//Используем navController для перемещения по экранам
-                launchSingleTop = true
-            }
+            goTo(navController, Screens.ChangeUserName)
         }
 
         Spacer(modifier = Modifier.padding(8.dp))
@@ -102,14 +100,14 @@ fun BodyOfSettings(navController: NavHostController) {
             1,
             USER.bio,
         ) {
-            navController.navigate(Screens.ChangeBIO.route) {//Используем navController для перемещения по экранам
-                launchSingleTop = true
-            }
+            goTo(navController, Screens.ChangeBIO)
         }
     }
     Spacer(modifier = Modifier.padding(16.dp))
     HorizontalDivider(modifier = Modifier.padding(bottom = 10.dp), thickness = 5.dp)
 }
+
+
 
 @Composable
 fun FooterOfSettings() {

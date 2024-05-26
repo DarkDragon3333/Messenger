@@ -60,4 +60,9 @@ sealed class Screens(
         route = "смена описания",
         icon = Icons.Default.Edit
     )
+    data object ChangePhotoUrl: Screens (
+        title = "Смена фото профиля",
+        route = "смена фото профиля",
+        icon = Icons.Default.Edit
+    )
 }

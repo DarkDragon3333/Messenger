@@ -8,6 +8,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.messenger.changeInfo.ChangeBIO
 import com.example.messenger.changeInfo.ChangeName
+import com.example.messenger.changeInfo.ChangePhotoUrl
 import com.example.messenger.changeInfo.ChangeUserName
 import com.example.messenger.screens.SettingsScreen
 
@@ -43,6 +44,9 @@ fun DrawerNavigation(navController: NavHostController) {
         }
         composable(Screens.ChangeUserName.route) {
             ChangeUserName(navController)
+        }
+        composable(Screens.ChangePhotoUrl.route) {
+            ChangePhotoUrl()
         }
     }
 }

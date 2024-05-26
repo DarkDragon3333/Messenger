@@ -26,6 +26,8 @@ const val CHILD_PASSWORD = "password"
 const val CHILD_USER_NAME = "username"
 const val CHILD_FULLNAME = "fullname"
 const val CHILD_BIO = "bio"
+const val CHILD_STATUS: String = "status"
+const val CHILD_PHOTO_URL: String = "photoUrl"
 
 
 fun initFirebase() {
@@ -98,14 +100,10 @@ fun changeInfo(
         .setValue(changeInfo).addOnCompleteListener {
             if (it.isSuccessful) {
                 setLocalDataForUser(changeInfo, typeInfo)
-                navController.navigate(Screens.Settings.route) {
-                    launchSingleTop = true
-                }
+                goTo(navController, Screens.Settings)
             } else
                 makeToast("Ошибка", context)
         }
-
-
 }
 
 fun checkUsername(changeInfo: String, context: Context, navController: NavHostController) {
@@ -114,16 +112,11 @@ fun checkUsername(changeInfo: String, context: Context, navController: NavHostCo
         override fun onDataChange(snapshot: DataSnapshot) {
             val usernames = snapshot.children.map { snapshot.value.toString() }.toString()
             val regex = Regex("[^\\w\\d_]+")
-
             val tempArray = usernames.split("=").toMutableList()
-
             val oldUserName = tempArray[0].replace(regex, "")
 
-            if (oldUserName == changeInfo.lowercase()) {// Проверяем, есть ли такой ник в базе.
-                makeToast(
-                    "Имя пользователя занято",
-                    context
-                )// Если есть, то выводим сообщение, что ник занят
+            if (oldUserName == changeInfo.lowercase()) { // Проверяем, есть ли такой ник в базе.
+                makeToast("Имя пользователя занято", context) // Если есть, то выводим сообщение, что ник занят
             } else {
                 changeUserName()
             }
@@ -136,10 +129,9 @@ fun checkUsername(changeInfo: String, context: Context, navController: NavHostCo
             REF_DATABASE_ROOT.child(NODE_USERS).child(UID).child(CHILD_USER_NAME)
                 .setValue(changeInfo) //И записываем в юзера новый ник
 
-            makeToast("Ник пользователя изменён", context)
-            navController.navigate(Screens.Settings.route) {
-                launchSingleTop = true
-            } //Переходим на страницу настроек
+            makeToast("Ваш ник изменён", context)
+
+            goTo(navController, Screens.Settings) //Переходим на страницу настроек
         }
 
         private fun deleteOldUsername() {

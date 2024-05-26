@@ -1,6 +1,5 @@
 package com.example.messenger.screens
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -9,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
@@ -39,15 +37,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.messenger.R
 import com.example.messenger.navigation.DrawerNavigation
 import com.example.messenger.navigation.Screens
 import com.example.messenger.user_sing_in_and_up.LoginActivity
 import com.example.messenger.utilis.AUTH
+import com.example.messenger.utilis.MainImage
 import com.example.messenger.utilis.NavIconButton
 import com.example.messenger.utilis.USER
 import com.example.messenger.utilis.flagDropMenuButtonOnSettingsScreen
@@ -55,7 +54,6 @@ import com.example.messenger.utilis.flagNavButtonOnChatsScreen
 import com.example.messenger.utilis.goTo
 import com.example.messenger.utilis.on_settings_screen
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -84,17 +82,15 @@ fun NavDrawer() {
 
                 Column(modifier = Modifier.padding(15.dp, 0.dp)) {
                     Spacer(modifier = Modifier.padding(10.dp))
-                    Icon(
-                        Icons.Default.AccountCircle,
-                        contentDescription = "",
-                        modifier = Modifier.clickable {
-                            navController.navigate(Screens.YourProfile.route) {//Используем navController для перемещения по экранам
-                                launchSingleTop = true
-                            }
-                            coroutineScope.launch {
-                                drawerState.close()
-                            }
-                        })
+                    MainImage(R.drawable.tank, 64.dp){
+                        goTo(
+                            navController,
+                            Screens.YourProfile,
+                            coroutineScope,
+                            drawerState
+                        )
+                    }
+
                     Spacer(modifier = Modifier.padding(10.dp))
                     Text(text = USER.fullname)
                     Spacer(modifier = Modifier.padding(10.dp))
@@ -120,12 +116,7 @@ fun NavDrawer() {
                                 selected = currentRoute == screen.route,
                                 modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
                                 onClick = {
-                                    navController.navigate(screen.route) {//Используем navController для перемещения по экранам
-                                        launchSingleTop = true
-                                    }
-                                    coroutineScope.launch {
-                                        drawerState.close()
-                                    }
+                                    goTo(navController, screen, coroutineScope, drawerState)
                                 }
                             )
                         }
@@ -142,7 +133,9 @@ fun NavDrawer() {
                 TopAppBar(
                     title = {
                         Text(
-                            text = currentRoute.toString().replaceFirstChar { it.uppercase() })
+                            text = currentRoute
+                                .toString()
+                                .replaceFirstChar { it.uppercase() })
                     },
                     modifier = Modifier.fillMaxWidth(),
                     colors = TopAppBarDefaults.topAppBarColors(
@@ -180,6 +173,9 @@ fun NavDrawer() {
         }
     }
 }
+
+
+
 
 private fun checkButtonOnSettingsScreen(destination: NavDestination) {
     flagDropMenuButtonOnSettingsScreen =
@@ -223,7 +219,7 @@ fun navButtonBack(navController: NavHostController) {
 fun DropdownMenuItems(
     drawerState: DrawerState,
     coroutineScope: CoroutineScope,
-    navController: NavController,
+    navController: NavHostController,
 ) {
     var expanded by remember { mutableStateOf(false) }
     val context = LocalContext.current
@@ -240,17 +236,14 @@ fun DropdownMenuItems(
         ) {
             DropdownMenuItem(
                 onClick = {
-                    navController.navigate(Screens.ChangeName.route) {//Используем navController для перемещения по экранам
-                        launchSingleTop = true
-                    }
-                    coroutineScope.launch {
-                        drawerState.close()
-                    }
+                    goTo(navController, Screens.ChangeName, coroutineScope, drawerState)
                 },
                 text = { Text("Изменить ФИО") }
             )
             DropdownMenuItem(
-                onClick = { },
+                onClick = {
+                    goTo(navController, Screens.ChangePhotoUrl, coroutineScope, drawerState)
+                },
                 text = { Text("Изменить фото") }
             )
             HorizontalDivider()

@@ -31,9 +31,9 @@ import com.example.messenger.MainActivity
 import com.example.messenger.R
 import com.example.messenger.changeInfo.ui.theme.MessengerTheme
 import com.example.messenger.user_sing_in_and_up.EnterCode
+import com.example.messenger.utilis.MainFieldStyle
 import com.example.messenger.utilis.USER
 import com.example.messenger.utilis.goTo
-import com.example.messenger.utilis.MainFieldStyle
 
 class ChangeNumber : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

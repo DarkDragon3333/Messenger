@@ -1,7 +1,10 @@
 package com.example.messenger.utilis
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -18,6 +21,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.messenger.screens.navButtonBack
@@ -173,4 +180,23 @@ fun NavIconButton(
             contentDescription = "Back icon"
         )
     }
+}
+
+@Composable
+fun MainImage(
+    image: Int,
+    dp: Dp,
+    action: () -> Unit,
+) {
+    Image(
+        painter = painterResource(id = image),
+        contentDescription = "Chagement",
+        contentScale = ContentScale.Crop,
+        modifier = Modifier
+            .clip(CircleShape)
+            .size(dp)
+            .clickable {
+                action()
+            }
+    )
 }

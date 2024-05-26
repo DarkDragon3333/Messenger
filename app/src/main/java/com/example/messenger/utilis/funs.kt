@@ -4,8 +4,13 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.widget.Toast
+import androidx.compose.material3.DrawerState
+import androidx.navigation.NavHostController
+import com.example.messenger.navigation.Screens
 import com.example.messenger.user_sing_in_and_up.AddInfo
 import com.google.firebase.auth.PhoneAuthProvider
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 /*
 Служебные функции приложения
@@ -67,4 +72,24 @@ fun <templateActivity> goTo(
     intent.putExtra("fullname", fullname) //Id пользователя
     intent.putExtra("userName", userName) //Номер телефона
     context.startActivity(intent)
+}
+
+fun goTo(
+    navController: NavHostController,
+    screen: Screens,
+    coroutineScope: CoroutineScope,
+    drawerState: DrawerState
+) {
+    navController.navigate(screen.route) {//Используем navController для перемещения по экранам
+        launchSingleTop = true
+    }
+    coroutineScope.launch {
+        drawerState.close()
+    }
+}
+
+fun goTo(navController: NavHostController, screen: Screens) {
+    navController.navigate(screen.route) {//Используем navController для перемещения по экранам
+        launchSingleTop = true
+    }
 }
