@@ -46,7 +46,7 @@ fun DrawerNavigation(navController: NavHostController) {
             ChangeUserName(navController)
         }
         composable(Screens.ChangePhotoUrl.route) {
-            ChangePhotoUrl()
+            ChangePhotoUrl(navController)
         }
     }
 }

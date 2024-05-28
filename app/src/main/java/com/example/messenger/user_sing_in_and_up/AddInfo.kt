@@ -142,7 +142,6 @@ class AddInfo : ComponentActivity() {
     private fun workWithDataForDataBase() {
         val uId = AUTH.currentUser?.uid.toString() //Берём Id текущего пользователя
         val dataMap = mutableMapOf<String, Any>() //Создаём место, куда погрузим наши данные для бд
-
         dataMap[CHILD_ID] = uId
         dataMap[CHILD_FULLNAME] = fullname
         dataMap[CHILD_USER_NAME] = userName
@@ -161,6 +160,8 @@ class AddInfo : ComponentActivity() {
                     makeToast(it.exception?.message.toString(), context)
                 }
             }
+
+
     }
 
     private fun initUSER() {

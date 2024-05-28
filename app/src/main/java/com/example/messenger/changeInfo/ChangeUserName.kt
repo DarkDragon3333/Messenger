@@ -3,6 +3,7 @@ package com.example.messenger.changeInfo
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
@@ -13,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.messenger.utilis.CHILD_USER_NAME
@@ -26,10 +28,15 @@ fun ChangeUserName(navController: NavHostController) {
     val context = LocalContext.current
     Column(
         modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally)
+        horizontalAlignment = Alignment.CenterHorizontally
+    )
     {
         Spacer(modifier = Modifier.padding(0.dp, 100.dp, 0.dp, 0.dp))
-        Text(text = "Введите ваш новый никнейм. Пишите всё с маленькой буквы!")
+        Text(
+            text = "Введите ваш новый никнейм. Пишите всё с маленькой буквы!",
+            modifier = Modifier.fillMaxWidth(),
+            textAlign = TextAlign.Center
+        )
         Spacer(modifier = Modifier.padding(0.dp, 40.dp, 0.dp, 0.dp))
         val changeUserNameField = mainFieldStyle(
             labelText = "Никнейм",

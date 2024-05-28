@@ -12,14 +12,20 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageReference
 
 lateinit var AUTH: FirebaseAuth
 lateinit var REF_DATABASE_ROOT: DatabaseReference
+lateinit var REF_STORAGE_ROOT: StorageReference
 lateinit var USER: User
 lateinit var UID: String //Уникальный индификационный номер
 
 const val NODE_USERS = "users"
 const val NODE_USERNAMES = "usernames"
+
+const val FOLDER_PHOTOS = "photos"
+
 const val CHILD_ID = "id"
 const val CHILD_PHONE = "phone"
 const val CHILD_PASSWORD = "password"
@@ -35,6 +41,7 @@ fun initFirebase() {
     REF_DATABASE_ROOT = FirebaseDatabase.getInstance().reference
     USER = User()
     UID = AUTH.currentUser?.uid.toString()
+    REF_STORAGE_ROOT = FirebaseStorage.getInstance().reference
 }
 
 fun initUser(context: Activity) {
@@ -82,6 +89,10 @@ fun choseChangeInformation(
 
         CHILD_PASSWORD -> {
             changeInfo(changeInfo, typeInfo, context, navController)
+        }
+
+        CHILD_PHOTO_URL -> {
+            changeImage(context, navController)
         }
     }
 
@@ -153,6 +164,31 @@ fun checkUsername(changeInfo: String, context: Context, navController: NavHostCo
     })
 }
 
+fun changeImage(context: Context, navController: NavHostController) {
+    //Загружаем фото пользователя
+    val pathToPhoto = REF_STORAGE_ROOT.child(FOLDER_PHOTOS).child(UID)
+    pathToPhoto.downloadUrl.addOnCompleteListener { downloadTask ->
+        if (downloadTask.isSuccessful) {
+            val photoURL = downloadTask.result.toString()
+
+            REF_DATABASE_ROOT
+                .child(NODE_USERS)
+                .child(UID)
+                .child(CHILD_PHOTO_URL)
+                .setValue(photoURL).addOnCompleteListener { setValueTask ->
+                    if (setValueTask.isSuccessful) {
+                        setLocalDataForUser(photoURL, CHILD_PHOTO_URL)
+                        goTo(navController, Screens.Settings)
+                    } else
+                        makeToast("Ошибка", context)
+                }
+
+            goTo(navController, Screens.Settings)
+        } else {
+            makeToast(downloadTask.exception?.message.toString(), context)
+        }
+    }
+}
 
 
 

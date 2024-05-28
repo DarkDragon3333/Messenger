@@ -22,7 +22,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.example.messenger.R
 import com.example.messenger.changeInfo.ChangeNumber
 import com.example.messenger.navigation.Screens
 import com.example.messenger.utilis.MainImage
@@ -52,7 +51,7 @@ fun HeaderOfSettings() {
     ) {
         Spacer(modifier = Modifier.padding(4.dp))
 
-        MainImage(image = R.drawable.tank, dp = 64.dp) {}
+        MainImage(64.dp){}
 
         Spacer(modifier = Modifier.padding(4.dp))
         Column {

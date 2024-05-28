@@ -1,6 +1,5 @@
 package com.example.messenger.utilis
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
@@ -23,10 +22,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import coil.compose.AsyncImage
 import com.example.messenger.screens.navButtonBack
 import com.example.messenger.user_sing_in_and_up.ui.theme.BlackText
 import com.example.messenger.user_sing_in_and_up.ui.theme.BlueButton
@@ -184,13 +183,12 @@ fun NavIconButton(
 
 @Composable
 fun MainImage(
-    image: Int,
     dp: Dp,
     action: () -> Unit,
 ) {
-    Image(
-        painter = painterResource(id = image),
-        contentDescription = "Chagement",
+    AsyncImage(
+        model = USER.photoUrl,
+        contentDescription = "",
         contentScale = ContentScale.Crop,
         modifier = Modifier
             .clip(CircleShape)
@@ -199,4 +197,6 @@ fun MainImage(
                 action()
             }
     )
+
+
 }

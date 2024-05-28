@@ -17,7 +17,7 @@ import kotlinx.coroutines.launch
 */
 fun makeToast(msg: String, context: Context) {
     Toast
-        .makeText(context, msg, Toast.LENGTH_SHORT)
+        .makeText(context, msg, Toast.LENGTH_LONG)
         .show()
 }
 

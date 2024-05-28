@@ -41,7 +41,6 @@ import androidx.navigation.NavDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.messenger.R
 import com.example.messenger.navigation.DrawerNavigation
 import com.example.messenger.navigation.Screens
 import com.example.messenger.user_sing_in_and_up.LoginActivity
@@ -82,7 +81,7 @@ fun NavDrawer() {
 
                 Column(modifier = Modifier.padding(15.dp, 0.dp)) {
                     Spacer(modifier = Modifier.padding(10.dp))
-                    MainImage(R.drawable.tank, 64.dp){
+                    MainImage(64.dp){
                         goTo(
                             navController,
                             Screens.YourProfile,
