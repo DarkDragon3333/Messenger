@@ -13,13 +13,16 @@ import com.example.messenger.utilis.mainActivityContext
 import com.example.messenger.utilis.makeToast
 import com.example.messenger.utilis.myCheckPermission
 import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 
 class MainActivity : ComponentActivity() {
     private var requestPermissionLauncher  = registerForActivityResult(
         ActivityResultContracts.RequestPermission()) { isGranted ->
         if (isGranted) {
-            initContacts()
+            initContacts_()
         }
         else {
             makeToast("Нет разрешения", mainActivityContext)
@@ -27,7 +30,10 @@ class MainActivity : ComponentActivity() {
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        init()
+        CoroutineScope(Dispatchers.IO).launch {
+            init()
+        }
+
         setContent {
             MessengerTheme {
                 NavDrawer()
@@ -38,13 +44,14 @@ class MainActivity : ComponentActivity() {
     private fun init(){
         mainActivityContext = this
         AUTH = FirebaseAuth.getInstance()
-        initContacts()
+        initContacts_()
+        startLocationPermissionRequest()
 
     }
 
-    private fun initContacts() {
+    fun initContacts_(){
         if (myCheckPermission(READ_CONTACTS)){
-            makeToast("Читаем разрешение", mainActivityContext)
+            makeToast("Доступ к контактам разрешён", mainActivityContext)
         }
     }
 
