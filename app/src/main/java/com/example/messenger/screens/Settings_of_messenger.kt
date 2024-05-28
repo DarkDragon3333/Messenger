@@ -56,7 +56,7 @@ fun HeaderOfSettings() {
         Spacer(modifier = Modifier.padding(4.dp))
         Column {
             Text(text = USER.fullname, color = Color.Black)
-            Text(text = USER.phone, color = Color.Black)
+            Text(text = USER.status, color = Color.Black)
         }
 
     }

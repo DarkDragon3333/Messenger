@@ -92,7 +92,7 @@ fun NavDrawer() {
 
                     Spacer(modifier = Modifier.padding(10.dp))
                     Text(text = USER.fullname)
-                    Spacer(modifier = Modifier.padding(10.dp))
+                    Spacer(modifier = Modifier.padding(5.dp))
                     Text(text = USER.phone)
                 }
                 Spacer(modifier = Modifier.padding(10.dp)) //Отступ

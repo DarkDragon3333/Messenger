@@ -178,6 +178,7 @@ fun downloadImage(context: Context, navController: NavHostController) {
             makeToast(downloadTask.exception?.message.toString(), context)
         }
     }
+
 }
 
 
