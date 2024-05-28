@@ -51,7 +51,7 @@ fun HeaderOfSettings() {
     ) {
         Spacer(modifier = Modifier.padding(4.dp))
 
-        MainImage(64.dp){}
+        MainImage(64.dp) {}
 
         Spacer(modifier = Modifier.padding(4.dp))
         Column {
@@ -105,7 +105,6 @@ fun BodyOfSettings(navController: NavHostController) {
     Spacer(modifier = Modifier.padding(16.dp))
     HorizontalDivider(modifier = Modifier.padding(bottom = 10.dp), thickness = 5.dp)
 }
-
 
 
 @Composable

@@ -81,7 +81,7 @@ fun NavDrawer() {
 
                 Column(modifier = Modifier.padding(15.dp, 0.dp)) {
                     Spacer(modifier = Modifier.padding(10.dp))
-                    MainImage(64.dp){
+                    MainImage(64.dp) {
                         goTo(
                             navController,
                             Screens.YourProfile,
@@ -172,8 +172,6 @@ fun NavDrawer() {
         }
     }
 }
-
-
 
 
 private fun checkButtonOnSettingsScreen(destination: NavDestination) {

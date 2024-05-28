@@ -37,7 +37,7 @@ import com.google.firebase.storage.StorageReference
 
 lateinit var pathToPhoto: StorageReference
 
-    @Composable
+@Composable
 fun ChangePhotoUrl(navController: NavHostController) {
     val context = LocalContext.current //Активити, где мы находимся
     var imageUri by remember { mutableStateOf<Uri?>(null) } //Ссылка на картинку
@@ -74,7 +74,8 @@ fun ChangePhotoUrl(navController: NavHostController) {
 
         Button(
             onClick = {
-                pathToPhoto = REF_STORAGE_ROOT.child(FOLDER_PHOTOS).child(UID) //Получаем ссылку на корневую директори в БД
+                pathToPhoto = REF_STORAGE_ROOT.child(FOLDER_PHOTOS)
+                    .child(UID) //Получаем ссылку на корневую директори в БД
                 launcher.launch("image/*") //Открываем проводник для выбора картинки
             }
         ) {
@@ -83,7 +84,7 @@ fun ChangePhotoUrl(navController: NavHostController) {
         Spacer(modifier = Modifier.height(12.dp))
         Button(
             onClick = {
-                if (imageUri!= null) { //Если картинка выбрана
+                if (imageUri != null) { //Если картинка выбрана
                     imageUri?.let { it -> //Получаем ссылку на картинку
                         pathToPhoto.putFile(it).addOnCompleteListener { //Загружаем картинку
                             if (it.isSuccessful) { //Если загрузка прошла успешно
@@ -93,8 +94,7 @@ fun ChangePhotoUrl(navController: NavHostController) {
                             }
                         }
                     }
-                }
-                else{ //Если картинка не выбрана
+                } else { //Если картинка не выбрана
                     makeToast("Выберите изображение", context)
                 }
 

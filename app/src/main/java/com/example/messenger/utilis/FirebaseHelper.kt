@@ -92,7 +92,7 @@ fun choseChangeInformation(
         }
 
         CHILD_PHOTO_URL -> {
-            changeImage(context, navController)
+            downloadImage(context, navController)
         }
     }
 
@@ -127,7 +127,10 @@ fun checkUsername(changeInfo: String, context: Context, navController: NavHostCo
             val oldUserName = tempArray[0].replace(regex, "")
 
             if (oldUserName == changeInfo.lowercase()) { // Проверяем, есть ли такой ник в базе.
-                makeToast("Имя пользователя занято", context) // Если есть, то выводим сообщение, что ник занят
+                makeToast(
+                    "Имя пользователя занято",
+                    context
+                ) // Если есть, то выводим сообщение, что ник занят
             } else {
                 changeUserName()
             }
@@ -164,26 +167,13 @@ fun checkUsername(changeInfo: String, context: Context, navController: NavHostCo
     })
 }
 
-fun changeImage(context: Context, navController: NavHostController) {
+fun downloadImage(context: Context, navController: NavHostController) {
     //Загружаем фото пользователя
     val pathToPhoto = REF_STORAGE_ROOT.child(FOLDER_PHOTOS).child(UID)
-    pathToPhoto.downloadUrl.addOnCompleteListener { downloadTask ->
+    pathToPhoto.downloadUrl.addOnCompleteListener { downloadTask -> //Получаем ссылку на загруженную фотку
         if (downloadTask.isSuccessful) {
             val photoURL = downloadTask.result.toString()
-
-            REF_DATABASE_ROOT
-                .child(NODE_USERS)
-                .child(UID)
-                .child(CHILD_PHOTO_URL)
-                .setValue(photoURL).addOnCompleteListener { setValueTask ->
-                    if (setValueTask.isSuccessful) {
-                        setLocalDataForUser(photoURL, CHILD_PHOTO_URL)
-                        goTo(navController, Screens.Settings)
-                    } else
-                        makeToast("Ошибка", context)
-                }
-
-            goTo(navController, Screens.Settings)
+            changeInfo(photoURL, CHILD_PHOTO_URL, context, navController)
         } else {
             makeToast(downloadTask.exception?.message.toString(), context)
         }
