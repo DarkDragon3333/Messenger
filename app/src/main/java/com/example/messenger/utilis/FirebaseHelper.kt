@@ -2,7 +2,9 @@ package com.example.messenger.utilis
 
 import android.app.Activity
 import android.content.Context
+import android.provider.ContactsContract
 import androidx.navigation.NavHostController
+import com.example.messenger.modals.CommonModal
 import com.example.messenger.modals.User
 import com.example.messenger.modals.setLocalDataForUser
 import com.example.messenger.navigation.Screens
@@ -23,6 +25,7 @@ lateinit var UID: String //Уникальный индификационный �
 
 const val NODE_USERS = "users"
 const val NODE_USERNAMES = "usernames"
+const val NODE_PHONES = "phones"
 
 const val FOLDER_PHOTOS = "photos"
 
@@ -182,5 +185,33 @@ fun downloadImage(context: Context, navController: NavHostController) {
 }
 
 
+fun initContacts() {
+    if (myCheckPermission(READ_CONTACTS)) {
+        val contactList = mutableListOf<CommonModal>()
+        val cursor = mainActivityContext.contentResolver.query(
+            ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+            null,
+            null,
+            null,
+            null
+        )
 
+
+        cursor?.let {
+            while (it.moveToNext()) {
+                val fullName =
+                    cursor.getString(cursor.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME))
+                val phone =
+                    cursor.getString(cursor.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.NUMBER))
+
+                val newModal = CommonModal()
+                newModal.fullname = fullName
+                newModal.phone = phone.replace(Regex("[//s,-]"), "")
+
+                contactList.add(newModal)
+            }
+        }
+        cursor?.close()
+    }
+}
 

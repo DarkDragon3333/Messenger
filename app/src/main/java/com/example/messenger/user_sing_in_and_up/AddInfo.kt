@@ -1,5 +1,6 @@
 package com.example.messenger.user_sing_in_and_up
 
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -19,6 +20,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.messenger.MainActivity
+import com.example.messenger.R
+import com.example.messenger.changeInfo.pathToPhoto
 import com.example.messenger.user_sing_in_and_up.ui.theme.MessengerTheme
 import com.example.messenger.utilis.AUTH
 import com.example.messenger.utilis.CHILD_BIO
@@ -26,13 +29,19 @@ import com.example.messenger.utilis.CHILD_FULLNAME
 import com.example.messenger.utilis.CHILD_ID
 import com.example.messenger.utilis.CHILD_PASSWORD
 import com.example.messenger.utilis.CHILD_PHONE
+import com.example.messenger.utilis.CHILD_PHOTO_URL
+import com.example.messenger.utilis.CHILD_STATUS
 import com.example.messenger.utilis.CHILD_USER_NAME
+import com.example.messenger.utilis.FOLDER_PHOTOS
+import com.example.messenger.utilis.NODE_PHONES
 import com.example.messenger.utilis.NODE_USERS
 import com.example.messenger.utilis.REF_DATABASE_ROOT
+import com.example.messenger.utilis.REF_STORAGE_ROOT
 import com.example.messenger.utilis.USER
 import com.example.messenger.utilis.goTo
 import com.example.messenger.utilis.mainFieldStyle
 import com.example.messenger.utilis.makeToast
+import com.example.messenger.utilis.sign_out
 
 class AddInfo : ComponentActivity() {
     private lateinit var bio: String
@@ -46,6 +55,7 @@ class AddInfo : ComponentActivity() {
     private lateinit var codeFromField: String
     lateinit var context: AddInfo
     private lateinit var passwordFromSignUpActivity: String
+    private lateinit var uri: Uri
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,7 +65,6 @@ class AddInfo : ComponentActivity() {
             MessengerTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     Greeting(
-                        name = "Android",
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
@@ -70,7 +79,7 @@ class AddInfo : ComponentActivity() {
         photoURL = ""
         userName = ""
         codeFromField = ""
-
+        uri = Uri.parse("android.resource://$packageName/${R.drawable.default_image}") //
         dataForGetSignUpData = intent.extras ?: Bundle()
         verificationId =
             dataForGetSignUpData.getString("verificationId").toString() //Id пользователя
@@ -82,7 +91,7 @@ class AddInfo : ComponentActivity() {
     //TODO доделать ввод и передачу данных из AddActivity в MainActivity.
 
     @Composable
-    fun Greeting(name: String, modifier: Modifier = Modifier) {
+    fun Greeting(modifier: Modifier = Modifier) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.fillMaxSize()
@@ -92,7 +101,6 @@ class AddInfo : ComponentActivity() {
 
             Spacer(modifier = Modifier.padding(0.dp, 20.dp, 0.dp, 0.dp))
             val nameField = mainFieldStyle(
-                //rememberText = nameField,
                 labelText = "Ваше имя",
                 enable = true,
                 1
@@ -126,7 +134,7 @@ class AddInfo : ComponentActivity() {
                 } else if (userNameField == "") {
                     makeToast("Введите никнейм в поле", context)
                 } else {
-                    fullname = nameField + surnameField
+                    fullname = "$nameField $surnameField"
                     userName = userNameField
                     bio = bioField
                     workWithDataForDataBase()
@@ -142,13 +150,50 @@ class AddInfo : ComponentActivity() {
     private fun workWithDataForDataBase() {
         val uId = AUTH.currentUser?.uid.toString() //Берём Id текущего пользователя
         val dataMap = mutableMapOf<String, Any>() //Создаём место, куда погрузим наши данные для бд
+
         dataMap[CHILD_ID] = uId
         dataMap[CHILD_FULLNAME] = fullname
         dataMap[CHILD_USER_NAME] = userName
         dataMap[CHILD_BIO] = bio
         dataMap[CHILD_PHONE] = phoneNumber
         dataMap[CHILD_PASSWORD] = passwordFromSignUpActivity
+        dataMap[CHILD_STATUS] = "В сети"
+        sign_out = true
 
+        REF_DATABASE_ROOT.child(NODE_PHONES).child(phoneNumber).setValue(uId)
+            .addOnFailureListener { makeToast(it.message.toString(), context) }
+
+        takeDefaultPhoto(uId, dataMap)
+
+    }
+
+    private fun takeDefaultPhoto(
+        uId: String,
+        dataMap: MutableMap<String, Any>
+    ) {
+        pathToPhoto = REF_STORAGE_ROOT.child(FOLDER_PHOTOS).child(uId)
+        pathToPhoto.putFile(uri).addOnCompleteListener { putTask ->
+            if (putTask.isSuccessful) {
+                pathToPhoto.downloadUrl.addOnCompleteListener { downloadTask -> //Получаем ссылку на загруженную фотку
+                    if (downloadTask.isSuccessful) {
+                        val photoURL = downloadTask.result.toString()
+                        USER.photoUrl = photoURL
+                        dataMap[CHILD_PHOTO_URL] = photoURL
+                        updateFun(uId, dataMap)
+                    } else {
+                        makeToast(downloadTask.exception?.message.toString(), context)
+                    }
+                }
+            } else {
+                makeToast(putTask.exception?.message.toString(), context)
+            }
+        }
+    }
+
+    private fun updateFun(
+        uId: String,
+        dataMap: MutableMap<String, Any>
+    ) {
         REF_DATABASE_ROOT.child(NODE_USERS).child(uId)
             .updateChildren(dataMap) //Обращаемся по ссылке через бд к юзерам и сохраняем данные. Если юзеров нет, то firebase сам создаст каталог с юзерами, самого юзера по переданному Id и сохранит данные.
             .addOnCompleteListener {//Отправляем данные в базу данных файлом
@@ -160,8 +205,6 @@ class AddInfo : ComponentActivity() {
                     makeToast(it.exception?.message.toString(), context)
                 }
             }
-
-
     }
 
     private fun initUSER() {
@@ -169,7 +212,7 @@ class AddInfo : ComponentActivity() {
         USER.fullname = fullname
         USER.username = userName
         USER.bio = bio
-        //USER.photoURL = photoURL
+        USER.status = "В сети"
         USER.phone = phoneNumber
         USER.password = passwordFromSignUpActivity
     }

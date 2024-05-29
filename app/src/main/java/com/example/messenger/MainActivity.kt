@@ -6,13 +6,13 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import com.example.messenger.screens.NavDrawer
 import com.example.messenger.ui.theme.MessengerTheme
-import com.example.messenger.utilis.AUTH
 import com.example.messenger.utilis.AppStatus
 import com.example.messenger.utilis.READ_CONTACTS
+import com.example.messenger.utilis.get_out_from_auth
+import com.example.messenger.utilis.initContacts
 import com.example.messenger.utilis.mainActivityContext
 import com.example.messenger.utilis.makeToast
-import com.example.messenger.utilis.myCheckPermission
-import com.google.firebase.auth.FirebaseAuth
+import com.example.messenger.utilis.sign_out
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -22,7 +22,7 @@ class MainActivity : ComponentActivity() {
     private var requestPermissionLauncher  = registerForActivityResult(
         ActivityResultContracts.RequestPermission()) { isGranted ->
         if (isGranted) {
-            initContacts_()
+            initContacts()
         }
         else {
             makeToast("Нет разрешения", mainActivityContext)
@@ -43,32 +43,23 @@ class MainActivity : ComponentActivity() {
 
     private fun init(){
         mainActivityContext = this
-        AUTH = FirebaseAuth.getInstance()
-        initContacts_()
+        initContacts()
         startLocationPermissionRequest()
-
     }
-
-    fun initContacts_(){
-        if (myCheckPermission(READ_CONTACTS)){
-            makeToast("Доступ к контактам разрешён", mainActivityContext)
-        }
-    }
-
 
     override fun onStart() {
         super.onStart()
-        AppStatus.updateStates(AppStatus.ONLINE, mainActivityContext)
+        if (!sign_out) {
+            AppStatus.updateStates(AppStatus.ONLINE, mainActivityContext)
+        }
     }
 
     override fun onStop() {
         super.onStop()
-        AppStatus.updateStates(AppStatus.OFFLINE, mainActivityContext)
-    }
+        if (!get_out_from_auth) {
+            AppStatus.updateStates(AppStatus.OFFLINE, mainActivityContext)
+        }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        AppStatus.updateStates(AppStatus.OFFLINE, mainActivityContext)
     }
 
     private fun startLocationPermissionRequest() {

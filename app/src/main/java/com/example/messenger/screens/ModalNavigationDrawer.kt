@@ -45,12 +45,15 @@ import com.example.messenger.navigation.DrawerNavigation
 import com.example.messenger.navigation.Screens
 import com.example.messenger.user_sing_in_and_up.LoginActivity
 import com.example.messenger.utilis.AUTH
+import com.example.messenger.utilis.AppStatus
 import com.example.messenger.utilis.MainImage
 import com.example.messenger.utilis.NavIconButton
 import com.example.messenger.utilis.USER
 import com.example.messenger.utilis.flagDropMenuButtonOnSettingsScreen
 import com.example.messenger.utilis.flagNavButtonOnChatsScreen
+import com.example.messenger.utilis.get_out_from_auth
 import com.example.messenger.utilis.goTo
+import com.example.messenger.utilis.mainActivityContext
 import com.example.messenger.utilis.on_settings_screen
 import kotlinx.coroutines.CoroutineScope
 
@@ -246,6 +249,8 @@ fun DropdownMenuItems(
             HorizontalDivider()
             DropdownMenuItem(
                 onClick = {
+                    AppStatus.updateStates(AppStatus.OFFLINE, mainActivityContext)
+                    get_out_from_auth = true
                     AUTH.signOut()
                     goTo(LoginActivity::class.java, context)
                 },
