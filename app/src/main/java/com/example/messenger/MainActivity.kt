@@ -5,7 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import com.example.messenger.screens.NavDrawer
-import com.example.messenger.ui.theme.MessengerTheme
+import com.example.messenger.user_sing_in_and_up.ui.theme.MessengerTheme
 import com.example.messenger.utilis.AppStatus
 import com.example.messenger.utilis.READ_CONTACTS
 import com.example.messenger.utilis.get_out_from_auth
@@ -19,15 +19,16 @@ import kotlinx.coroutines.launch
 
 
 class MainActivity : ComponentActivity() {
-    private var requestPermissionLauncher  = registerForActivityResult(
-        ActivityResultContracts.RequestPermission()) { isGranted ->
+    private var requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
         if (isGranted) {
             initContacts()
-        }
-        else {
+        } else {
             makeToast("Нет разрешения", mainActivityContext)
         }
     }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         CoroutineScope(Dispatchers.IO).launch {
@@ -41,7 +42,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private fun init(){
+    private fun init() {
         mainActivityContext = this
         initContacts()
         startLocationPermissionRequest()

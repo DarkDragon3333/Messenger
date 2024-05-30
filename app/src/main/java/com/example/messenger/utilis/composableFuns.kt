@@ -1,5 +1,6 @@
 package com.example.messenger.utilis
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
@@ -11,6 +12,7 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -21,14 +23,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
+import com.example.messenger.R
 import com.example.messenger.screens.navButtonBack
-import com.example.messenger.user_sing_in_and_up.ui.theme.BlackText
-import com.example.messenger.user_sing_in_and_up.ui.theme.BlueButton
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -53,16 +56,16 @@ fun mainFieldStyle(
         maxLines = maxLine,
         enabled = enable,
         colors = TextFieldDefaults.colors(
-            unfocusedContainerColor = BlueButton,
-            unfocusedTextColor = BlackText,
+            unfocusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+            unfocusedTextColor = MaterialTheme.colorScheme.tertiary,
 
-            focusedContainerColor = BlueButton,
-            focusedTextColor = BlackText,
+            focusedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
+            focusedTextColor = MaterialTheme.colorScheme.onTertiary,
 
-            disabledContainerColor = BlueButton,
-            disabledTextColor = BlackText,
-            disabledLabelColor = BlackText,
-            disabledIndicatorColor = BlackText,
+            disabledContainerColor = MaterialTheme.colorScheme.onSecondaryContainer,
+            disabledTextColor = MaterialTheme.colorScheme.tertiaryContainer,
+            disabledLabelColor = MaterialTheme.colorScheme.outline,
+            disabledIndicatorColor = MaterialTheme.colorScheme.outlineVariant,
 
             )
     )
@@ -90,16 +93,16 @@ fun mainFieldStyle(
         maxLines = maxLine,
         enabled = enable,
         colors = TextFieldDefaults.colors(
-            unfocusedContainerColor = BlueButton,
-            unfocusedTextColor = BlackText,
+            unfocusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+            unfocusedTextColor = MaterialTheme.colorScheme.tertiary,
 
-            focusedContainerColor = BlueButton,
-            focusedTextColor = BlackText,
+            focusedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
+            focusedTextColor = MaterialTheme.colorScheme.onTertiary,
 
-            disabledContainerColor = BlueButton,
-            disabledTextColor = BlackText,
-            disabledLabelColor = BlackText,
-            disabledIndicatorColor = BlackText,
+            disabledContainerColor = MaterialTheme.colorScheme.onSecondaryContainer,
+            disabledTextColor = MaterialTheme.colorScheme.tertiaryContainer,
+            disabledLabelColor = MaterialTheme.colorScheme.outline,
+            disabledIndicatorColor = MaterialTheme.colorScheme.outlineVariant,
         )
     )
     return text
@@ -129,16 +132,16 @@ fun MainFieldStyle(
         enabled = enable,
         keyboardOptions = keyboardOptions,
         colors = TextFieldDefaults.colors(
-            unfocusedContainerColor = BlueButton,
-            unfocusedTextColor = BlackText,
+            unfocusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+            unfocusedTextColor = MaterialTheme.colorScheme.tertiary,
 
-            focusedContainerColor = BlueButton,
-            focusedTextColor = BlackText,
+            focusedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
+            focusedTextColor = MaterialTheme.colorScheme.onTertiary,
 
-            disabledContainerColor = BlueButton,
-            disabledTextColor = BlackText,
-            disabledLabelColor = BlackText,
-            disabledIndicatorColor = BlackText,
+            disabledContainerColor = MaterialTheme.colorScheme.onSecondaryContainer,
+            disabledTextColor = MaterialTheme.colorScheme.tertiaryContainer,
+            disabledLabelColor = MaterialTheme.colorScheme.outline,
+            disabledIndicatorColor = MaterialTheme.colorScheme.outlineVariant,
         )
     )
 }
@@ -189,6 +192,27 @@ fun MainImage(
     AsyncImage(
         model = USER.photoUrl,
         contentDescription = "",
+        contentScale = ContentScale.Crop,
+        modifier = Modifier
+            .clip(CircleShape)
+            .size(dp)
+            .clickable {
+                action()
+            }
+    )
+
+
+}
+
+@Composable
+fun MainImage(
+    dp: Dp,
+    i: Int,
+    action: () -> Unit,
+) {
+    Image(
+        bitmap = ImageBitmap.imageResource(R.drawable.tank),
+        contentDescription = " ",
         contentScale = ContentScale.Crop,
         modifier = Modifier
             .clip(CircleShape)

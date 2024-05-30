@@ -10,6 +10,8 @@ import com.example.messenger.changeInfo.ChangeBIO
 import com.example.messenger.changeInfo.ChangeName
 import com.example.messenger.changeInfo.ChangePhotoUrl
 import com.example.messenger.changeInfo.ChangeUserName
+import com.example.messenger.component.ChatScreen
+import com.example.messenger.screens.ChatsScreen
 import com.example.messenger.screens.SettingsScreen
 
 @Composable
@@ -22,7 +24,10 @@ fun DrawerNavigation(navController: NavHostController) {
             YourProfile()
         }
         composable(Screens.Chats.route) {
-            ChatsScreen()
+            ChatsScreen(navController)
+        }
+        composable(Screens.Chat.route) {
+            ChatScreen(navController)
         }
         composable(Screens.Sent.route) {
             SentScreen()
@@ -64,11 +69,6 @@ fun StarredScreen() {
 @Composable
 fun SentScreen() {
     Text(text = "Spam Screen", fontSize = 30.sp)
-}
-
-@Composable
-fun ChatsScreen() {
-    Text(text = "Chats Screen", fontSize = 30.sp)
 }
 
 @Composable

@@ -17,7 +17,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -55,8 +54,8 @@ fun HeaderOfSettings() {
 
         Spacer(modifier = Modifier.padding(4.dp))
         Column {
-            Text(text = USER.fullname, color = Color.Black)
-            Text(text = USER.status, color = Color.Black)
+            Text(text = USER.fullname)
+            Text(text = USER.status)
         }
 
     }

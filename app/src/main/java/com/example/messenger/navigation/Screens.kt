@@ -20,6 +20,11 @@ sealed class Screens(
         route = "чаты",
         icon = Icons.Default.Email
     )
+    data object Chat: Screens(
+        title = "Чат",
+        route = "чат",
+        icon = Icons.Default.Email
+    )
     data object Sent: Screens(
         title = "Отправить",
         route = "отправить",

@@ -79,7 +79,8 @@ class AddInfo : ComponentActivity() {
         photoURL = ""
         userName = ""
         codeFromField = ""
-        uri = Uri.parse("android.resource://$packageName/${R.drawable.default_image}") //
+        uri =
+            Uri.parse("android.resource://$packageName/${R.drawable.default_image}") //Ссылка на фото по умолчанию
         dataForGetSignUpData = intent.extras ?: Bundle()
         verificationId =
             dataForGetSignUpData.getString("verificationId").toString() //Id пользователя
@@ -167,10 +168,7 @@ class AddInfo : ComponentActivity() {
 
     }
 
-    private fun takeDefaultPhoto(
-        uId: String,
-        dataMap: MutableMap<String, Any>
-    ) {
+    private fun takeDefaultPhoto(uId: String, dataMap: MutableMap<String, Any>) {
         pathToPhoto = REF_STORAGE_ROOT.child(FOLDER_PHOTOS).child(uId)
         pathToPhoto.putFile(uri).addOnCompleteListener { putTask ->
             if (putTask.isSuccessful) {

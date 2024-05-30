@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -20,7 +21,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.imageResource
@@ -28,14 +28,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.messenger.R
-import com.example.messenger.changeInfo.ui.theme.MessengerTheme
+import com.example.messenger.user_sing_in_and_up.ui.theme.MessengerTheme
 import com.example.messenger.utilis.AUTH
 import com.example.messenger.utilis.goTo
 import com.example.messenger.utilis.makeToast
 import com.google.firebase.auth.PhoneAuthProvider
 
 
-@Suppress("DEPRECATION")
 class EnterCode : ComponentActivity() {
     private lateinit var verificationId: String
     private lateinit var dataFromSignUpData: Bundle
@@ -81,6 +80,7 @@ class EnterCode : ComponentActivity() {
                     fontSize = 12.sp
                 )
                 Spacer(modifier = Modifier.padding(40.dp))
+
                 TextField(
                     value = phone,
                     onValueChange =
@@ -105,15 +105,20 @@ class EnterCode : ComponentActivity() {
                         )
                     },
                     modifier = Modifier.fillMaxWidth(),
-                    placeholder = { Text("------") },
+                    placeholder = { Text("------", textAlign = TextAlign.Center) },
                     maxLines = 1,
-
                     label = { Text(text = "СМС код", fontSize = 12.sp) },
                     colors = TextFieldDefaults.colors(
-                        unfocusedContainerColor = Color(0xFFF6F8FE),
-                        unfocusedTextColor = Color(0xff888888),
-                        focusedContainerColor = Color(0xFFF6F8FE),
-                        focusedTextColor = Color(0xff222222),
+                        unfocusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                        unfocusedTextColor = MaterialTheme.colorScheme.tertiary,
+
+                        focusedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
+                        focusedTextColor = MaterialTheme.colorScheme.onTertiary,
+
+                        disabledContainerColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                        disabledTextColor = MaterialTheme.colorScheme.tertiaryContainer,
+                        disabledLabelColor = MaterialTheme.colorScheme.outline,
+                        disabledIndicatorColor = MaterialTheme.colorScheme.outlineVariant,
                     )
                 )
             }
