@@ -1,11 +1,11 @@
-package com.example.messenger.utilis
+package com.example.messenger.utilsFilies
 
 import android.content.Context
 
 enum class AppStatus(val state: String) {
     ONLINE("В сети"),
-    OFFLINE("Был недавно"),
-    TYPING("Печатает");
+    OFFLINE("Был недавно");
+    //TYPING("Печатает");
 
     companion object {
         fun updateStates(appStatus: AppStatus, context: Context) {

@@ -1,10 +1,10 @@
 package com.example.messenger.navigation
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Warning
@@ -28,7 +28,7 @@ sealed class Screens(
     data object Sent: Screens(
         title = "Отправить",
         route = "отправить",
-        icon = Icons.Default.Send
+        icon = Icons.AutoMirrored.Filled.Send
     )
     data object Starred: Screens(
         title = "Starred",

@@ -25,24 +25,24 @@
         android:theme="@style/Theme.Messenger">
 
         <activity
-            android:name=".user_sing_in_and_up.AddInfo"
+            android:name=".user_sing_in_and_up_activities.AddInfo"
             android:exported="false"
             android:label="@string/title_activity_add_name"
             android:theme="@style/Theme.Messenger" />
         <activity
-            android:name=".user_sing_in_and_up.EnterCode"
+            android:name=".user_sing_in_and_up_activities.EnterCode"
             android:exported="false"
             android:label="@string/title_activity_send_message"
             android:theme="@style/Theme.Messenger"
             android:windowSoftInputMode="stateVisible|adjustResize" />
         <activity
-            android:name=".changeInfo.ChangeNumber"
+            android:name=".screens.changeInfoScreens.ChangeNumber"
             android:exported="false"
             android:label="@string/title_activity_change_number"
             android:theme="@style/Theme.Messenger"
             android:windowSoftInputMode="stateVisible|adjustResize" />
         <activity
-            android:name=".user_sing_in_and_up.SingUpActivity"
+            android:name=".user_sing_in_and_up_activities.SingUpActivity"
             android:exported="false"
             android:label="@string/title_activity_sing_up"
             android:theme="@style/Theme.Messenger" />
@@ -52,7 +52,7 @@
             android:label="@string/title_activity_login"
             android:theme="@style/Theme.Messenger" />
         <activity
-            android:name=".user_sing_in_and_up.LoginActivity"
+            android:name=".user_sing_in_and_up_activities.LoginActivity"
             android:exported="true"
             android:theme="@style/Theme.Messenger">
             <intent-filter>

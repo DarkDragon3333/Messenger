@@ -1,4 +1,4 @@
-package com.example.messenger.utilis
+package com.example.messenger.utilsFilies
 
 import android.app.Activity
 import android.content.Context
@@ -206,7 +206,7 @@ fun initContacts() {
 
                 val newModal = CommonModal()
                 newModal.fullname = fullName
-                newModal.phone = phone.replace(Regex("[//s,-]"), "")
+                newModal.phone = phone.replace(Regex("[/s,-]"), "")
 
                 contactList.add(newModal)
             }

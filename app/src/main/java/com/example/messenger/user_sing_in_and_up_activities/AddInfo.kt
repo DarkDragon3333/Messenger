@@ -1,4 +1,4 @@
-package com.example.messenger.user_sing_in_and_up
+package com.example.messenger.user_sing_in_and_up_activities
 
 import android.net.Uri
 import android.os.Bundle
@@ -21,27 +21,27 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.messenger.MainActivity
 import com.example.messenger.R
-import com.example.messenger.changeInfo.pathToPhoto
-import com.example.messenger.user_sing_in_and_up.ui.theme.MessengerTheme
-import com.example.messenger.utilis.AUTH
-import com.example.messenger.utilis.CHILD_BIO
-import com.example.messenger.utilis.CHILD_FULLNAME
-import com.example.messenger.utilis.CHILD_ID
-import com.example.messenger.utilis.CHILD_PASSWORD
-import com.example.messenger.utilis.CHILD_PHONE
-import com.example.messenger.utilis.CHILD_PHOTO_URL
-import com.example.messenger.utilis.CHILD_STATUS
-import com.example.messenger.utilis.CHILD_USER_NAME
-import com.example.messenger.utilis.FOLDER_PHOTOS
-import com.example.messenger.utilis.NODE_PHONES
-import com.example.messenger.utilis.NODE_USERS
-import com.example.messenger.utilis.REF_DATABASE_ROOT
-import com.example.messenger.utilis.REF_STORAGE_ROOT
-import com.example.messenger.utilis.USER
-import com.example.messenger.utilis.goTo
-import com.example.messenger.utilis.mainFieldStyle
-import com.example.messenger.utilis.makeToast
-import com.example.messenger.utilis.sign_out
+import com.example.messenger.screens.changeInfoScreens.pathToPhoto
+import com.example.messenger.ui.theme.MessengerTheme
+import com.example.messenger.utilsFilies.AUTH
+import com.example.messenger.utilsFilies.CHILD_BIO
+import com.example.messenger.utilsFilies.CHILD_FULLNAME
+import com.example.messenger.utilsFilies.CHILD_ID
+import com.example.messenger.utilsFilies.CHILD_PASSWORD
+import com.example.messenger.utilsFilies.CHILD_PHONE
+import com.example.messenger.utilsFilies.CHILD_PHOTO_URL
+import com.example.messenger.utilsFilies.CHILD_STATUS
+import com.example.messenger.utilsFilies.CHILD_USER_NAME
+import com.example.messenger.utilsFilies.FOLDER_PHOTOS
+import com.example.messenger.utilsFilies.NODE_PHONES
+import com.example.messenger.utilsFilies.NODE_USERS
+import com.example.messenger.utilsFilies.REF_DATABASE_ROOT
+import com.example.messenger.utilsFilies.REF_STORAGE_ROOT
+import com.example.messenger.utilsFilies.USER
+import com.example.messenger.utilsFilies.goTo
+import com.example.messenger.utilsFilies.mainFieldStyle
+import com.example.messenger.utilsFilies.makeToast
+import com.example.messenger.utilsFilies.sign_out
 
 class AddInfo : ComponentActivity() {
     private lateinit var bio: String
@@ -64,8 +64,8 @@ class AddInfo : ComponentActivity() {
         setContent {
             MessengerTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        modifier = Modifier.padding(innerPadding)
+                    GreetingAddInfo(
+                        m = Modifier.padding(innerPadding)
                     )
                 }
             }
@@ -92,7 +92,7 @@ class AddInfo : ComponentActivity() {
     //TODO доделать ввод и передачу данных из AddActivity в MainActivity.
 
     @Composable
-    fun Greeting(modifier: Modifier = Modifier) {
+    fun GreetingAddInfo(m: Modifier = Modifier) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.fillMaxSize()
@@ -164,12 +164,11 @@ class AddInfo : ComponentActivity() {
         REF_DATABASE_ROOT.child(NODE_PHONES).child(phoneNumber).setValue(uId)
             .addOnFailureListener { makeToast(it.message.toString(), context) }
 
-        takeDefaultPhoto(uId, dataMap)
-
+        takeDefaultPhoto(dataMap)
     }
 
-    private fun takeDefaultPhoto(uId: String, dataMap: MutableMap<String, Any>) {
-        pathToPhoto = REF_STORAGE_ROOT.child(FOLDER_PHOTOS).child(uId)
+    private fun takeDefaultPhoto(dataMap: MutableMap<String, Any>) {
+        pathToPhoto = REF_STORAGE_ROOT.child(FOLDER_PHOTOS).child(dataMap[CHILD_ID].toString())
         pathToPhoto.putFile(uri).addOnCompleteListener { putTask ->
             if (putTask.isSuccessful) {
                 pathToPhoto.downloadUrl.addOnCompleteListener { downloadTask -> //Получаем ссылку на загруженную фотку
@@ -177,7 +176,7 @@ class AddInfo : ComponentActivity() {
                         val photoURL = downloadTask.result.toString()
                         USER.photoUrl = photoURL
                         dataMap[CHILD_PHOTO_URL] = photoURL
-                        updateFun(uId, dataMap)
+                        updateFun(dataMap)
                     } else {
                         makeToast(downloadTask.exception?.message.toString(), context)
                     }
@@ -188,11 +187,8 @@ class AddInfo : ComponentActivity() {
         }
     }
 
-    private fun updateFun(
-        uId: String,
-        dataMap: MutableMap<String, Any>
-    ) {
-        REF_DATABASE_ROOT.child(NODE_USERS).child(uId)
+    private fun updateFun(dataMap: MutableMap<String, Any>) {
+        REF_DATABASE_ROOT.child(NODE_USERS).child(dataMap[CHILD_ID].toString())
             .updateChildren(dataMap) //Обращаемся по ссылке через бд к юзерам и сохраняем данные. Если юзеров нет, то firebase сам создаст каталог с юзерами, самого юзера по переданному Id и сохранит данные.
             .addOnCompleteListener {//Отправляем данные в базу данных файлом
                 if (it.isSuccessful) {

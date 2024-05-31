@@ -6,13 +6,13 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.messenger.changeInfo.ChangeBIO
-import com.example.messenger.changeInfo.ChangeName
-import com.example.messenger.changeInfo.ChangePhotoUrl
-import com.example.messenger.changeInfo.ChangeUserName
-import com.example.messenger.component.ChatScreen
 import com.example.messenger.screens.ChatsScreen
 import com.example.messenger.screens.SettingsScreen
+import com.example.messenger.screens.changeInfoScreens.ChangeBIO
+import com.example.messenger.screens.changeInfoScreens.ChangeName
+import com.example.messenger.screens.changeInfoScreens.ChangePhotoUrl
+import com.example.messenger.screens.changeInfoScreens.ChangeUserName
+import com.example.messenger.screens.componentOfScreens.ChatScreen
 
 @Composable
 fun DrawerNavigation(navController: NavHostController) {

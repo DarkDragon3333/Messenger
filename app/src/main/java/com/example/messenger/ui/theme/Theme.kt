@@ -1,4 +1,4 @@
-package com.example.messenger.user_sing_in_and_up.ui.theme
+package com.example.messenger.ui.theme
 
 import android.app.Activity
 import androidx.compose.foundation.isSystemInDarkTheme

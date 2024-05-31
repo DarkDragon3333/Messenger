@@ -1,4 +1,4 @@
-package com.example.messenger.changeInfo
+package com.example.messenger.screens.changeInfoScreens
 
 import android.graphics.Bitmap
 import android.graphics.ImageDecoder
@@ -24,22 +24,21 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.example.messenger.utilis.CHILD_PHOTO_URL
-import com.example.messenger.utilis.FOLDER_PHOTOS
-import com.example.messenger.utilis.REF_STORAGE_ROOT
-import com.example.messenger.utilis.UID
-import com.example.messenger.utilis.choseChangeInformation
-import com.example.messenger.utilis.makeToast
+import com.example.messenger.utilsFilies.CHILD_PHOTO_URL
+import com.example.messenger.utilsFilies.FOLDER_PHOTOS
+import com.example.messenger.utilsFilies.REF_STORAGE_ROOT
+import com.example.messenger.utilsFilies.UID
+import com.example.messenger.utilsFilies.choseChangeInformation
+import com.example.messenger.utilsFilies.mainActivityContext
+import com.example.messenger.utilsFilies.makeToast
 import com.google.firebase.storage.StorageReference
 
 lateinit var pathToPhoto: StorageReference
 
 @Composable
 fun ChangePhotoUrl(navController: NavHostController) {
-    val context = LocalContext.current //Активити, где мы находимся
     var imageUri by remember { mutableStateOf<Uri?>(null) } //Ссылка на картинку
     val bitmap = remember { mutableStateOf<Bitmap?>(null) } //Само изображение
     val launcher = //Открывает проводник для выбора картинки
@@ -56,7 +55,7 @@ fun ChangePhotoUrl(navController: NavHostController) {
     ) {
 
         imageUri?.let {
-            val source = ImageDecoder.createSource(context.contentResolver, it)
+            val source = ImageDecoder.createSource(mainActivityContext.contentResolver, it)
             bitmap.value = ImageDecoder.decodeBitmap(source)
 
             bitmap.value?.let { btm ->
@@ -71,32 +70,18 @@ fun ChangePhotoUrl(navController: NavHostController) {
         }
 
         Spacer(modifier = Modifier.height(12.dp))
-
         Button(
             onClick = {
                 pathToPhoto = REF_STORAGE_ROOT.child(FOLDER_PHOTOS)
                     .child(UID) //Получаем ссылку на корневую директори в БД
                 launcher.launch("image/*") //Открываем проводник для выбора картинки
             }
-        ) {
-            Text(text = "Pick Image")
-        }
+        ) { Text(text = "Pick Image") }
+
         Spacer(modifier = Modifier.height(12.dp))
         Button(
             onClick = {
-                if (imageUri != null) { //Если картинка выбрана
-                    imageUri?.let { it -> //Получаем ссылку на картинку
-                        pathToPhoto.putFile(it).addOnCompleteListener { //Загружаем картинку
-                            if (it.isSuccessful) { //Если загрузка прошла успешно
-                                choseChangeInformation("", CHILD_PHOTO_URL, context, navController)
-                            } else {
-                                makeToast(it.exception?.message.toString(), context)
-                            }
-                        }
-                    }
-                } else { //Если картинка не выбрана
-                    makeToast("Выберите изображение", context)
-                }
+                choseNewPhoto(imageUri, navController)
 
             }
         )
@@ -104,4 +89,28 @@ fun ChangePhotoUrl(navController: NavHostController) {
     }
 
 
+}
+
+private fun choseNewPhoto(
+    imageUri: Uri?,
+    navController: NavHostController
+) {
+    if (imageUri != null) { //Если картинка выбрана
+        imageUri.let { it -> //Получаем ссылку на картинку
+            pathToPhoto.putFile(it).addOnCompleteListener { //Загружаем картинку
+                if (it.isSuccessful) { //Если загрузка прошла успешно
+                    choseChangeInformation(
+                        "",
+                        CHILD_PHOTO_URL,
+                        mainActivityContext,
+                        navController
+                    )
+                } else {
+                    makeToast(it.exception?.message.toString(), mainActivityContext)
+                }
+            }
+        }
+    } else { //Если картинка не выбрана
+        makeToast("Выберите изображение", mainActivityContext)
+    }
 }

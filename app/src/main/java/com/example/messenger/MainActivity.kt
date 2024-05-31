@@ -5,14 +5,14 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import com.example.messenger.screens.NavDrawer
-import com.example.messenger.user_sing_in_and_up.ui.theme.MessengerTheme
-import com.example.messenger.utilis.AppStatus
-import com.example.messenger.utilis.READ_CONTACTS
-import com.example.messenger.utilis.get_out_from_auth
-import com.example.messenger.utilis.initContacts
-import com.example.messenger.utilis.mainActivityContext
-import com.example.messenger.utilis.makeToast
-import com.example.messenger.utilis.sign_out
+import com.example.messenger.ui.theme.MessengerTheme
+import com.example.messenger.utilsFilies.AppStatus
+import com.example.messenger.utilsFilies.READ_CONTACTS
+import com.example.messenger.utilsFilies.get_out_from_auth
+import com.example.messenger.utilsFilies.initContacts
+import com.example.messenger.utilsFilies.mainActivityContext
+import com.example.messenger.utilsFilies.makeToast
+import com.example.messenger.utilsFilies.sign_out
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -20,8 +20,7 @@ import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     private var requestPermissionLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { isGranted ->
+        ActivityResultContracts.RequestPermission()) { isGranted ->
         if (isGranted) {
             initContacts()
         } else {
@@ -34,7 +33,6 @@ class MainActivity : ComponentActivity() {
         CoroutineScope(Dispatchers.IO).launch {
             init()
         }
-
         setContent {
             MessengerTheme {
                 NavDrawer()

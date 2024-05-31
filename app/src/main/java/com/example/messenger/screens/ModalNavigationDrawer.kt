@@ -35,7 +35,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavDestination
 import androidx.navigation.NavHostController
@@ -43,18 +42,18 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.messenger.navigation.DrawerNavigation
 import com.example.messenger.navigation.Screens
-import com.example.messenger.user_sing_in_and_up.LoginActivity
-import com.example.messenger.utilis.AUTH
-import com.example.messenger.utilis.AppStatus
-import com.example.messenger.utilis.MainImage
-import com.example.messenger.utilis.NavIconButton
-import com.example.messenger.utilis.USER
-import com.example.messenger.utilis.flagDropMenuButtonOnSettingsScreen
-import com.example.messenger.utilis.flagNavButtonOnChatsScreen
-import com.example.messenger.utilis.get_out_from_auth
-import com.example.messenger.utilis.goTo
-import com.example.messenger.utilis.mainActivityContext
-import com.example.messenger.utilis.on_settings_screen
+import com.example.messenger.user_sing_in_and_up_activities.LoginActivity
+import com.example.messenger.utilsFilies.AUTH
+import com.example.messenger.utilsFilies.AppStatus
+import com.example.messenger.utilsFilies.MainImage
+import com.example.messenger.utilsFilies.NavIconButton
+import com.example.messenger.utilsFilies.USER
+import com.example.messenger.utilsFilies.flagDropMenuButtonOnSettingsScreen
+import com.example.messenger.utilsFilies.flagNavButtonOnChatsScreen
+import com.example.messenger.utilsFilies.get_out_from_auth
+import com.example.messenger.utilsFilies.goTo
+import com.example.messenger.utilsFilies.mainActivityContext
+import com.example.messenger.utilsFilies.on_settings_screen
 import kotlinx.coroutines.CoroutineScope
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -205,13 +204,9 @@ fun navButtonBack(navController: NavHostController) {
     }
 
     if (on_settings_screen) {
-        navController.navigate(Screens.Settings.route) {
-            launchSingleTop = true
-        }
+        goTo(navController, Screens.Settings)
     } else {
-        navController.navigate(Screens.Chats.route) {
-            launchSingleTop = true
-        }
+        goTo(navController, Screens.Chats)
     }
 }
 
@@ -222,7 +217,6 @@ fun DropdownMenuItems(
     navController: NavHostController,
 ) {
     var expanded by remember { mutableStateOf(false) }
-    val context = LocalContext.current
 
     Box {
         Row {
@@ -252,7 +246,7 @@ fun DropdownMenuItems(
                     AppStatus.updateStates(AppStatus.OFFLINE, mainActivityContext)
                     get_out_from_auth = true
                     AUTH.signOut()
-                    goTo(LoginActivity::class.java, context)
+                    goTo(LoginActivity::class.java, mainActivityContext)
                 },
                 text = { Text("Выйти из аккаунта") }
             )

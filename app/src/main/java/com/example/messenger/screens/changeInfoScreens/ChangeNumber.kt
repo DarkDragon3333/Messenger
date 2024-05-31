@@ -1,4 +1,4 @@
-package com.example.messenger.changeInfo
+package com.example.messenger.screens.changeInfoScreens
 
 import android.os.Bundle
 import android.view.WindowManager
@@ -29,11 +29,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.messenger.MainActivity
 import com.example.messenger.R
-import com.example.messenger.user_sing_in_and_up.ui.theme.MessengerTheme
-import com.example.messenger.user_sing_in_and_up.EnterCode
-import com.example.messenger.utilis.MainFieldStyle
-import com.example.messenger.utilis.USER
-import com.example.messenger.utilis.goTo
+import com.example.messenger.ui.theme.MessengerTheme
+import com.example.messenger.user_sing_in_and_up_activities.EnterCode
+import com.example.messenger.utilsFilies.MainFieldStyle
+import com.example.messenger.utilsFilies.USER
+import com.example.messenger.utilsFilies.goTo
 
 class ChangeNumber : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -42,17 +42,15 @@ class ChangeNumber : ComponentActivity() {
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
         setContent {
             MessengerTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                Scaffold(modifier = Modifier.fillMaxSize()) {
+                    GreetingChangeNumber(Modifier.padding(it))
                 }
             }
         }
     }
 
     @Composable
-    fun Greeting(modifier: Modifier = Modifier) {
+    fun GreetingChangeNumber(m: Modifier = Modifier) {
         val context = LocalContext.current
 
         Column(modifier = Modifier
@@ -88,10 +86,7 @@ class ChangeNumber : ComponentActivity() {
                     Spacer(modifier = Modifier.padding(4.dp))
                     Button(onClick = {
                         goTo(MainActivity::class.java, context)
-                    })
-                    {
-                        Text(text = "Назад")
-                    }
+                    }) { Text(text = "Назад") }
                 }
                 Row(
                     horizontalArrangement = Arrangement.End,

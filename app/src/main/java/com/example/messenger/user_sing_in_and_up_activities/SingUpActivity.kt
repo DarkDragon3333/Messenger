@@ -1,4 +1,4 @@
-package com.example.messenger.user_sing_in_and_up
+package com.example.messenger.user_sing_in_and_up_activities
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -17,12 +17,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.messenger.MainActivity
-import com.example.messenger.user_sing_in_and_up.ui.theme.MessengerTheme
-import com.example.messenger.utilis.AUTH
-import com.example.messenger.utilis.goTo
-import com.example.messenger.utilis.initFirebase
-import com.example.messenger.utilis.mainFieldStyle
-import com.example.messenger.utilis.makeToast
+import com.example.messenger.ui.theme.MessengerTheme
+import com.example.messenger.utilsFilies.AUTH
+import com.example.messenger.utilsFilies.goTo
+import com.example.messenger.utilsFilies.initFirebase
+import com.example.messenger.utilsFilies.mainFieldStyle
+import com.example.messenger.utilsFilies.makeToast
 import com.google.firebase.FirebaseException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.PhoneAuthCredential

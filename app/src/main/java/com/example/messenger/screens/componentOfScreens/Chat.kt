@@ -1,4 +1,4 @@
-package com.example.messenger.component
+package com.example.messenger.screens.componentOfScreens
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -8,7 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.example.messenger.utilis.mainFieldStyle
+import com.example.messenger.utilsFilies.mainFieldStyle
 
 @Composable
 fun ChatScreen(navController: NavHostController) {
@@ -19,8 +19,6 @@ fun ChatScreen(navController: NavHostController) {
             "Введите сообщение",
             true,
             50
-        ){
-
-        }
+        ){}
     }
 }

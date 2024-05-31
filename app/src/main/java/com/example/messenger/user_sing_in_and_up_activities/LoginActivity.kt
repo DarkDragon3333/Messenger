@@ -1,4 +1,4 @@
-package com.example.messenger.user_sing_in_and_up
+package com.example.messenger.user_sing_in_and_up_activities
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -16,20 +16,17 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.messenger.MainActivity
-import com.example.messenger.user_sing_in_and_up.ui.theme.MessengerTheme
-import com.example.messenger.utilis.AUTH
-import com.example.messenger.utilis.goTo
-import com.example.messenger.utilis.initFirebase
-import com.example.messenger.utilis.initUser
-import com.example.messenger.utilis.mainFieldStyle
+import com.example.messenger.ui.theme.MessengerTheme
+import com.example.messenger.utilsFilies.AUTH
+import com.example.messenger.utilsFilies.goTo
+import com.example.messenger.utilsFilies.initFirebase
+import com.example.messenger.utilsFilies.initUser
+import com.example.messenger.utilsFilies.mainFieldStyle
 
 class LoginActivity : ComponentActivity() {
 
@@ -40,10 +37,8 @@ class LoginActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             MessengerTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    GreetingInLoginActivity(
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                Scaffold(modifier = Modifier.fillMaxSize()) {
+                    GreetingInLoginActivity(Modifier.padding(it))
                 }
             }
         }
@@ -59,10 +54,7 @@ class LoginActivity : ComponentActivity() {
     }
 
     @Composable
-    fun GreetingInLoginActivity(modifier: Modifier = Modifier) {
-        val phone by remember { mutableStateOf("") }
-        val password by remember { mutableStateOf("") }
-
+    fun GreetingInLoginActivity(m: Modifier = Modifier) {
         Column {
             Column(
                 modifier = Modifier
@@ -72,33 +64,29 @@ class LoginActivity : ComponentActivity() {
             )
             {
                 mainFieldStyle(
-                    labelText = "Email",
+                    labelText = "Номер телефона",
                     enable = true,
                     maxLine = 1
                 ) {}
                 Spacer(modifier = Modifier.padding(8.dp))
                 mainFieldStyle(
-                    labelText = "Password",
+                    labelText = "Пароль",
                     enable = true,
                     maxLine = 1
                 ) {}
-                Spacer(modifier = Modifier.padding(120.dp))
 
+                Spacer(modifier = Modifier.padding(120.dp))
                 Button(
                     onClick = {
                         goTo(MainActivity::class.java, context)
                     }
-                ) {
-                    Text("Sing in", fontSize = 18.sp)
-                }
+                ) { Text("Sing in", fontSize = 18.sp) }
 
                 Box(
                     contentAlignment = Alignment.BottomCenter, modifier = Modifier
                         .fillMaxSize()
                         .padding(0.dp, 0.dp, 0.dp, 40.dp)
-                ) {
-                    SingUpInLoginActivity()
-                }
+                ) { SingUpInLoginActivity() }
 
             }
         }

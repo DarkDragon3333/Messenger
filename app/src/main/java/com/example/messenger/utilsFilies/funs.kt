@@ -1,4 +1,4 @@
-package com.example.messenger.utilis
+package com.example.messenger.utilsFilies
 
 import android.app.Activity
 import android.content.Context
@@ -7,7 +7,7 @@ import android.widget.Toast
 import androidx.compose.material3.DrawerState
 import androidx.navigation.NavHostController
 import com.example.messenger.navigation.Screens
-import com.example.messenger.user_sing_in_and_up.AddInfo
+import com.example.messenger.user_sing_in_and_up_activities.AddInfo
 import com.google.firebase.auth.PhoneAuthProvider
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch

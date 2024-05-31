@@ -1,4 +1,4 @@
-package com.example.messenger.component
+package com.example.messenger.screens.componentOfScreens
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -15,17 +15,15 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.messenger.navigation.Screens
-import com.example.messenger.utilis.MainImage
-import com.example.messenger.utilis.USER
-import com.example.messenger.utilis.goTo
+import com.example.messenger.utilsFilies.MainImage
+import com.example.messenger.utilsFilies.USER
+import com.example.messenger.utilsFilies.goTo
 
 @Composable
 fun ElementOfChatsList(navController: NavHostController) {
-    val context = LocalContext.current
     Card(
         modifier = Modifier
             .fillMaxWidth()

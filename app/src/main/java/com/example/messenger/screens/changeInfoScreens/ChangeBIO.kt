@@ -1,9 +1,8 @@
-package com.example.messenger.changeInfo
+package com.example.messenger.screens.changeInfoScreens
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
@@ -13,45 +12,39 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.example.messenger.utilis.CHILD_USER_NAME
-import com.example.messenger.utilis.USER
-import com.example.messenger.utilis.choseChangeInformation
-import com.example.messenger.utilis.mainFieldStyle
-import com.example.messenger.utilis.makeToast
+import com.example.messenger.utilsFilies.CHILD_BIO
+import com.example.messenger.utilsFilies.USER
+import com.example.messenger.utilsFilies.choseChangeInformation
+import com.example.messenger.utilsFilies.mainActivityContext
+import com.example.messenger.utilsFilies.mainFieldStyle
+import com.example.messenger.utilsFilies.makeToast
 
 @Composable
-fun ChangeUserName(navController: NavHostController) {
-    val context = LocalContext.current
+fun ChangeBIO(navController: NavHostController) {
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     )
     {
         Spacer(modifier = Modifier.padding(0.dp, 100.dp, 0.dp, 0.dp))
-        Text(
-            text = "Введите ваш новый никнейм. Пишите всё с маленькой буквы!",
-            modifier = Modifier.fillMaxWidth(),
-            textAlign = TextAlign.Center
-        )
+        Text(text = "Напишите о себе:")
         Spacer(modifier = Modifier.padding(0.dp, 40.dp, 0.dp, 0.dp))
-        val changeUserNameField = mainFieldStyle(
-            labelText = "Никнейм",
+        val bio = mainFieldStyle(
+            labelText = "О себе",
             enable = true,
             maxLine = 1,
-            USER.username
+            USER.bio
         ) {}
         Spacer(modifier = Modifier.padding(0.dp, 40.dp, 0.dp, 0.dp))
         Button(
             onClick = {
-                if (changeUserNameField == ""){
-                    makeToast("Введите никнейм!", context)
-                }
-                else {
-                    choseChangeInformation(changeUserNameField, CHILD_USER_NAME, context, navController)
+                if (bio == "") {
+                    makeToast("Напишите о себе!", mainActivityContext)
+                } else {
+                    choseChangeInformation(bio, CHILD_BIO, mainActivityContext, navController)
+
                 }
             }
         ) {
@@ -62,4 +55,3 @@ fun ChangeUserName(navController: NavHostController) {
     }
 
 }
-

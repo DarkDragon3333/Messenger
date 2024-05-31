@@ -1,13 +1,13 @@
 package com.example.messenger.modals
 
-import com.example.messenger.utilis.CHILD_BIO
-import com.example.messenger.utilis.CHILD_FULLNAME
-import com.example.messenger.utilis.CHILD_PASSWORD
-import com.example.messenger.utilis.CHILD_PHONE
-import com.example.messenger.utilis.CHILD_PHOTO_URL
-import com.example.messenger.utilis.CHILD_STATUS
-import com.example.messenger.utilis.CHILD_USER_NAME
-import com.example.messenger.utilis.USER
+import com.example.messenger.utilsFilies.CHILD_BIO
+import com.example.messenger.utilsFilies.CHILD_FULLNAME
+import com.example.messenger.utilsFilies.CHILD_PASSWORD
+import com.example.messenger.utilsFilies.CHILD_PHONE
+import com.example.messenger.utilsFilies.CHILD_PHOTO_URL
+import com.example.messenger.utilsFilies.CHILD_STATUS
+import com.example.messenger.utilsFilies.CHILD_USER_NAME
+import com.example.messenger.utilsFilies.USER
 
 data class User(
     var id: String = "",

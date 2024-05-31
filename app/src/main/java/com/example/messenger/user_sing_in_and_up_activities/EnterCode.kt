@@ -1,4 +1,4 @@
-package com.example.messenger.user_sing_in_and_up
+package com.example.messenger.user_sing_in_and_up_activities
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -28,10 +28,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.messenger.R
-import com.example.messenger.user_sing_in_and_up.ui.theme.MessengerTheme
-import com.example.messenger.utilis.AUTH
-import com.example.messenger.utilis.goTo
-import com.example.messenger.utilis.makeToast
+import com.example.messenger.ui.theme.MessengerTheme
+import com.example.messenger.utilsFilies.AUTH
+import com.example.messenger.utilsFilies.goTo
+import com.example.messenger.utilsFilies.makeToast
 import com.google.firebase.auth.PhoneAuthProvider
 
 
@@ -49,16 +49,16 @@ class EnterCode : ComponentActivity() {
         init()
         setContent {
             MessengerTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting2(modifier = Modifier.padding(innerPadding))
+                Scaffold(modifier = Modifier.fillMaxSize()) {
+                    GreetingEnterCode(m = Modifier.padding(it))
                 }
             }
         }
     }
 
     @Composable
-    fun Greeting2(modifier: Modifier = Modifier) {
-        var phone by remember { mutableStateOf("") }
+    fun GreetingEnterCode(m: Modifier = Modifier) {
+        var code by remember { mutableStateOf("") }
         val context = LocalContext.current
         val maxCount = 6
         val testSTR = "111222"
@@ -82,15 +82,15 @@ class EnterCode : ComponentActivity() {
                 Spacer(modifier = Modifier.padding(40.dp))
 
                 TextField(
-                    value = phone,
+                    value = code,
                     onValueChange =
                     {
                         if (it.length < maxCount)
-                            phone = it
+                            code = it
                         else if (it.length == maxCount) {
-                            phone = it
-                            if (phone == testSTR) {
-                                codeFromField = phone
+                            code = it
+                            if (code == testSTR) {
+                                codeFromField = code
                                 enterCode()
                             } else {
                                 makeToast("Проверьте введёый код!", context)
@@ -99,7 +99,7 @@ class EnterCode : ComponentActivity() {
                     },
                     supportingText = {
                         Text(
-                            text = "${phone.length} / $maxCount",
+                            text = "${code.length} / $maxCount",
                             modifier = Modifier.fillMaxWidth(),
                             textAlign = TextAlign.End,
                         )
@@ -142,7 +142,9 @@ class EnterCode : ComponentActivity() {
 
         AUTH.signInWithCredential(credential).addOnCompleteListener {
             if (it.isSuccessful) {
-                goTo(AddInfo::class.java, context,
+                goTo(
+                    AddInfo::class.java,
+                    context,
                     verificationId,
                     phoneNumber,
                     passwordFromSignUpActivity
