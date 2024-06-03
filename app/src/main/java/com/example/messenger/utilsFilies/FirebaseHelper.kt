@@ -8,10 +8,10 @@ import com.example.messenger.modals.CommonModal
 import com.example.messenger.modals.User
 import com.example.messenger.modals.setLocalDataForUser
 import com.example.messenger.navigation.Screens
-import com.example.messenger.screens.componentOfScreens.initContactCard
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.PhoneAuthOptions
 import com.google.firebase.auth.PhoneAuthProvider
+import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
@@ -26,6 +26,8 @@ lateinit var REF_DATABASE_ROOT: DatabaseReference
 lateinit var REF_STORAGE_ROOT: StorageReference
 lateinit var USER: User
 lateinit var UID: String //Уникальный индификационный номер
+lateinit var mValueEventListener: ChildEventListener
+
 
 const val NODE_USERS = "users"
 const val NODE_USERNAMES = "usernames"
@@ -94,7 +96,6 @@ fun choseChangeInformation(
     context: Context,
     navController: NavHostController
 ) {
-    changeInfoOfContactFlag = true
     when (typeInfo) {
         CHILD_FULLNAME -> {
             changeInfo(changeInfo, typeInfo, context, navController)
@@ -263,7 +264,7 @@ fun updateContactsForFirebase(contactList: MutableList<CommonModal>) {
                                 .child(formattedStr).child(CHILD_ID)
                                 .setValue(itSnapshot.value.toString())
                             contactsList.add(itContact)
-                            initContactCard(itSnapshot.value.toString(), index)
+                            initContactCard(index)
                             index++
                         }
                     }
@@ -277,3 +278,39 @@ fun updateContactsForFirebase(contactList: MutableList<CommonModal>) {
         })
 }
 
+
+
+fun initContactCard(index: Int) {
+    var user: CommonModal
+    mValueEventListener = object : ChildEventListener{
+        override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
+            user = snapshot.getValue(CommonModal::class.java)
+                ?: CommonModal()
+            commonModalContactList.add(user)
+            REF_DATABASE_ROOT.child(NODE_USERS).removeEventListener(mValueEventListener)
+
+        }
+
+        override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {
+            user = snapshot.getValue(CommonModal::class.java)
+                ?: CommonModal()
+            commonModalContactList[index] = user
+        }
+
+        override fun onChildRemoved(snapshot: DataSnapshot) {
+
+        }
+
+        override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {
+
+        }
+
+        override fun onCancelled(error: DatabaseError) {
+
+        }
+
+    }
+    REF_DATABASE_ROOT
+        .child(NODE_USERS).addChildEventListener(mValueEventListener)
+
+}

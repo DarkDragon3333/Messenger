@@ -19,6 +19,8 @@ import kotlinx.coroutines.launch
 
 
 class MainActivity : ComponentActivity() {
+
+
     private var requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()) { isGranted ->
         if (isGranted) {
@@ -30,13 +32,13 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        CoroutineScope(Dispatchers.IO).launch {
-            init()
-        }
         setContent {
             MessengerTheme {
                 NavDrawer()
             }
+        }
+        CoroutineScope(Dispatchers.IO).launch {
+            init()
         }
     }
 
@@ -50,6 +52,12 @@ class MainActivity : ComponentActivity() {
         if (!sign_out) {
             AppStatus.updateStates(AppStatus.ONLINE, mainActivityContext)
         }
+
+    }
+
+    override fun onPause() {
+        super.onPause()
+
     }
 
     override fun onStop() {
