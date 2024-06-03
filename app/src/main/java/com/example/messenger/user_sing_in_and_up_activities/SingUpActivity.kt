@@ -23,6 +23,7 @@ import com.example.messenger.utilsFilies.goTo
 import com.example.messenger.utilsFilies.initFirebase
 import com.example.messenger.utilsFilies.mainFieldStyle
 import com.example.messenger.utilsFilies.makeToast
+import com.example.messenger.utilsFilies.sign_in
 import com.google.firebase.FirebaseException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.PhoneAuthCredential
@@ -105,6 +106,7 @@ class SingUpActivity : ComponentActivity() {
                         } else {
                             phoneNumberFromSignUp = phoneField
                             password = passwordField
+                            sign_in = false
                             authUser()
                         }
                     }

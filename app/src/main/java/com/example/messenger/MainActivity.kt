@@ -58,7 +58,6 @@ class MainActivity : ComponentActivity() {
         if (!get_out_from_auth) {
             AppStatus.updateStates(AppStatus.OFFLINE, mainActivityContext)
         }
-
     }
 
     private fun startLocationPermissionRequest() {

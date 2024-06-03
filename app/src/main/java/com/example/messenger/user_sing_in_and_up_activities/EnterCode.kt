@@ -27,11 +27,15 @@ import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.messenger.MainActivity
 import com.example.messenger.R
 import com.example.messenger.ui.theme.MessengerTheme
 import com.example.messenger.utilsFilies.AUTH
+import com.example.messenger.utilsFilies.UID
+import com.example.messenger.utilsFilies.USER
 import com.example.messenger.utilsFilies.goTo
 import com.example.messenger.utilsFilies.makeToast
+import com.example.messenger.utilsFilies.sign_in
 import com.google.firebase.auth.PhoneAuthProvider
 
 
@@ -142,21 +146,26 @@ class EnterCode : ComponentActivity() {
 
         AUTH.signInWithCredential(credential).addOnCompleteListener {
             if (it.isSuccessful) {
-                goTo(
-                    AddInfo::class.java,
-                    context,
-                    verificationId,
-                    phoneNumber,
-                    passwordFromSignUpActivity
-                )
+                if (sign_in) {
+                    sign_in = false
+                    USER.id = verificationId
+                    UID = AUTH.currentUser?.uid.toString()
+                    goTo(MainActivity::class.java, context)
+                } else {
+                    goTo(
+                        AddInfo::class.java,
+                        context,
+                        verificationId,
+                        phoneNumber,
+                        passwordFromSignUpActivity
+                    )
+                }
+
             } else {
                 makeToast("Error!", context)
             }
         }
     }
-
-
-
 }
 
 

@@ -26,6 +26,7 @@ lateinit var UID: String //Уникальный индификационный �
 const val NODE_USERS = "users"
 const val NODE_USERNAMES = "usernames"
 const val NODE_PHONES = "phones"
+const val NODE_PHONES_CONTACTS = "phones_contacts"
 
 const val FOLDER_PHOTOS = "photos"
 
@@ -37,6 +38,7 @@ const val CHILD_FULLNAME = "fullname"
 const val CHILD_BIO = "bio"
 const val CHILD_STATUS: String = "status"
 const val CHILD_PHOTO_URL: String = "photoUrl"
+
 
 
 fun initFirebase() {
@@ -143,12 +145,9 @@ fun checkUsername(changeInfo: String, context: Context, navController: NavHostCo
             deleteOldUsername() //И удаляем старый ник из базы
             REF_DATABASE_ROOT.child(NODE_USERNAMES).child(changeInfo.lowercase())
                 .setValue(UID) //Если нет, то записываем в ноду никнеймов ник
-            REF_DATABASE_ROOT.child(NODE_USERS).child(UID).child(CHILD_USER_NAME)
-                .setValue(changeInfo) //И записываем в юзера новый ник
 
-            makeToast("Ваш ник изменён", context)
+            changeInfo(changeInfo, CHILD_USER_NAME, context, navController)//Переходим на страницу настроек
 
-            goTo(navController, Screens.Settings) //Переходим на страницу настроек
         }
 
         private fun deleteOldUsername() {
@@ -196,13 +195,18 @@ fun initContacts() {
             null
         )
 
-
         cursor?.let {
             while (it.moveToNext()) {
                 val fullName =
-                    cursor.getString(cursor.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME))
+                    cursor.getString(
+                        cursor.getColumnIndexOrThrow(
+                            ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME)
+                    )
                 val phone =
-                    cursor.getString(cursor.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.NUMBER))
+                    cursor.getString(
+                        cursor.getColumnIndexOrThrow(
+                            ContactsContract.CommonDataKinds.Phone.NUMBER)
+                    )
 
                 val newModal = CommonModal()
                 newModal.fullname = fullName
@@ -212,6 +216,30 @@ fun initContacts() {
             }
         }
         cursor?.close()
+
+        updateContactsForFirebase(contactList)
     }
+}
+
+fun updateContactsForFirebase(contactList: MutableList<CommonModal>) {
+    REF_DATABASE_ROOT.child(NODE_PHONES).addListenerForSingleValueEvent(object : ValueEventListener {
+        override fun onDataChange(snapshot: DataSnapshot) {
+            snapshot.children.forEach { itSnapshot ->
+                contactList.forEach { itContact ->
+                    if (itSnapshot.key == itContact.phone) {
+                        REF_DATABASE_ROOT.child(NODE_PHONES_CONTACTS).child(USER.id)
+                            .child(itSnapshot.value.toString())
+                            .child(itSnapshot.value.toString())
+
+                    }
+                }
+            }
+        }
+
+        override fun onCancelled(error: DatabaseError) {
+            makeToast(error.message, mainActivityContext)
+        }
+
+    })
 }
 

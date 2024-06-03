@@ -54,6 +54,7 @@ import com.example.messenger.utilsFilies.get_out_from_auth
 import com.example.messenger.utilsFilies.goTo
 import com.example.messenger.utilsFilies.mainActivityContext
 import com.example.messenger.utilsFilies.on_settings_screen
+import com.example.messenger.utilsFilies.sign_in
 import kotlinx.coroutines.CoroutineScope
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -245,6 +246,7 @@ fun DropdownMenuItems(
                 onClick = {
                     AppStatus.updateStates(AppStatus.OFFLINE, mainActivityContext)
                     get_out_from_auth = true
+                    sign_in = true
                     AUTH.signOut()
                     goTo(LoginActivity::class.java, mainActivityContext)
                 },

@@ -84,12 +84,13 @@ class AddInfo : ComponentActivity() {
         dataForGetSignUpData = intent.extras ?: Bundle()
         verificationId =
             dataForGetSignUpData.getString("verificationId").toString() //Id пользователя
-        passwordFromSignUpActivity = dataForGetSignUpData.getString("password").toString() //Пароль
-        phoneNumber = dataForGetSignUpData.getString("phone").toString() //Номер телефона
+        passwordFromSignUpActivity =
+            dataForGetSignUpData.getString("password").toString() //Пароль
+        phoneNumber =
+            dataForGetSignUpData.getString("phone").toString() //Номер телефона
 
         context = this
     }
-    //TODO доделать ввод и передачу данных из AddActivity в MainActivity.
 
     @Composable
     fun GreetingAddInfo(m: Modifier = Modifier) {
