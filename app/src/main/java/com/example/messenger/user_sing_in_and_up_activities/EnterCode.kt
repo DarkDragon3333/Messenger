@@ -134,8 +134,10 @@ class EnterCode : ComponentActivity() {
         dataFromSignUpData = intent.extras!!
         verificationId =
             dataFromSignUpData.getString("verificationId").toString() //Id пользователя
-        passwordFromSignUpActivity = dataFromSignUpData.getString("password").toString() //Пароль
-        phoneNumber = dataFromSignUpData.getString("phone").toString() //Номер телефона
+        passwordFromSignUpActivity =
+            dataFromSignUpData.getString("password").toString() //Пароль
+        phoneNumber =
+            dataFromSignUpData.getString("phone").toString() //Номер телефона
         //token = intentForGetSignUpData.getParcelableExtra("token")!!
         codeFromField = ""
         context = this

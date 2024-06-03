@@ -28,20 +28,18 @@ import com.example.messenger.utilsFilies.NODE_PHONES
 import com.example.messenger.utilsFilies.NODE_USERS
 import com.example.messenger.utilsFilies.REF_DATABASE_ROOT
 import com.example.messenger.utilsFilies.USER
+import com.example.messenger.utilsFilies.authUser
 import com.example.messenger.utilsFilies.goTo
 import com.example.messenger.utilsFilies.initFirebase
 import com.example.messenger.utilsFilies.initUser
 import com.example.messenger.utilsFilies.mainFieldStyle
 import com.example.messenger.utilsFilies.makeToast
 import com.google.firebase.FirebaseException
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.PhoneAuthCredential
-import com.google.firebase.auth.PhoneAuthOptions
 import com.google.firebase.auth.PhoneAuthProvider
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
-import java.util.concurrent.TimeUnit
 
 class LoginActivity : ComponentActivity() {
 
@@ -142,14 +140,18 @@ class LoginActivity : ComponentActivity() {
         REF_DATABASE_ROOT.child(NODE_PHONES).addListenerForSingleValueEvent(object :
             ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-
                 run breaking@ {
-                    snapshot.children.forEach { snapshotPhone ->
-                        if (snapshotPhone.key == phone) {
-                            initCallBack(phone, password)
-                            authUser(phone)
-                            downloadInfoOfUser(snapshotPhone)
-                            return@breaking
+                    snapshot.children.forEach { snapshotPhone -> //Перебираем все номера телефонов
+                        if (snapshotPhone.key == phone) { //Если номер телефона совпадает с введённым
+                            downloadInfoOfUser(snapshotPhone) //Получаем информацию о пользователе
+                            if (password == USER.password) { //Если пароль верный
+                                initLoginCallBack(phone, password)  //Обработка запроса
+                                authUser(context, phone, callBack) //Аунтетифицируем пользователя
+                                return@breaking
+                            } else {
+                                makeToast("Неверный пароль!", context)
+                                return@breaking
+                            }
                         }
                     }
                 }
@@ -176,22 +178,10 @@ class LoginActivity : ComponentActivity() {
             })
     }
 
-    private fun authUser(phone: String) {
-        PhoneAuthProvider.verifyPhoneNumber(
-            PhoneAuthOptions
-                .newBuilder(FirebaseAuth.getInstance())
-                .setActivity(context)
-                .setPhoneNumber(phone)
-                .setTimeout(60L, TimeUnit.SECONDS)
-                .setCallbacks(callBack)
-                .build()
-        )
-    }
-
     //Прописываем варианты исхода аунтетификации
-    private fun initCallBack(phone: String, password: String) {
+    private fun initLoginCallBack(phone: String, password: String) {
         callBack = object : PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
-            //Выполнение
+
             override fun onVerificationCompleted(credential: PhoneAuthCredential) {
                 AUTH.signInWithCredential(credential).addOnCompleteListener {
                     if (it.isSuccessful) {

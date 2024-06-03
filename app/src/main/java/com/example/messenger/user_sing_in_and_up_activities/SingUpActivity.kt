@@ -19,17 +19,15 @@ import androidx.compose.ui.unit.sp
 import com.example.messenger.MainActivity
 import com.example.messenger.ui.theme.MessengerTheme
 import com.example.messenger.utilsFilies.AUTH
+import com.example.messenger.utilsFilies.authUser
 import com.example.messenger.utilsFilies.goTo
 import com.example.messenger.utilsFilies.initFirebase
 import com.example.messenger.utilsFilies.mainFieldStyle
 import com.example.messenger.utilsFilies.makeToast
 import com.example.messenger.utilsFilies.sign_in
 import com.google.firebase.FirebaseException
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.PhoneAuthCredential
-import com.google.firebase.auth.PhoneAuthOptions
 import com.google.firebase.auth.PhoneAuthProvider
-import java.util.concurrent.TimeUnit
 
 class SingUpActivity : ComponentActivity() {
     private lateinit var callBack: PhoneAuthProvider.OnVerificationStateChangedCallbacks //Типы вызовов по время аунтетификации пользователя
@@ -61,7 +59,7 @@ class SingUpActivity : ComponentActivity() {
         phoneNumberFromSignUp = ""
         password = ""
         initFirebase()
-        initCallBack()
+        initSingUpCallBack()
     }
 
     @Composable
@@ -107,7 +105,8 @@ class SingUpActivity : ComponentActivity() {
                             phoneNumberFromSignUp = phoneField
                             password = passwordField
                             sign_in = false
-                            authUser()
+                            authUser(context, phoneNumberFromSignUp, callBack)
+
                         }
                     }
                 ) {
@@ -117,21 +116,8 @@ class SingUpActivity : ComponentActivity() {
         }
     }
 
-    private fun authUser() {
-        PhoneAuthProvider.verifyPhoneNumber(
-            PhoneAuthOptions
-                .newBuilder(FirebaseAuth.getInstance())
-                .setActivity(context)
-                .setPhoneNumber(phoneNumberFromSignUp)
-                .setTimeout(60L, TimeUnit.SECONDS)
-                .setCallbacks(callBack)
-                .build()
-        )
-
-    }
-
     //Прописываем варианты исхода аунтетификации
-    private fun initCallBack() {
+    private fun initSingUpCallBack() {
         callBack = object : PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
             //Выполнение
             override fun onVerificationCompleted(credential: PhoneAuthCredential) {

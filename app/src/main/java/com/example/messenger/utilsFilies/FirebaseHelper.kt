@@ -8,7 +8,10 @@ import com.example.messenger.modals.CommonModal
 import com.example.messenger.modals.User
 import com.example.messenger.modals.setLocalDataForUser
 import com.example.messenger.navigation.Screens
+import com.example.messenger.screens.componentOfScreens.initContactCard
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.PhoneAuthOptions
+import com.google.firebase.auth.PhoneAuthProvider
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
@@ -16,6 +19,7 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
+import java.util.concurrent.TimeUnit
 
 lateinit var AUTH: FirebaseAuth
 lateinit var REF_DATABASE_ROOT: DatabaseReference
@@ -38,7 +42,6 @@ const val CHILD_FULLNAME = "fullname"
 const val CHILD_BIO = "bio"
 const val CHILD_STATUS: String = "status"
 const val CHILD_PHOTO_URL: String = "photoUrl"
-
 
 
 fun initFirebase() {
@@ -68,6 +71,22 @@ fun initUser(context: Activity) {
 
 }
 
+fun authUser(
+    context: Activity,
+    phoneNumberFromSignUp: String,
+    callback: PhoneAuthProvider.OnVerificationStateChangedCallbacks
+) {
+    PhoneAuthProvider.verifyPhoneNumber(
+        PhoneAuthOptions
+            .newBuilder(FirebaseAuth.getInstance())
+            .setActivity(context)
+            .setPhoneNumber(phoneNumberFromSignUp)
+            .setTimeout(60L, TimeUnit.SECONDS)
+            .setCallbacks(callback)
+            .build()
+    )
+
+}
 
 fun choseChangeInformation(
     changeInfo: String,
@@ -75,6 +94,7 @@ fun choseChangeInformation(
     context: Context,
     navController: NavHostController
 ) {
+    changeInfoOfContactFlag = true
     when (typeInfo) {
         CHILD_FULLNAME -> {
             changeInfo(changeInfo, typeInfo, context, navController)
@@ -100,7 +120,6 @@ fun choseChangeInformation(
             downloadImage(context, navController)
         }
     }
-
 }
 
 fun changeInfo(
@@ -146,7 +165,12 @@ fun checkUsername(changeInfo: String, context: Context, navController: NavHostCo
             REF_DATABASE_ROOT.child(NODE_USERNAMES).child(changeInfo.lowercase())
                 .setValue(UID) //Если нет, то записываем в ноду никнеймов ник
 
-            changeInfo(changeInfo, CHILD_USER_NAME, context, navController)//Переходим на страницу настроек
+            changeInfo(
+                changeInfo,
+                CHILD_USER_NAME,
+                context,
+                navController
+            )//Переходим на страницу настроек
 
         }
 
@@ -200,12 +224,14 @@ fun initContacts() {
                 val fullName =
                     cursor.getString(
                         cursor.getColumnIndexOrThrow(
-                            ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME)
+                            ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME
+                        )
                     )
                 val phone =
                     cursor.getString(
                         cursor.getColumnIndexOrThrow(
-                            ContactsContract.CommonDataKinds.Phone.NUMBER)
+                            ContactsContract.CommonDataKinds.Phone.NUMBER
+                        )
                     )
 
                 val newModal = CommonModal()
@@ -217,29 +243,37 @@ fun initContacts() {
         }
         cursor?.close()
 
+        sizeContactsList = contactList.size
+
         updateContactsForFirebase(contactList)
     }
 }
 
 fun updateContactsForFirebase(contactList: MutableList<CommonModal>) {
-    REF_DATABASE_ROOT.child(NODE_PHONES).addListenerForSingleValueEvent(object : ValueEventListener {
-        override fun onDataChange(snapshot: DataSnapshot) {
-            snapshot.children.forEach { itSnapshot ->
-                contactList.forEach { itContact ->
-                    if (itSnapshot.key == itContact.phone) {
-                        REF_DATABASE_ROOT.child(NODE_PHONES_CONTACTS).child(USER.id)
-                            .child(itSnapshot.value.toString())
-                            .child(itSnapshot.value.toString())
-
+    var index = 0
+    REF_DATABASE_ROOT.child(NODE_PHONES)
+        .addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                snapshot.children.forEach { itSnapshot ->
+                    contactList.forEach { itContact ->
+                        if (itSnapshot.key.toString().replace("-", "") == itContact.phone) {
+                            val pattern = Regex("(\\+\\d) (\\d{3})(\\d{3})(\\d{4})")
+                            val formattedStr = pattern.replace(itContact.phone, "$1 $2-$3-$4")
+                            REF_DATABASE_ROOT.child(NODE_PHONES_CONTACTS).child(UID)
+                                .child(formattedStr).child(CHILD_ID)
+                                .setValue(itSnapshot.value.toString())
+                            contactsList.add(itContact)
+                            initContactCard(itSnapshot.value.toString(), index)
+                            index++
+                        }
                     }
                 }
             }
-        }
 
-        override fun onCancelled(error: DatabaseError) {
-            makeToast(error.message, mainActivityContext)
-        }
+            override fun onCancelled(error: DatabaseError) {
+                makeToast(error.message, mainActivityContext)
+            }
 
-    })
+        })
 }
 
