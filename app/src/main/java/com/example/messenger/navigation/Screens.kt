@@ -25,9 +25,9 @@ sealed class Screens(
         route = "чат",
         icon = Icons.Default.Email
     )
-    data object Sent: Screens(
-        title = "Отправить",
-        route = "отправить",
+    data object Contacts: Screens(
+        title = "Контакты",
+        route = "контакты",
         icon = Icons.AutoMirrored.Filled.Send
     )
     data object Starred: Screens(

@@ -1,4 +1,4 @@
-package com.example.messenger.screens
+package com.example.messenger.screens.chatScreens
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize

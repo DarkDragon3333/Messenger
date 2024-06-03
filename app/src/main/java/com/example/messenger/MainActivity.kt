@@ -42,7 +42,6 @@ class MainActivity : ComponentActivity() {
 
     private fun init() {
         mainActivityContext = this
-        initContacts()
         startLocationPermissionRequest()
     }
 

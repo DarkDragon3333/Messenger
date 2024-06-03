@@ -187,10 +187,11 @@ fun NavIconButton(
 @Composable
 fun MainImage(
     dp: Dp,
+    uri: String,
     action: () -> Unit,
 ) {
     AsyncImage(
-        model = USER.photoUrl,
+        model = uri,
         contentDescription = "",
         contentScale = ContentScale.Crop,
         modifier = Modifier

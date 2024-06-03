@@ -21,8 +21,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.example.messenger.screens.changeInfoScreens.ChangeNumber
 import com.example.messenger.navigation.Screens
+import com.example.messenger.screens.changeInfoScreens.ChangeNumber
 import com.example.messenger.utilsFilies.MainImage
 import com.example.messenger.utilsFilies.USER
 import com.example.messenger.utilsFilies.goTo
@@ -50,7 +50,7 @@ fun HeaderOfSettings() {
     ) {
         Spacer(modifier = Modifier.padding(4.dp))
 
-        MainImage(64.dp) {}
+        MainImage(64.dp, USER.photoUrl) {}
 
         Spacer(modifier = Modifier.padding(4.dp))
         Column {
