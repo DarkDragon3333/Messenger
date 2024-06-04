@@ -7,6 +7,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.messenger.screens.ContactsScreen
+import com.example.messenger.screens.SearchScreen
 import com.example.messenger.screens.SettingsScreen
 import com.example.messenger.screens.changeInfoScreens.ChangeBIO
 import com.example.messenger.screens.changeInfoScreens.ChangeName
@@ -54,8 +55,12 @@ fun DrawerNavigation(navController: NavHostController) {
         composable(Screens.ChangePhotoUrl.route) {
             ChangePhotoUrl(navController)
         }
+        composable(Screens.Search.route) {
+            SearchScreen(navController)
+        }
     }
 }
+
 
 @Composable
 fun SpamScreen() {

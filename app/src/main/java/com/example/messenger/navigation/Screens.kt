@@ -70,4 +70,9 @@ sealed class Screens(
         route = "смена фото профиля",
         icon = Icons.Default.Edit
     )
+    data object Search: Screens(
+        title = "Поиск",
+        route = "поиск",
+        icon = Icons.AutoMirrored.Filled.Send
+    )
 }

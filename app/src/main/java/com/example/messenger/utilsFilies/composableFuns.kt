@@ -113,8 +113,7 @@ fun MainFieldStyle(
     labelText: String,
     enable: Boolean,
     maxLine: Int,
-    keyboardOptions:
-    KeyboardOptions,
+    keyboardOptions: KeyboardOptions,
     mText: String,
     function: () -> Unit
 ) {

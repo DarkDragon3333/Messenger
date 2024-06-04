@@ -73,7 +73,8 @@ fun NavDrawer() {
         Screens.Starred,
         Screens.Spam,
         Screens.Settings,
-        Screens.ChangeName
+        Screens.ChangeName,
+        Screens.Search
     )
 
     ModalNavigationDrawer(
