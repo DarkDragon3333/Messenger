@@ -19,8 +19,6 @@ import kotlinx.coroutines.launch
 
 
 class MainActivity : ComponentActivity() {
-
-
     private var requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()) { isGranted ->
         if (isGranted) {
@@ -39,7 +37,7 @@ class MainActivity : ComponentActivity() {
         }
         CoroutineScope(Dispatchers.IO).launch {
             init()
-        }
+                    }
     }
 
     private fun init() {
@@ -52,11 +50,6 @@ class MainActivity : ComponentActivity() {
         if (!sign_out) {
             AppStatus.updateStates(AppStatus.ONLINE, mainActivityContext)
         }
-
-    }
-
-    override fun onPause() {
-        super.onPause()
 
     }
 

@@ -26,7 +26,6 @@ lateinit var REF_DATABASE_ROOT: DatabaseReference
 lateinit var REF_STORAGE_ROOT: StorageReference
 lateinit var USER: User
 lateinit var UID: String //Уникальный индификационный номер
-lateinit var mValueEventListener: ChildEventListener
 
 
 const val NODE_USERS = "users"
@@ -252,6 +251,7 @@ fun initContacts() {
 
 fun updateContactsForFirebase(contactList: MutableList<CommonModal>) {
     var index = 0
+    var user: CommonModal
     REF_DATABASE_ROOT.child(NODE_PHONES)
         .addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -260,12 +260,11 @@ fun updateContactsForFirebase(contactList: MutableList<CommonModal>) {
                         if (itSnapshot.key.toString().replace("-", "") == itContact.phone) {
                             val pattern = Regex("(\\+\\d) (\\d{3})(\\d{3})(\\d{4})")
                             val formattedStr = pattern.replace(itContact.phone, "$1 $2-$3-$4")
-                            REF_DATABASE_ROOT.child(NODE_PHONES_CONTACTS).child(UID)
-                                .child(formattedStr).child(CHILD_ID)
+                            REF_DATABASE_ROOT.child(NODE_PHONES_CONTACTS)
+                                .child(UID).child(formattedStr).child(CHILD_ID)
                                 .setValue(itSnapshot.value.toString())
-                            contactsList.add(itContact)
-                            initContactCard(index)
                             index++
+                            contactsList.add(itSnapshot.value.toString())
                         }
                     }
                 }
@@ -276,41 +275,36 @@ fun updateContactsForFirebase(contactList: MutableList<CommonModal>) {
             }
 
         })
-}
 
-
-
-fun initContactCard(index: Int) {
-    var user: CommonModal
-    mValueEventListener = object : ChildEventListener{
-        override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
+    REF_DATABASE_ROOT.child(NODE_USERS).addChildEventListener(object :
+        ChildEventListener{
+        override fun onChildAdded(
+            snapshot: DataSnapshot,
+            previousChildName: String?
+        ) {
             user = snapshot.getValue(CommonModal::class.java)
                 ?: CommonModal()
-            commonModalContactList.add(user)
-            REF_DATABASE_ROOT.child(NODE_USERS).removeEventListener(mValueEventListener)
-
+            mapContacts.put(user.id, user)
         }
-
-        override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {
+        override fun onChildChanged(
+            snapshot: DataSnapshot,
+            previousChildName: String?
+        ) {
             user = snapshot.getValue(CommonModal::class.java)
                 ?: CommonModal()
-            commonModalContactList[index] = user
+            mapContacts.set(user.id, user)
         }
 
-        override fun onChildRemoved(snapshot: DataSnapshot) {
+        override fun onChildRemoved(snapshot: DataSnapshot) {}
 
-        }
-
-        override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {
-
-        }
+        override fun onChildMoved(
+            snapshot: DataSnapshot,
+            previousChildName: String?
+        ) {}
 
         override fun onCancelled(error: DatabaseError) {
-
+            makeToast(error.message, mainActivityContext)
         }
 
-    }
-    REF_DATABASE_ROOT
-        .child(NODE_USERS).addChildEventListener(mValueEventListener)
-
+    })
 }

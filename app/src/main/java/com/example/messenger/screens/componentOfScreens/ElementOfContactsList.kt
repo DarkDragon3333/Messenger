@@ -15,22 +15,30 @@ import com.example.messenger.modals.CommonModal
 import com.example.messenger.utilsFilies.MainImage
 
 @Composable
-fun ContactCard(user: CommonModal) {
+fun ContactCard(user: CommonModal?) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Spacer(modifier = Modifier.padding(8.dp))
-        MainImage(dp = 64.dp, user.photoUrl) {}
+
+        if (user != null) {
+            MainImage(dp = 64.dp, user.photoUrl) {}
+        }
 
         Spacer(modifier = Modifier.padding(4.dp))
         Column {
-            Text(text = user.fullname)
-            Text(text = user.phone)
+            if (user != null) {
+                Text(text = user.fullname)
+            }
+            if (user != null) {
+                Text(text = user.phone)
+            }
         }
         Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center){
-            Text(text = user.status)
+            if (user != null) {
+                Text(text = user.status)
+            }
         }
     }
 }
-
