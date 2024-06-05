@@ -16,6 +16,7 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ServerValue
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
@@ -27,11 +28,14 @@ lateinit var REF_STORAGE_ROOT: StorageReference
 lateinit var USER: User
 lateinit var UID: String //Уникальный индификационный номер
 
+const val TYPE_TEXT = "text"
 
 const val NODE_USERS = "users"
 const val NODE_USERNAMES = "usernames"
 const val NODE_PHONES = "phones"
 const val NODE_PHONES_CONTACTS = "phones_contacts"
+
+const val NODE_MESSAGES = "messages"
 
 const val FOLDER_PHOTOS = "photos"
 
@@ -43,6 +47,13 @@ const val CHILD_FULLNAME = "fullname"
 const val CHILD_BIO = "bio"
 const val CHILD_STATUS: String = "status"
 const val CHILD_PHOTO_URL: String = "photoUrl"
+
+const val CHILD_TEXT: String = "text"
+const val CHILD_TYPE: String = "type"
+const val CHILD_FROM: String = "from"
+const val CHILD_TIME_STAMP: String = "timeStamp"
+
+
 
 
 fun initFirebase() {
@@ -313,4 +324,26 @@ fun updateContactsForFirebase(contactList: MutableList<CommonModal>) {
         }
 
     })
+}
+
+fun sendMessage(message: String, receivingUserID: String?, typeText: String, function: () -> Unit) {
+
+    val refDialogUser = "$NODE_MESSAGES/$UID/$receivingUserID"
+    var refDialogReceivingUser = "$NODE_MESSAGES/$receivingUserID/$UID"
+    val messageKey = REF_DATABASE_ROOT.child(refDialogUser).push().key
+
+    val mapMessage = HashMap<String, Any>()
+    mapMessage[CHILD_FROM] = UID
+    mapMessage[CHILD_TYPE] = typeText
+    mapMessage[CHILD_TEXT] = message
+    mapMessage[CHILD_TIME_STAMP] = ServerValue.TIMESTAMP
+
+    val mapDialogs = HashMap<String, Any>()
+    mapDialogs["$refDialogUser/$messageKey"] = mapMessage
+    mapDialogs["$refDialogReceivingUser/$messageKey"] = mapMessage
+
+    REF_DATABASE_ROOT
+        .updateChildren(mapDialogs)
+        .addOnSuccessListener { function() }
+        .addOnFailureListener { makeToast(it.message.toString(), mainActivityContext) }
 }

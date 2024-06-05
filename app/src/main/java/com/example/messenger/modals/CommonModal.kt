@@ -8,5 +8,10 @@ data class CommonModal (
     var status: String = "",
     var photoUrl: String = "",
     var phone: String = "",
-    var password: String = ""
+    var password: String = "",
+
+    var text: String = "",
+    var type: String = "",
+    var from: String = "",
+    var timeStamp: String = ""
 )

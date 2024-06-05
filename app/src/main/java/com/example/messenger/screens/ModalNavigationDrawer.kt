@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.DrawerState
@@ -34,8 +35,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -49,6 +52,7 @@ import com.example.messenger.utilsFilies.MainImage
 import com.example.messenger.utilsFilies.NavIconButton
 import com.example.messenger.utilsFilies.USER
 import com.example.messenger.utilsFilies.flagDropMenuButtonOnSettingsScreen
+import com.example.messenger.utilsFilies.flagNavButtonOnChatScreen
 import com.example.messenger.utilsFilies.flagNavButtonOnChatsScreen
 import com.example.messenger.utilsFilies.get_out_from_auth
 import com.example.messenger.utilsFilies.goTo
@@ -135,10 +139,35 @@ fun NavDrawer() {
             topBar = {
                 TopAppBar(
                     title = {
-                        Text(
-                            text = currentRoute
-                                .toString()
-                                .replaceFirstChar { it.uppercase() })
+                        if (flagNavButtonOnChatScreen == 1) {
+                            var data: List<String>
+                            var fullname = " "
+                            var statusUSER = " "
+                            var photoURL = " "
+                            navController.addOnDestinationChangedListener{ _, destination, bundle ->
+                                if ((bundle != null) && (destination.route == "chatScreen/{user}/{photoURL}/{id}")) {
+                                    data = bundle.getString("user").toString().split(" ")
+                                    fullname = data[0].replace(Regex("(?<=\\p{Ll})(?=\\p{Lu})"), " ")
+                                    statusUSER = data[1].replace(Regex("(?<=\\p{Ll})(?=\\p{Lu})"), " ")
+                                    photoURL = bundle.getString("photoURL").toString()
+                                }
+                            }
+                            Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                                MainImage(dp = 32.dp, photoURL) {}
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Column {
+                                    Text(text = fullname, fontSize = 16.sp)
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Text(text = statusUSER, fontSize = 14.sp)
+                                }
+                            }
+                        } else {
+                            Text(
+                                text = currentRoute
+                                    .toString()
+                                    .replaceFirstChar { it.uppercase() })
+                        }
+
                     },
                     modifier = Modifier.fillMaxWidth(),
                     colors = TopAppBarDefaults.topAppBarColors(
@@ -147,6 +176,7 @@ fun NavDrawer() {
                     actions = {//Элементы в конце TopAppBar
                         navController.addOnDestinationChangedListener { _, destination, _ -> //Хочу, чтобы выпадающий список появлялся только на странице настроек
                             checkButtonOnSettingsScreen(destination)
+                            checkButtonOnChatScreen(destination)
                         }
                         if (flagDropMenuButtonOnSettingsScreen == 1) {
                             DropdownMenuItems(drawerState, coroutineScope, navController)
@@ -154,7 +184,7 @@ fun NavDrawer() {
                     },
                     navigationIcon = {
                         navController.addOnDestinationChangedListener { _, destination, _ ->
-                            checkButtonOnChatScreen(destination)
+                            checkButtonOnChatsScreen(destination)
                         }
                         if (flagNavButtonOnChatsScreen == 1) {
                             NavIconButton(coroutineScope, drawerState)
@@ -177,7 +207,6 @@ fun NavDrawer() {
     }
 }
 
-
 private fun checkButtonOnSettingsScreen(destination: NavDestination) {
     flagDropMenuButtonOnSettingsScreen =
         if ((destination.route == Screens.Settings.route)) {
@@ -188,9 +217,18 @@ private fun checkButtonOnSettingsScreen(destination: NavDestination) {
 }
 
 
-private fun checkButtonOnChatScreen(destination: NavDestination) {
+private fun checkButtonOnChatsScreen(destination: NavDestination) {
     flagNavButtonOnChatsScreen =
         if (destination.route == Screens.Chats.route) {
+            1
+        } else {
+            -1
+        }
+}
+
+private fun checkButtonOnChatScreen(destination: NavDestination) {
+    flagNavButtonOnChatScreen =
+        if (destination.route == "chatScreen/{user}/{photoURL}/{id}") {
             1
         } else {
             -1
@@ -256,7 +294,5 @@ fun DropdownMenuItems(
         }
     }
 }
-
-
 
 

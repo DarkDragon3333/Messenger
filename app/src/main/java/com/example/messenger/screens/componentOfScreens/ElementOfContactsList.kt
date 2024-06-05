@@ -1,5 +1,6 @@
 package com.example.messenger.screens.componentOfScreens
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,13 +12,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import com.example.messenger.modals.CommonModal
 import com.example.messenger.utilsFilies.MainImage
+import com.example.messenger.utilsFilies.goTo
 
 @Composable
-fun ContactCard(user: CommonModal?) {
+fun ContactCard(user: CommonModal?, navController: NavHostController) {
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth().clickable {
+            if (user != null) {
+                goTo(navController, user)
+            }
+        },
         verticalAlignment = Alignment.CenterVertically
     ) {
         Spacer(modifier = Modifier.padding(8.dp))

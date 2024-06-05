@@ -4,8 +4,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import com.example.messenger.screens.ContactsScreen
 import com.example.messenger.screens.SearchScreen
 import com.example.messenger.screens.SettingsScreen
@@ -28,11 +30,22 @@ fun DrawerNavigation(navController: NavHostController) {
         composable(Screens.Chats.route) {
             ChatsScreen(navController)
         }
-        composable(Screens.Chat.route) {
-            ChatScreen(navController)
+        composable(
+            "chatScreen/{user}/{photoURL}/{id}",
+            arguments = listOf(
+                navArgument("user") { type = NavType.StringType},
+                navArgument("photoURL") { type = NavType.StringType},
+                navArgument("id") { type = NavType.StringType}
+            )
+        )
+        {backStackEntry ->
+            val user = backStackEntry.arguments?.getString("user")
+            val photoURL = backStackEntry.arguments?.getString("photoURL")
+            val id = backStackEntry.arguments?.getString("id")
+            ChatScreen(user, photoURL, id)
         }
         composable(Screens.Contacts.route) {
-            ContactsScreen()
+            ContactsScreen(navController)
         }
         composable(Screens.Starred.route) {
             StarredScreen()

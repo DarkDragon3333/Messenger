@@ -6,11 +6,13 @@ import android.content.Intent
 import android.widget.Toast
 import androidx.compose.material3.DrawerState
 import androidx.navigation.NavHostController
+import com.example.messenger.modals.CommonModal
 import com.example.messenger.navigation.Screens
 import com.example.messenger.user_sing_in_and_up_activities.AddInfo
 import com.google.firebase.auth.PhoneAuthProvider
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import java.net.URLEncoder
 
 /*
 Служебные функции приложения
@@ -90,6 +92,20 @@ fun goTo(
 
 fun goTo(navController: NavHostController, screen: Screens) {
     navController.navigate(screen.route) {//Используем navController для перемещения по экранам
+        launchSingleTop = true
+    }
+}
+
+fun goTo(navController: NavHostController, user: CommonModal) {
+    val str = URLEncoder.encode(user.fullname.replace(" ", ""), "UTF-8") +
+            " ${URLEncoder.encode(user.status.replace(" ", ""), "UTF-8")} "
+
+    val uri = URLEncoder.encode(user.photoUrl, "UTF-8")
+
+    val id = URLEncoder.encode(user.id, "UTF-8")
+
+    //Используем navController для перемещения по экранам
+    navController.navigate("chatScreen/${str}/${uri}/{$id}") {
         launchSingleTop = true
     }
 }

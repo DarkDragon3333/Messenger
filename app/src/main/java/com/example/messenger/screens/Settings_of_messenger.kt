@@ -18,7 +18,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.messenger.navigation.Screens
@@ -26,6 +25,7 @@ import com.example.messenger.screens.changeInfoScreens.ChangeNumber
 import com.example.messenger.utilsFilies.MainImage
 import com.example.messenger.utilsFilies.USER
 import com.example.messenger.utilsFilies.goTo
+import com.example.messenger.utilsFilies.mainActivityContext
 import com.example.messenger.utilsFilies.mainFieldStyle
 import com.example.messenger.utilsFilies.makeToast
 
@@ -65,8 +65,6 @@ fun HeaderOfSettings() {
 
 @Composable
 fun BodyOfSettings(navController: NavHostController) {
-    val context = LocalContext.current
-
     Column {
         Spacer(modifier = Modifier.padding(8.dp))
         Text(text = "Аккаунт", modifier = Modifier.padding(15.dp, 0.dp, 0.dp, 0.dp))
@@ -78,7 +76,7 @@ fun BodyOfSettings(navController: NavHostController) {
             3,
             USER.phone
         ) {
-            goTo(ChangeNumber::class.java, context)
+            goTo(ChangeNumber::class.java, mainActivityContext)
         }
 
         Spacer(modifier = Modifier.padding(8.dp))
@@ -135,12 +133,11 @@ fun FooterOfSettings() {
 
 @Composable
 fun ElementOfFooter(lock: ImageVector, s: String) {
-    val context = LocalContext.current
     Row(
         modifier = Modifier
             .padding(10.dp, 0.dp, 0.dp, 0.dp)
             .clickable {
-                makeToast(s, context)
+                makeToast(s, mainActivityContext)
             }
     ) {
         Icon(lock, contentDescription = "")
