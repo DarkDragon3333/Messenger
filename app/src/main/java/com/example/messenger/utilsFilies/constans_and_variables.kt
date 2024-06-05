@@ -11,7 +11,7 @@ var sign_out = false
 var sign_in = true
 
 var sizeContactsList = 0
-val contactsList: MutableList<String> = mutableListOf()
+val contactsListUSER: MutableList<String> = mutableListOf()
 
 val commonModalContactList: MutableList<CommonModal> = mutableListOf()
 val mapContacts: MutableMap<String, CommonModal> = mutableMapOf()

@@ -261,8 +261,7 @@ fun updateContactsForFirebase(contactList: MutableList<CommonModal>) {
                             REF_DATABASE_ROOT.child(NODE_PHONES_CONTACTS)
                                 .child(UID).child(formattedStr).child(CHILD_ID)
                                 .setValue(itSnapshot.value.toString())
-                            index++
-                            contactsList.add(itSnapshot.value.toString())
+                            contactsListUSER.add(itSnapshot.value.toString())
                         }
                     }
                 }
@@ -282,7 +281,7 @@ fun updateContactsForFirebase(contactList: MutableList<CommonModal>) {
         ) {
             user = snapshot.getValue(CommonModal::class.java)
                 ?: CommonModal()
-            contactsList.forEach{contact ->
+            contactsListUSER.forEach{ contact ->
                 if (user.id == contact){
                     mapContacts[user.id] = user
                 }
@@ -295,7 +294,11 @@ fun updateContactsForFirebase(contactList: MutableList<CommonModal>) {
         ) {
             user = snapshot.getValue(CommonModal::class.java)
                 ?: CommonModal()
-            mapContacts[user.id] = user
+            contactsListUSER.forEach{ contact ->
+                if (user.id == contact){
+                    mapContacts[user.id] = user
+                }
+            }
         }
 
         override fun onChildRemoved(snapshot: DataSnapshot) {}
