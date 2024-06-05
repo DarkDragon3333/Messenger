@@ -243,8 +243,6 @@ fun initContacts() {
         }
         cursor?.close()
 
-        sizeContactsList = contactList.size
-
         updateContactsForFirebase(contactList)
     }
 }
@@ -284,7 +282,12 @@ fun updateContactsForFirebase(contactList: MutableList<CommonModal>) {
         ) {
             user = snapshot.getValue(CommonModal::class.java)
                 ?: CommonModal()
-            mapContacts.put(user.id, user)
+            contactsList.forEach{contact ->
+                if (user.id == contact){
+                    mapContacts[user.id] = user
+                }
+            }
+
         }
         override fun onChildChanged(
             snapshot: DataSnapshot,
@@ -292,7 +295,7 @@ fun updateContactsForFirebase(contactList: MutableList<CommonModal>) {
         ) {
             user = snapshot.getValue(CommonModal::class.java)
                 ?: CommonModal()
-            mapContacts.set(user.id, user)
+            mapContacts[user.id] = user
         }
 
         override fun onChildRemoved(snapshot: DataSnapshot) {}

@@ -35,14 +35,15 @@ class MainActivity : ComponentActivity() {
                 NavDrawer()
             }
         }
+        mainActivityContext = this
+        startLocationPermissionRequest()
         CoroutineScope(Dispatchers.IO).launch {
             init()
-                    }
+        }
     }
 
     private fun init() {
-        mainActivityContext = this
-        startLocationPermissionRequest()
+        initContacts()
     }
 
     override fun onStart() {

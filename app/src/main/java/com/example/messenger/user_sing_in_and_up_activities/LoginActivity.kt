@@ -94,7 +94,6 @@ class LoginActivity : ComponentActivity() {
                 Button(
                     onClick = {
                         checkPhone(phone, password)
-
                     }
                 ) { Text("Sing in", fontSize = 18.sp) }
 
@@ -143,15 +142,8 @@ class LoginActivity : ComponentActivity() {
                 run breaking@ {
                     snapshot.children.forEach { snapshotPhone -> //Перебираем все номера телефонов
                         if (snapshotPhone.key == phone) { //Если номер телефона совпадает с введённым
-                            downloadInfoOfUser(snapshotPhone) //Получаем информацию о пользователе
-                            if (password == USER.password) { //Если пароль верный
-                                initLoginCallBack(phone, password)  //Обработка запроса
-                                authUser(context, phone, callBack) //Аунтетифицируем пользователя
-                                return@breaking
-                            } else {
-                                makeToast("Неверный пароль!", context)
-                                return@breaking
-                            }
+                            downloadInfoOfUser(snapshotPhone, phone, password) //Получаем информацию о пользователе
+                            return@breaking
                         }
                     }
                 }
@@ -164,11 +156,18 @@ class LoginActivity : ComponentActivity() {
         })
     }
 
-    fun downloadInfoOfUser(snapshotPhone: DataSnapshot) {
+    fun downloadInfoOfUser(snapshotPhone: DataSnapshot, phone: String, password: String) {
         REF_DATABASE_ROOT.child(NODE_USERS).child(snapshotPhone.value.toString())
             .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshotUSER: DataSnapshot) {
+
                     USER = snapshotUSER.getValue(User::class.java) ?: User()
+                    if (password == USER.password) { //Если пароль верный
+                        initLoginCallBack(phone, password)  //Обработка запроса
+                        authUser(context, phone, callBack) //Аунтетифицируем пользователя
+                    } else {
+                        makeToast("Неверный пароль!", context)
+                    }
                 }
 
                 override fun onCancelled(error: DatabaseError) {
