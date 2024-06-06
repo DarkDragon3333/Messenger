@@ -60,6 +60,7 @@ import com.example.messenger.utilsFilies.mainActivityContext
 import com.example.messenger.utilsFilies.on_settings_screen
 import com.example.messenger.utilsFilies.sign_in
 import kotlinx.coroutines.CoroutineScope
+import java.net.URLDecoder
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -140,16 +141,16 @@ fun NavDrawer() {
                 TopAppBar(
                     title = {
                         if (flagNavButtonOnChatScreen == 1) {
-                            var data: List<String>
                             var fullname = " "
                             var statusUSER = " "
                             var photoURL = " "
+                            //var id = " "
                             navController.addOnDestinationChangedListener{ _, destination, bundle ->
-                                if ((bundle != null) && (destination.route == "chatScreen/{user}/{photoURL}/{id}")) {
-                                    data = bundle.getString("user").toString().split(" ")
-                                    fullname = data[0].replace(Regex("(?<=\\p{Ll})(?=\\p{Lu})"), " ")
-                                    statusUSER = data[1].replace(Regex("(?<=\\p{Ll})(?=\\p{Lu})"), " ")
+                                if ((bundle != null) && (destination.route == "chatScreen/{fullname}/{status}/{photoURL}/{id}")) {
+                                    fullname = URLDecoder.decode(bundle.getString("fullname").toString(), "UTF-8")
+                                    statusUSER = URLDecoder.decode(bundle.getString("status").toString(), "UTF-8")
                                     photoURL = bundle.getString("photoURL").toString()
+                                    //id = URLDecoder.decode(bundle.getString("id").toString(), "UTF-8")
                                 }
                             }
                             Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
@@ -157,7 +158,6 @@ fun NavDrawer() {
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Column {
                                     Text(text = fullname, fontSize = 16.sp)
-                                    Spacer(modifier = Modifier.width(4.dp))
                                     Text(text = statusUSER, fontSize = 14.sp)
                                 }
                             }
@@ -228,7 +228,7 @@ private fun checkButtonOnChatsScreen(destination: NavDestination) {
 
 private fun checkButtonOnChatScreen(destination: NavDestination) {
     flagNavButtonOnChatScreen =
-        if (destination.route == "chatScreen/{user}/{photoURL}/{id}") {
+        if (destination.route == "chatScreen/{fullname}/{status}/{photoURL}/{id}") {
             1
         } else {
             -1

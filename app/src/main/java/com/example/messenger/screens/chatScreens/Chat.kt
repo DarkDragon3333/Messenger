@@ -32,7 +32,7 @@ import com.example.messenger.utilsFilies.sendMessage
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ChatScreen(user: String?, photoURL: String?, id: String?) {
+fun ChatScreen(user: String?, photoURL: String?, id: String?, id1: String?) {
     var text by remember { mutableStateOf("") }
 
     Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center) {

@@ -31,18 +31,21 @@ fun DrawerNavigation(navController: NavHostController) {
             ChatsScreen(navController)
         }
         composable(
-            "chatScreen/{user}/{photoURL}/{id}",
+            "chatScreen/{fullname}/{status}/{photoURL}/{id}",
             arguments = listOf(
-                navArgument("user") { type = NavType.StringType},
+                navArgument("fullname") { type = NavType.StringType},
+                navArgument("status") { type = NavType.StringType},
                 navArgument("photoURL") { type = NavType.StringType},
                 navArgument("id") { type = NavType.StringType}
             )
         )
         {backStackEntry ->
-            val user = backStackEntry.arguments?.getString("user")
+            val fullname = backStackEntry.arguments?.getString("fullname")
+            val status = backStackEntry.arguments?.getString("status")
             val photoURL = backStackEntry.arguments?.getString("photoURL")
             val id = backStackEntry.arguments?.getString("id")
-            ChatScreen(user, photoURL, id)
+
+            ChatScreen(fullname, status, photoURL, id)
         }
         composable(Screens.Contacts.route) {
             ContactsScreen(navController)
