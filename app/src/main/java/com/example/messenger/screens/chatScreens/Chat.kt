@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material3.Icon
@@ -22,6 +23,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -39,11 +41,11 @@ import com.example.messenger.utilsFilies.mainActivityContext
 import com.example.messenger.utilsFilies.makeToast
 import com.example.messenger.utilsFilies.sendMessage
 import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.ValueEventListener
+import kotlinx.coroutines.launch
 import java.net.URLDecoder
 
 private lateinit var refToMessages: DatabaseReference
-private lateinit var MessagesListener: ValueEventListener
+private lateinit var MessagesListener: AppValueEventListener
 
 @Composable
 fun ChatScreen(
@@ -51,7 +53,8 @@ fun ChatScreen(
     statusContact: String?,
     photoURLContact: String?,
     idContact: String?,
-    navController: NavHostController, ) {
+    navController: NavHostController,
+) {
     val fullname = URLDecoder.decode(fullnameContact, "UTF-8")
     val statusUSER = URLDecoder.decode(statusContact, "UTF-8")
     val photoURL = photoURLContact
@@ -61,6 +64,9 @@ fun ChatScreen(
 
     var text by remember { mutableStateOf("") }
 
+    val listState = rememberLazyListState()
+    val coroutineScope = rememberCoroutineScope()
+
     val regex = Regex("[{}]")
     val result = id.toString().replace(regex, "")
 
@@ -68,12 +74,19 @@ fun ChatScreen(
         refToMessages = REF_DATABASE_ROOT.child(NODE_MESSAGES).child(UID).child(id)
 
         MessagesListener = AppValueEventListener { dataSnap ->
-            cacheMessages =
-                dataSnap.children.map { it.getCommonModel() }.toMutableList()
-            chatScreenState.clear()
-            cacheMessages.forEach { message ->
-                chatScreenState.add(message)
+            cacheMessages = dataSnap.children.map {
+                it.getCommonModel()
+            }.toMutableList()
+            if (chatScreenState.isNotEmpty()){
+                if (cacheMessages.last().timeStamp != chatScreenState.last().timeStamp) {
+                    chatScreenState.clear()
+                    chatScreenState.addAll(cacheMessages)
+                }
             }
+             else{
+                chatScreenState.addAll(cacheMessages)
+            }
+
         }
 
         refToMessages.addValueEventListener(MessagesListener)
@@ -85,18 +98,26 @@ fun ChatScreen(
 
 
     Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center) {
-        Box(modifier = Modifier
-            .fillMaxWidth()
-            .fillMaxHeight(0.85f),
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight(0.75f),
             contentAlignment = Alignment.TopStart
         )
         {
 
             if (chatScreenState.size > 0) {
                 LazyColumn(modifier = Modifier.fillMaxSize()) {
-                    items(chatScreenState.size) { index ->
+                    items(
+                        chatScreenState.size
+                    )
+                    { index ->
                         Message(chatScreenState[index])
                         Spacer(modifier = Modifier.height(10.dp))
+
+                    }
+                    coroutineScope.launch() {
+                        listState.animateScrollToItem(chatScreenState.lastIndex)
                     }
                 }
             }
@@ -106,7 +127,8 @@ fun ChatScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(0.dp, 0.dp, 0.dp, 10.dp),
-            contentAlignment = Alignment.BottomCenter) {
+            contentAlignment = Alignment.BottomCenter
+        ) {
             Row(modifier = Modifier.fillMaxWidth()) {
                 TextField(
                     value = text,
@@ -133,11 +155,17 @@ fun ChatScreen(
         }
 
     }
-    navController.addOnDestinationChangedListener{ _, destination, _ ->
-        if (destination.route != "chatScreen/{fullname}/{status}/{photoURL}/{id}"){
+    navController.addOnDestinationChangedListener { _, destination, _ ->
+        if (destination.route != "chatScreen/{fullname}/{status}/{photoURL}/{id}") {
             refToMessages.removeEventListener(MessagesListener)
         }
     }
+}
+
+fun addItem(item: CommonModal) {
+    val newList = mutableListOf<CommonModal>()
+    newList.addAll(cacheMessages)
+    newList.add(item)
 }
 
 
