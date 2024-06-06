@@ -329,23 +329,28 @@ fun updateContactsForFirebase(contactList: MutableList<CommonModal>) {
     })
 }
 
-fun sendMessage(message: String, receivingUserID: String?, typeText: String, function: () -> Unit) {
+fun sendMessage(
+    message: String,
+    receivingUserID: String?,
+    typeText: String,
+    function: () -> Unit
+) {
     val refDialogUser = "$NODE_MESSAGES/$UID/$receivingUserID"
     val refDialogReceivingUser = "$NODE_MESSAGES/$receivingUserID/$UID"
     val messageKey = REF_DATABASE_ROOT.child(refDialogUser).push().key
 
-    val mapMessage = HashMap<String, Any>()
+    val mapMessage = hashMapOf<String, Any>()
     mapMessage[CHILD_FROM] = UID
     mapMessage[CHILD_TYPE] = typeText
     mapMessage[CHILD_TEXT] = message
     mapMessage[CHILD_TIME_STAMP] = ServerValue.TIMESTAMP
 
-    val mapDialogs = HashMap<String, Any>()
-    mapDialogs["$refDialogUser/$messageKey"] = mapMessage
-    mapDialogs["$refDialogReceivingUser/$messageKey"] = mapMessage
+    val mapDialog = hashMapOf<String, Any>()
+    mapDialog["$refDialogUser/$messageKey"] = mapMessage
+    mapDialog["$refDialogReceivingUser/$messageKey"] = mapMessage
 
     REF_DATABASE_ROOT
-        .updateChildren(mapDialogs)
+        .updateChildren(mapDialog)
         .addOnSuccessListener { function() }
         .addOnFailureListener { makeToast(it.message.toString(), mainActivityContext) }
 }

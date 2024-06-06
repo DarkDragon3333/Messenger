@@ -98,13 +98,13 @@ fun goTo(navController: NavHostController, screen: Screens) {
 }
 
 fun goTo(navController: NavHostController, user: CommonModal) {
+    user.id
     val fullname = URLEncoder.encode(user.fullname, "UTF-8")
     val status = URLEncoder.encode(user.status, "UTF-8")
     val uri = URLEncoder.encode(user.photoUrl, "UTF-8")
-    val id = URLEncoder.encode(user.id, "UTF-8")
 
     //Используем navController для перемещения по экранам
-    navController.navigate("chatScreen/${fullname}/${status}/${uri}/{$id}") {
+    navController.navigate("chatScreen/${fullname}/${status}/${uri}/{${user.id}}") {
         launchSingleTop = true
     }
 }

@@ -55,11 +55,14 @@ fun ChatScreen(
     val fullname = URLDecoder.decode(fullnameContact, "UTF-8")
     val statusUSER = URLDecoder.decode(statusContact, "UTF-8")
     val photoURL = photoURLContact
-    val id = URLDecoder.decode(idContact, "UTF-8")
+    val id = idContact
 
-    val a = remember { mutableStateListOf<CommonModal>() }
+    val chatScreenState = remember { mutableStateListOf<CommonModal>() }
 
     var text by remember { mutableStateOf("") }
+
+    val regex = Regex("[{}]")
+    val result = id.toString().replace(regex, "")
 
     fun initChat(id: String) {
         refToMessages = REF_DATABASE_ROOT.child(NODE_MESSAGES).child(UID).child(id)
@@ -67,9 +70,9 @@ fun ChatScreen(
         MessagesListener = AppValueEventListener { dataSnap ->
             cacheMessages =
                 dataSnap.children.map { it.getCommonModel() }.toMutableList()
-            a.clear()
+            chatScreenState.clear()
             cacheMessages.forEach { message ->
-                a.add(message)
+                chatScreenState.add(message)
             }
         }
 
@@ -77,8 +80,9 @@ fun ChatScreen(
     }
 
     if (id != null) {
-        initChat(id)
+        initChat(result)
     }
+
 
     Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center) {
         Box(modifier = Modifier
@@ -88,10 +92,10 @@ fun ChatScreen(
         )
         {
 
-            if (a.size > 0) {
+            if (chatScreenState.size > 0) {
                 LazyColumn(modifier = Modifier.fillMaxSize()) {
-                    items(a.size) { index ->
-                        Message(a[index])
+                    items(chatScreenState.size) { index ->
+                        Message(chatScreenState[index])
                         Spacer(modifier = Modifier.height(10.dp))
                     }
                 }
@@ -115,7 +119,8 @@ fun ChatScreen(
                             if (message.isEmpty()) {
                                 makeToast("Введите сообщение", mainActivityContext)
                             } else {
-                                sendMessage(message, id, TYPE_TEXT) {
+
+                                sendMessage(message, result, TYPE_TEXT) {
                                     text = ""
                                 }
                             }
