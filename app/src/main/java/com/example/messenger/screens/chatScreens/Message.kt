@@ -13,8 +13,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.messenger.modals.CommonModal
@@ -26,7 +28,7 @@ import java.util.Locale
 @Composable
 fun Message(commonModal: CommonModal) {
     val id = commonModal.from
-    Row(modifier = Modifier.fillMaxSize().background(Color.Cyan))
+    Row(modifier = Modifier.fillMaxSize())
     {
         if (id != "" && id != " ") {
             val pair = initMessage(commonModal)
@@ -38,7 +40,7 @@ fun Message(commonModal: CommonModal) {
                 {
                     Spacer(modifier = Modifier.width(15.dp))
                     Row(modifier = Modifier
-                        .background(Color.Red)
+                        .background(Color.Green)
                         .border(
                             border = BorderStroke(1.dp, Color.Black),
                             shape = RoundedCornerShape(4.dp)
@@ -46,10 +48,10 @@ fun Message(commonModal: CommonModal) {
                         horizontalArrangement = Arrangement.Start)
                     {
                         Spacer(modifier = Modifier.width(8.dp))
-                        Column()
+                        Column(horizontalAlignment = Alignment.Start)
                         {
                             Text(text = message)
-                            Text(text = timeStamp, fontSize = 10.sp)
+                            Text(text = timeStamp, fontSize = 10.sp, textAlign = TextAlign.Start)
                         }
                         Spacer(modifier = Modifier.width(8.dp))
 
@@ -65,8 +67,8 @@ fun Message(commonModal: CommonModal) {
                 {
                     Row(horizontalArrangement = Arrangement.End)
                     {
-                        Row(modifier = Modifier.
-                        background(Color.Green)
+                        Row(modifier = Modifier
+                            .background(Color.Green)
                             .border(
                                 border = BorderStroke(1.dp, Color.Black),
                                 shape = RoundedCornerShape(4.dp)
@@ -74,9 +76,9 @@ fun Message(commonModal: CommonModal) {
                             horizontalArrangement = Arrangement.End)
                         {
                             Spacer(modifier = Modifier.width(8.dp))
-                            Column {
+                            Column(horizontalAlignment = Alignment.End) {
                                 Text(text = message)
-                                Text(text = timeStamp, fontSize = 10.sp)
+                                Text(text = timeStamp, fontSize = 10.sp, textAlign = TextAlign.End)
                             }
                             Spacer(modifier = Modifier.width(8.dp))
                         }

@@ -74,9 +74,7 @@ fun ChatScreen(
         refToMessages = REF_DATABASE_ROOT.child(NODE_MESSAGES).child(UID).child(id)
 
         MessagesListener = AppValueEventListener { dataSnap ->
-            cacheMessages = dataSnap.children.map {
-                it.getCommonModel()
-            }.toMutableList()
+            cacheMessages = dataSnap.children.map { it.getCommonModel() }.toMutableList()
             if (chatScreenState.isNotEmpty()){
                 if (cacheMessages.last().timeStamp != chatScreenState.last().timeStamp) {
                     chatScreenState.clear()
