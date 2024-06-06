@@ -107,14 +107,10 @@ fun ChatScreen(
         {
 
             if (chatScreenState.size > 0) {
-                LazyColumn(modifier = Modifier.fillMaxSize()) {
-                    items(
-                        chatScreenState.size
-                    )
-                    { index ->
+                LazyColumn(modifier = Modifier.fillMaxSize(), state = listState) {
+                    items(chatScreenState.size,) { index ->
                         Message(chatScreenState[index])
                         Spacer(modifier = Modifier.height(10.dp))
-
                     }
                     coroutineScope.launch() {
                         listState.animateScrollToItem(chatScreenState.lastIndex)
