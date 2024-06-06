@@ -35,9 +35,10 @@ class MainActivity : ComponentActivity() {
                 NavDrawer()
             }
         }
+
         CoroutineScope(Dispatchers.IO).launch {
             init()
-                    }
+        }
     }
 
     private fun init() {

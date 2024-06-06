@@ -62,9 +62,10 @@ fun initFirebase() {
     USER = User()
     UID = AUTH.currentUser?.uid.toString()
     REF_STORAGE_ROOT = FirebaseStorage.getInstance().reference
+
 }
 
-fun initUser(context: Activity) {
+/*fun initUser(context: Activity) {
     REF_DATABASE_ROOT
         .child(NODE_USERS)
         .child(UID)
@@ -73,6 +74,9 @@ fun initUser(context: Activity) {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     USER = snapshot.getValue(User::class.java)
                         ?: User() //Получаем данные через переменную snapshot. Если будет null поле, то вы инициализируем пустым пользователем
+                    if (AUTH.currentUser != null) { //Если пользователь уже есть
+                        goTo(MainActivity::class.java, context)
+                    }
                 }
 
                 override fun onCancelled(error: DatabaseError) {
@@ -81,7 +85,7 @@ fun initUser(context: Activity) {
             }
         )
 
-}
+}*/
 
 fun authUser(
     context: Activity,
@@ -259,7 +263,6 @@ fun initContacts() {
 }
 
 fun updateContactsForFirebase(contactList: MutableList<CommonModal>) {
-    var index = 0
     var user: CommonModal
     REF_DATABASE_ROOT.child(NODE_PHONES)
         .addListenerForSingleValueEvent(object : ValueEventListener {
@@ -329,7 +332,7 @@ fun updateContactsForFirebase(contactList: MutableList<CommonModal>) {
 fun sendMessage(message: String, receivingUserID: String?, typeText: String, function: () -> Unit) {
 
     val refDialogUser = "$NODE_MESSAGES/$UID/$receivingUserID"
-    var refDialogReceivingUser = "$NODE_MESSAGES/$receivingUserID/$UID"
+    val refDialogReceivingUser = "$NODE_MESSAGES/$receivingUserID/$UID"
     val messageKey = REF_DATABASE_ROOT.child(refDialogUser).push().key
 
     val mapMessage = HashMap<String, Any>()

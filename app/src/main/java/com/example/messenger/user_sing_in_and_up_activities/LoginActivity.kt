@@ -27,11 +27,11 @@ import com.example.messenger.utilsFilies.AUTH
 import com.example.messenger.utilsFilies.NODE_PHONES
 import com.example.messenger.utilsFilies.NODE_USERS
 import com.example.messenger.utilsFilies.REF_DATABASE_ROOT
+import com.example.messenger.utilsFilies.UID
 import com.example.messenger.utilsFilies.USER
 import com.example.messenger.utilsFilies.authUser
 import com.example.messenger.utilsFilies.goTo
 import com.example.messenger.utilsFilies.initFirebase
-import com.example.messenger.utilsFilies.initUser
 import com.example.messenger.utilsFilies.mainFieldStyle
 import com.example.messenger.utilsFilies.makeToast
 import com.google.firebase.FirebaseException
@@ -51,25 +51,50 @@ class LoginActivity : ComponentActivity() {
         init()
         enableEdgeToEdge()
         setContent {
-            MessengerTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) {
-                    GreetingInLoginActivity(Modifier.padding(it))
-                }
-            }
+            InitUserLoginActivity() //Инициализируем пользователя
         }
     }
 
     private fun init() {
         context = this
         initFirebase() //Инициализируем БД
-        initUser(context)//Инициализируем пользователя
-        if (AUTH.currentUser != null) { //Если пользователь уже есть
-            goTo(MainActivity::class.java, context)
-        }
+
+    }
+    @Composable
+    private fun InitUserLoginActivity(){
+        REF_DATABASE_ROOT
+            .child(NODE_USERS)
+            .child(UID)
+            .addListenerForSingleValueEvent(
+                object : ValueEventListener { //Один раз при запуске обновляем наши данные
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        USER = snapshot.getValue(User::class.java)
+                            ?: User() //Получаем данные через переменную snapshot. Если будет null поле, то вы инициализируем пустым пользователем
+                        if (AUTH.currentUser != null) { //Если пользователь уже есть
+                            goTo(MainActivity::class.java, context)
+                        }
+                        else {
+                            setContent{
+                                MessengerTheme {
+                                    Scaffold(modifier = Modifier.fillMaxSize()) {
+                                        it
+                                        GreetingInLoginActivity()
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    override fun onCancelled(error: DatabaseError) {
+                        makeToast("Ошибка", context)
+                    }
+                }
+            )
     }
 
+
     @Composable
-    fun GreetingInLoginActivity(m: Modifier = Modifier) {
+    fun GreetingInLoginActivity() {
         Column {
             Column(
                 modifier = Modifier

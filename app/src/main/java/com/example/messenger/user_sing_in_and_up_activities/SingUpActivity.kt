@@ -38,12 +38,11 @@ class SingUpActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContent {
+                setContent {
             MessengerTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    GreetingInRegisterActivity(
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                    innerPadding
+                    GreetingInRegisterActivity()
                 }
             }
         }
@@ -63,7 +62,7 @@ class SingUpActivity : ComponentActivity() {
     }
 
     @Composable
-    fun GreetingInRegisterActivity(modifier: Modifier = Modifier) {
+    fun GreetingInRegisterActivity() {
         Column {
             Column(
                 modifier = Modifier
