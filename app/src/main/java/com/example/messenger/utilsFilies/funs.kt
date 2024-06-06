@@ -10,6 +10,7 @@ import com.example.messenger.modals.CommonModal
 import com.example.messenger.navigation.Screens
 import com.example.messenger.user_sing_in_and_up_activities.AddInfo
 import com.google.firebase.auth.PhoneAuthProvider
+import com.google.firebase.database.DataSnapshot
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.net.URLEncoder
@@ -107,3 +108,6 @@ fun goTo(navController: NavHostController, user: CommonModal) {
         launchSingleTop = true
     }
 }
+
+fun DataSnapshot.getCommonModel(): CommonModal =
+    this.getValue(CommonModal::class.java) ?: CommonModal()

@@ -330,7 +330,6 @@ fun updateContactsForFirebase(contactList: MutableList<CommonModal>) {
 }
 
 fun sendMessage(message: String, receivingUserID: String?, typeText: String, function: () -> Unit) {
-
     val refDialogUser = "$NODE_MESSAGES/$UID/$receivingUserID"
     val refDialogReceivingUser = "$NODE_MESSAGES/$receivingUserID/$UID"
     val messageKey = REF_DATABASE_ROOT.child(refDialogUser).push().key

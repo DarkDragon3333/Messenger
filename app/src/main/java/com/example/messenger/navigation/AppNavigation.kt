@@ -45,7 +45,7 @@ fun DrawerNavigation(navController: NavHostController) {
             val photoURL = backStackEntry.arguments?.getString("photoURL")
             val id = backStackEntry.arguments?.getString("id")
 
-            ChatScreen(fullname, status, photoURL, id)
+            ChatScreen(fullname, status, photoURL, id, navController)
         }
         composable(Screens.Contacts.route) {
             ContactsScreen(navController)

@@ -1,6 +1,7 @@
 package com.example.messenger
 
 import android.os.Bundle
+import android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
@@ -28,8 +29,10 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    @Suppress("DEPRECATION")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        window.setSoftInputMode(SOFT_INPUT_ADJUST_RESIZE);
         setContent {
             MessengerTheme {
                 NavDrawer()

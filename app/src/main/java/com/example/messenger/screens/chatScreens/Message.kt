@@ -17,49 +17,94 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.messenger.modals.CommonModal
+import com.example.messenger.utilsFilies.UID
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @Composable
-fun Message() {
-    Row(modifier = Modifier
-        .fillMaxSize()
-        .background(Color.Cyan)) {
-        Row (horizontalArrangement = Arrangement.Start) {
-            Row(modifier = Modifier
-                .fillMaxWidth(0.48f)
-                .background(Color.Red)
-                .border(
-                    border = BorderStroke(1.dp, Color.Black),
-                    shape = RoundedCornerShape(4.dp)
-                ),
-                horizontalArrangement = Arrangement.Start) {
-                Spacer(modifier = Modifier.width(8.dp))
-                Column {
-                    Text(text = "Hi")
-                    Text(text = "21:21", fontSize = 10.sp)
+fun Message(commonModal: CommonModal) {
+    val id = commonModal.from
+    Row(modifier = Modifier.fillMaxSize().background(Color.Cyan))
+    {
+        if (id != "" && id != " ") {
+            val pair = initMessage(commonModal)
+            val message = pair.first
+            val timeStamp = pair.second.toString()
+
+            if (id != UID) {
+                Row (horizontalArrangement = Arrangement.Start)
+                {
+                    Spacer(modifier = Modifier.width(15.dp))
+                    Row(modifier = Modifier
+                        .background(Color.Red)
+                        .border(
+                            border = BorderStroke(1.dp, Color.Black),
+                            shape = RoundedCornerShape(4.dp)
+                        ),
+                        horizontalArrangement = Arrangement.Start)
+                    {
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Column()
+                        {
+                            Text(text = message)
+                            Text(text = timeStamp, fontSize = 10.sp)
+                        }
+                        Spacer(modifier = Modifier.width(8.dp))
+
+                    }
+                }
+
+            }
+            else {
+                Row(
+                    horizontalArrangement = Arrangement.End,
+                    modifier = Modifier
+                    .fillMaxWidth())
+                {
+                    Row(horizontalArrangement = Arrangement.End)
+                    {
+                        Row(modifier = Modifier.
+                        background(Color.Green)
+                            .border(
+                                border = BorderStroke(1.dp, Color.Black),
+                                shape = RoundedCornerShape(4.dp)
+                            ),
+                            horizontalArrangement = Arrangement.End)
+                        {
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Column {
+                                Text(text = message)
+                                Text(text = timeStamp, fontSize = 10.sp)
+                            }
+                            Spacer(modifier = Modifier.width(8.dp))
+                        }
+
+                    }
+                    Spacer(modifier = Modifier.width(5.dp))
                 }
 
             }
         }
 
-        Spacer(modifier = Modifier.width(15.dp))
 
-        Row(horizontalArrangement = Arrangement.End) {
-            Row(modifier = Modifier
-                .fillMaxWidth()
-                .background(Color.Green)
-                .border(
-                    border = BorderStroke(1.dp, Color.Black),
-                    shape = RoundedCornerShape(4.dp)
-                ),
-                horizontalArrangement = Arrangement.End) {
-                Spacer(modifier = Modifier.width(8.dp))
-                Column {
-                    Text(text = "Hi")
-                    Text(text = "21:21", fontSize = 10.sp)
-                }
-
-            }
-        }
     }
 
+}
+
+@Composable
+private fun initMessage(commonModal: CommonModal): Pair<String, Any> {
+    val message = commonModal.text
+    var timeStamp = commonModal.timeStamp
+    if (timeStamp != "" && timeStamp != " ") {
+        timeStamp = commonModal.timeStamp.toString().asTimestamp()
+    }
+    return Pair(message, timeStamp)
+}
+
+fun String.asTimestamp() : String {
+    val time = Date(this.toLong())
+    val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
+    return timeFormat.format(time)
 }

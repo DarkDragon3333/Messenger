@@ -51,6 +51,7 @@
             android:exported="false"
             android:launchMode="singleTop"
             android:label="@string/title_activity_login"
+            android:windowSoftInputMode="stateVisible|adjustResize"
             android:theme="@style/Theme.Messenger" />
         <activity
             android:name=".user_sing_in_and_up_activities.LoginActivity"
