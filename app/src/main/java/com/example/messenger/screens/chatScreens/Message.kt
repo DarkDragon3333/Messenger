@@ -44,7 +44,6 @@ fun Message(commonModal: CommonModal) {
                     Spacer(modifier = Modifier.width(15.dp))
                     OutlinedCardMessage(message, timeStamp, 1)
                 }
-
             } else {
                 Row(horizontalArrangement = Arrangement.End,
                     modifier = Modifier.fillMaxWidth()
@@ -87,24 +86,24 @@ fun OutlinedCardMessage(message: String, timeStamp: String, flag: Int) {
     ) {
         if (flag == 0) {
             Column(
-                horizontalAlignment = Alignment.Start,
+                horizontalAlignment = Alignment.End,
                 modifier = Modifier
                     .background(textMes)
                     .padding(8.dp)
             )
             {
                 Text(text = message)
-                Text(text = timeStamp, fontSize = 10.sp, textAlign = TextAlign.Start)
+                Text(text = timeStamp, fontSize = 10.sp, textAlign = TextAlign.End)
             }
         } else {
             Column(
-                horizontalAlignment = Alignment.End,
+                horizontalAlignment = Alignment.Start,
                 modifier = Modifier
                     .background(textMes)
                     .padding(8.dp)
             ) {
                 Text(text = message)
-                Text(text = timeStamp, fontSize = 10.sp, textAlign = TextAlign.End)
+                Text(text = timeStamp, fontSize = 10.sp, textAlign = TextAlign.Start)
             }
         }
 

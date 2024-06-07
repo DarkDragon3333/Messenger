@@ -15,6 +15,7 @@ import com.example.messenger.utilsFilies.mapContacts
 fun ContactsScreen(navController: NavHostController) {
     LazyColumn {
         items(mapContacts.size){contact ->
+            Spacer(modifier = Modifier.height(10.dp))
             ContactCard(mapContacts[contactsListUSER[contact]], navController)
             Spacer(modifier = Modifier.height(10.dp))
         }
