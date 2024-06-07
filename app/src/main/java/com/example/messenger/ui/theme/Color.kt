@@ -4,7 +4,8 @@ import androidx.compose.ui.graphics.Color
 
 val BlueButtonLightMode = Color(0xFFF1FAFE)
 val BlackTextLightMode = Color(0xff222222)
-
+val textMes = Color(0xFF099FEB)
+val backgroundChat = Color(0xFF179CDE)
 val unfocusedContainerColorLightMode = BlueButtonLightMode
 val unfocusedTextColorLightMode = BlackTextLightMode
 

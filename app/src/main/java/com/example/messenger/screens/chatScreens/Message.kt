@@ -2,15 +2,17 @@ package com.example.messenger.screens.chatScreens
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -20,6 +22,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.messenger.modals.CommonModal
+import com.example.messenger.ui.theme.textMes
 import com.example.messenger.utilsFilies.UID
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -36,55 +39,18 @@ fun Message(commonModal: CommonModal) {
             val timeStamp = pair.second.toString()
 
             if (id != UID) {
-                Row (horizontalArrangement = Arrangement.Start)
+                Row(horizontalArrangement = Arrangement.Start)
                 {
                     Spacer(modifier = Modifier.width(15.dp))
-                    Row(modifier = Modifier
-                        .background(Color.Green)
-                        .border(
-                            border = BorderStroke(1.dp, Color.Black),
-                            shape = RoundedCornerShape(4.dp)
-                        ),
-                        horizontalArrangement = Arrangement.Start)
-                    {
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Column(horizontalAlignment = Alignment.Start)
-                        {
-                            Text(text = message)
-                            Text(text = timeStamp, fontSize = 10.sp, textAlign = TextAlign.Start)
-                        }
-                        Spacer(modifier = Modifier.width(8.dp))
-
-                    }
+                    OutlinedCardMessage(message, timeStamp, 1)
                 }
 
-            }
-            else {
-                Row(
-                    horizontalArrangement = Arrangement.End,
-                    modifier = Modifier
-                    .fillMaxWidth())
+            } else {
+                Row(horizontalArrangement = Arrangement.End,
+                    modifier = Modifier.fillMaxWidth()
+                )
                 {
-                    Row(horizontalArrangement = Arrangement.End)
-                    {
-                        Row(modifier = Modifier
-                            .background(Color.Green)
-                            .border(
-                                border = BorderStroke(1.dp, Color.Black),
-                                shape = RoundedCornerShape(4.dp)
-                            ),
-                            horizontalArrangement = Arrangement.End)
-                        {
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Column(horizontalAlignment = Alignment.End) {
-                                Text(text = message)
-                                Text(text = timeStamp, fontSize = 10.sp, textAlign = TextAlign.End)
-                            }
-                            Spacer(modifier = Modifier.width(8.dp))
-                        }
-
-                    }
-                    Spacer(modifier = Modifier.width(5.dp))
+                    OutlinedCardMessage(message, timeStamp, 0)
                 }
 
             }
@@ -105,8 +71,42 @@ private fun initMessage(commonModal: CommonModal): Pair<String, Any> {
     return Pair(message, timeStamp)
 }
 
-fun String.asTimestamp() : String {
+fun String.asTimestamp(): String {
     val time = Date(this.toLong())
     val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
     return timeFormat.format(time)
+}
+
+@Composable
+fun OutlinedCardMessage(message: String, timeStamp: String, flag: Int) {
+    OutlinedCard(
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface,
+        ),
+        border = BorderStroke(1.dp, Color.Black),
+    ) {
+        if (flag == 0) {
+            Column(
+                horizontalAlignment = Alignment.Start,
+                modifier = Modifier
+                    .background(textMes)
+                    .padding(8.dp)
+            )
+            {
+                Text(text = message)
+                Text(text = timeStamp, fontSize = 10.sp, textAlign = TextAlign.Start)
+            }
+        } else {
+            Column(
+                horizontalAlignment = Alignment.End,
+                modifier = Modifier
+                    .background(textMes)
+                    .padding(8.dp)
+            ) {
+                Text(text = message)
+                Text(text = timeStamp, fontSize = 10.sp, textAlign = TextAlign.End)
+            }
+        }
+
+    }
 }
