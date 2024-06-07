@@ -23,6 +23,7 @@ fun YourProfile() {
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        Spacer(modifier = Modifier.padding(10.dp)) //Отступ
         MainImage(dp = 200.dp, uri = USER.photoUrl) {}
         Spacer(modifier = Modifier.padding(10.dp)) //Отступ
         HorizontalDivider(thickness = 1.dp, modifier = Modifier.padding(bottom = 10.dp)) //Линия

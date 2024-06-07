@@ -17,10 +17,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.example.messenger.navigation.Screens
 import com.example.messenger.utilsFilies.MainImage
 import com.example.messenger.utilsFilies.USER
-import com.example.messenger.utilsFilies.goTo
 
 @Composable
 fun ElementOfChatsList(navController: NavHostController) {
@@ -29,7 +27,6 @@ fun ElementOfChatsList(navController: NavHostController) {
             .fillMaxWidth()
             .height(60.dp)
             .clickable {
-                goTo(navController, Screens.Chat)
             },
         shape = RoundedCornerShape(
             topStart = 0.dp,
