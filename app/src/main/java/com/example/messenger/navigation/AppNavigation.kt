@@ -11,6 +11,7 @@ import androidx.navigation.navArgument
 import com.example.messenger.screens.ContactsScreen
 import com.example.messenger.screens.SearchScreen
 import com.example.messenger.screens.SettingsScreen
+import com.example.messenger.screens.YourProfile
 import com.example.messenger.screens.changeInfoScreens.ChangeBIO
 import com.example.messenger.screens.changeInfoScreens.ChangeName
 import com.example.messenger.screens.changeInfoScreens.ChangePhotoUrl
@@ -90,7 +91,3 @@ fun StarredScreen() {
 
 
 
-@Composable
-fun YourProfile() {
-    Text(text = "Your Profile Screen", fontSize = 30.sp)
-}
