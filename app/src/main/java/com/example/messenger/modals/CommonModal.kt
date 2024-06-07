@@ -13,5 +13,4 @@ data class CommonModal (
     var type: String = " ",
     var from: String = " ",
     var timeStamp: Any = " "
-
 )

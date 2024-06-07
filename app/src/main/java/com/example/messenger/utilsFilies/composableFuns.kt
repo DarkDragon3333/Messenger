@@ -200,8 +200,6 @@ fun MainImage(
                 action()
             }
     )
-
-
 }
 
 @Composable
@@ -221,6 +219,4 @@ fun MainImage(
                 action()
             }
     )
-
-
 }

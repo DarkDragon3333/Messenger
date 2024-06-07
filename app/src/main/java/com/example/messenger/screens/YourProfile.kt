@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -30,26 +31,22 @@ fun YourProfile() {
         Spacer(modifier = Modifier.padding(10.dp)) //Отступ
         Column(horizontalAlignment = Alignment.Start) {
             Row {
-                Text(text = "Ваше ФИО: ", textAlign = TextAlign.Start)
-                Text(text = USER.fullname, textAlign = TextAlign.Start)
+                extracted("Ваше ФИО: ", USER.fullname)
             }
             HorizontalDivider(thickness = 1.dp, modifier = Modifier.padding(bottom = 10.dp)) //Линия
 
             Row {
-                Text(text = "Ваш номер телефона: ", textAlign = TextAlign.Start)
-                Text(text = USER.phone, textAlign = TextAlign.Start)
+                extracted("Ваш номер телефона: ", USER.phone)
             }
             HorizontalDivider(thickness = 1.dp, modifier = Modifier.padding(bottom = 10.dp)) //Линия
 
             Row {
-                Text(text = "Ваш никнейм: ", textAlign = TextAlign.Start)
-                Text(text = USER.username, textAlign = TextAlign.Start)
+                extracted("Ваш никнейм: ", USER.username)
             }
             HorizontalDivider(thickness = 1.dp, modifier = Modifier.padding(bottom = 10.dp)) //Линия
 
             Row {
-                Text(text = "Цитата: ", textAlign = TextAlign.Start)
-                Text(text = USER.bio, textAlign = TextAlign.Start)
+                extracted("Цитата: ", USER.bio)
             }
             HorizontalDivider(thickness = 1.dp, modifier = Modifier.padding(bottom = 10.dp)) //Линия
 
@@ -58,4 +55,11 @@ fun YourProfile() {
 
 
     }
+}
+
+@Composable
+private fun extracted(string: String, info: String) {
+    Spacer(modifier = Modifier.width(4.dp))
+    Text(text = string, textAlign = TextAlign.Start)
+    Text(text = info, textAlign = TextAlign.Start)
 }
