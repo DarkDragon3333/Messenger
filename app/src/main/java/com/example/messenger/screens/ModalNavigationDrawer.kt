@@ -75,11 +75,8 @@ fun NavDrawer() {
         Screens.YourProfile,
         Screens.Chats,
         Screens.Contacts,
-        Screens.Starred,
-        Screens.Spam,
         Screens.Settings,
-        Screens.ChangeName,
-        Screens.Search
+        Screens.ChangeName
     )
 
     ModalNavigationDrawer(

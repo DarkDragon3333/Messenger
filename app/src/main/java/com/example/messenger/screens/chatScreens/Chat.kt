@@ -9,7 +9,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
@@ -135,7 +135,7 @@ fun ChatScreen(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .fillMaxHeight(0.75f),
+                .fillMaxHeight(0.9f),
             contentAlignment = Alignment.TopStart
         )
         {
@@ -157,17 +157,12 @@ fun ChatScreen(
             }
         }
         Spacer(modifier = Modifier.height(10.dp))
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(0.dp, 0.dp, 0.dp, 10.dp),
-            contentAlignment = Alignment.BottomCenter
-        ) {
-            Row(modifier = Modifier.fillMaxWidth()) {
+
+            Row(modifier = Modifier.fillMaxSize()) {
                 TextField(
                     value = text,
                     onValueChange = { text = it },
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().requiredHeight(65.dp),
                     placeholder = { Text(text = "Введите сообщение") },
                     trailingIcon = {
                         IconButton(onClick = {
@@ -175,18 +170,20 @@ fun ChatScreen(
                             if (message.isEmpty()) {
                                 makeToast("Введите сообщение", mainActivityContext)
                             } else {
-
                                 sendMessage(message, result, TYPE_TEXT) {
                                     text = ""
                                 }
                             }
                         }) {
-                            Icon(Icons.AutoMirrored.Filled.Send, contentDescription = "")
+                            Column {
+                                Icon(Icons.AutoMirrored.Filled.Send, contentDescription = "")
+                            }
+
                         }
-                    }
+                    },
                 )
             }
-        }
+
 
     }
     navController.addOnDestinationChangedListener { _, destination, _ ->
