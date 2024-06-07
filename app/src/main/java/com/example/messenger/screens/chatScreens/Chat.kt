@@ -70,6 +70,8 @@ fun ChatScreen(
     val regex = Regex("[{}]")
     val result = id.toString().replace(regex, "")
 
+    //var count = 10
+
     fun initChat(id: String) {
         refToMessages = REF_DATABASE_ROOT.child(NODE_MESSAGES).child(UID).child(id)
 
@@ -88,12 +90,46 @@ fun ChatScreen(
         }
 
         refToMessages.addValueEventListener(MessagesListener)
+
     }
 
     if (id != null) {
         initChat(result)
     }
 
+    /*val nestedScrollConnection = remember {
+        object : NestedScrollConnection {
+            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+                val delta = available.y
+                extracted()
+                return Offset.Zero
+            }
+
+            override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
+                extracted()
+                return super.onPostFling(consumed, available)
+            }
+
+            override fun onPostScroll(
+                consumed: Offset,
+                available: Offset,
+                source: NestedScrollSource
+            ): Offset {
+                extracted()
+                return super.onPostScroll(consumed, available, source)
+            }
+
+            override suspend fun onPreFling(available: Velocity): Velocity {
+                extracted()
+                return super.onPreFling(available)
+            }
+
+            private fun extracted() {
+                count += 10
+                refToMessages.limitToLast(count).addValueEventListener(MessagesListener)
+            }
+        }
+    }*/
 
     Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center) {
         Box(
@@ -105,7 +141,11 @@ fun ChatScreen(
         {
 
             if (chatScreenState.size > 0) {
-                LazyColumn(modifier = Modifier.fillMaxSize(), state = listState) {
+                LazyColumn(modifier = Modifier
+                    .fillMaxSize()
+                    /*.nestedScroll(nestedScrollConnection)*/,
+                    state = listState
+                ) {
                     items(chatScreenState.size,) { index ->
                         Message(chatScreenState[index])
                         Spacer(modifier = Modifier.height(10.dp))
@@ -154,12 +194,6 @@ fun ChatScreen(
             refToMessages.removeEventListener(MessagesListener)
         }
     }
-}
-
-fun addItem(item: CommonModal) {
-    val newList = mutableListOf<CommonModal>()
-    newList.addAll(cacheMessages)
-    newList.add(item)
 }
 
 

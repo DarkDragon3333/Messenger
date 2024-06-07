@@ -62,6 +62,21 @@ class MainActivity : ComponentActivity() {
         if (!get_out_from_auth) {
             AppStatus.updateStates(AppStatus.OFFLINE, mainActivityContext)
         }
+
+    }
+
+    override fun onPause() {
+        super.onPause()
+        if (!get_out_from_auth) {
+            AppStatus.updateStates(AppStatus.OFFLINE, mainActivityContext)
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (!get_out_from_auth) {
+            AppStatus.updateStates(AppStatus.ONLINE, mainActivityContext)
+        }
     }
 
     private fun startLocationPermissionRequest() {
