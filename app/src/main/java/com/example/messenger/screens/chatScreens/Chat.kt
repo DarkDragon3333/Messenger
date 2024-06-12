@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
@@ -27,19 +28,23 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.example.messenger.dataBase.NODE_MESSAGES
+import com.example.messenger.dataBase.REF_DATABASE_ROOT
+import com.example.messenger.dataBase.TYPE_TEXT
+import com.example.messenger.dataBase.UID
+import com.example.messenger.dataBase.sendMessage
+import com.example.messenger.dataBase.valueEventListenerClasses.AppValueEventListener
 import com.example.messenger.modals.CommonModal
-import com.example.messenger.utilsFilies.AppValueEventListener
-import com.example.messenger.utilsFilies.NODE_MESSAGES
-import com.example.messenger.utilsFilies.REF_DATABASE_ROOT
-import com.example.messenger.utilsFilies.TYPE_TEXT
-import com.example.messenger.utilsFilies.UID
 import com.example.messenger.utilsFilies.cacheMessages
 import com.example.messenger.utilsFilies.getCommonModel
 import com.example.messenger.utilsFilies.mainActivityContext
 import com.example.messenger.utilsFilies.makeToast
-import com.example.messenger.utilsFilies.sendMessage
 import com.google.firebase.database.DatabaseReference
 import kotlinx.coroutines.launch
 import java.net.URLDecoder
@@ -59,7 +64,6 @@ fun ChatScreen(
     val statusUSER = URLDecoder.decode(statusContact, "UTF-8")
     val photoURL = photoURLContact
     val id = idContact
-
     val chatScreenState = remember { mutableStateListOf<CommonModal>() }
 
     var text by remember { mutableStateOf("") }
@@ -70,21 +74,27 @@ fun ChatScreen(
     val regex = Regex("[{}]")
     val result = id.toString().replace(regex, "")
 
-    //var count = 10
+    /*var countOfMessage = 10*/
 
-    fun initChat(id: String) {
+
+    fun initChat(id: String/*, count: Int*/) {
         refToMessages = REF_DATABASE_ROOT.child(NODE_MESSAGES).child(UID).child(id)
-
         MessagesListener = AppValueEventListener { dataSnap ->
             cacheMessages = dataSnap.children.map { it.getCommonModel() }.toMutableList()
-            if (chatScreenState.isNotEmpty()){
-                if (cacheMessages.last().timeStamp != chatScreenState.last().timeStamp) {
-                    chatScreenState.clear()
-                    chatScreenState.addAll(cacheMessages)
+            if (chatScreenState.isNotEmpty()) {
+                if (
+                    (cacheMessages.last().timeStamp.toString().toLong() / 1000) !=
+                    (chatScreenState.last().timeStamp.toString().toLong() / 1000)
+                    ) {
+                    chatScreenState.add(cacheMessages.last())
+                    cacheMessages.clear()
+                    coroutineScope.launch() {
+                        listState.animateScrollToItem(chatScreenState.lastIndex)
+                    }
                 }
-            }
-             else{
+            } else {
                 chatScreenState.addAll(cacheMessages)
+                cacheMessages.clear()
             }
 
         }
@@ -93,8 +103,24 @@ fun ChatScreen(
 
     }
 
+
+
     if (id != null) {
-        initChat(result)
+        initChat(result/*, countOfMessage*/)
+    }
+
+    val nestedScrollConnection = remember {
+        object : NestedScrollConnection {
+            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+                if (available.getDistance() > 50) {
+                    /*countOfMessage += 10
+                    refToMessages.removeEventListener(MessagesListener)
+                    initChat(result, countOfMessage)*/
+                }
+                return Offset.Zero
+            }
+
+        }
     }
 
     /*val nestedScrollConnection = remember {
@@ -139,51 +165,57 @@ fun ChatScreen(
             contentAlignment = Alignment.TopStart
         )
         {
-
             if (chatScreenState.size > 0) {
-                LazyColumn(modifier = Modifier
-                    .fillMaxSize()
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize().nestedScroll(nestedScrollConnection)
                     /*.nestedScroll(nestedScrollConnection)*/,
                     state = listState
                 ) {
-                    items(chatScreenState.size,) { index ->
+                    items(chatScreenState.size) { index ->
                         Message(chatScreenState[index])
                         Spacer(modifier = Modifier.height(10.dp))
                     }
-                    coroutineScope.launch() {
+                    coroutineScope.launch {
                         listState.animateScrollToItem(chatScreenState.lastIndex)
                     }
+
                 }
+
             }
         }
         Spacer(modifier = Modifier.height(10.dp))
 
-            Row(modifier = Modifier.fillMaxSize()) {
-                TextField(
-                    value = text,
-                    onValueChange = { text = it },
-                    modifier = Modifier.fillMaxWidth().requiredHeight(65.dp),
-                    placeholder = { Text(text = "Введите сообщение") },
-                    trailingIcon = {
-                        IconButton(onClick = {
-                            val message = text
-                            if (message.isEmpty()) {
-                                makeToast("Введите сообщение", mainActivityContext)
-                            } else {
-                                sendMessage(message, result, TYPE_TEXT) {
-                                    text = ""
+        Row(modifier = Modifier.fillMaxSize()) {
+            TextField(
+                value = text,
+                onValueChange = { text = it },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .requiredHeight(65.dp),
+                placeholder = { Text(text = "Введите сообщение") },
+                trailingIcon = {
+                    IconButton(onClick = {
+                        val message = text
+                        if (message.isEmpty()) {
+                            makeToast("Введите сообщение", mainActivityContext)
+                        } else {
+                            sendMessage(message, result, TYPE_TEXT) {
+                                text = ""
+                                coroutineScope.launch() {
+                                    listState.animateScrollToItem(chatScreenState.lastIndex)
                                 }
                             }
-                        }) {
-                            Column {
-                                Icon(Icons.AutoMirrored.Filled.Send, contentDescription = "")
-                            }
-
                         }
-                    },
-                )
-            }
+                    }) {
+                        Column {
+                            Icon(Icons.AutoMirrored.Filled.Send, contentDescription = "")
+                        }
 
+                    }
+                },
+            )
+        }
 
     }
     navController.addOnDestinationChangedListener { _, destination, _ ->
@@ -193,4 +225,16 @@ fun ChatScreen(
     }
 }
 
-
+private fun isEditTagItemFullyVisible(
+    lazyListState: LazyListState,
+    editTagItemIndex: Int
+): Boolean {
+    with(lazyListState.layoutInfo) {
+        val editingTagItemVisibleInfo = visibleItemsInfo.find { it.index == editTagItemIndex }
+        return if (editingTagItemVisibleInfo == null) {
+            false
+        } else {
+            viewportEndOffset - editingTagItemVisibleInfo.offset >= editingTagItemVisibleInfo.size
+        }
+    }
+}

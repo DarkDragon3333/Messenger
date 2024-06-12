@@ -18,7 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.messenger.utilsFilies.MainImage
-import com.example.messenger.utilsFilies.USER
+import com.example.messenger.dataBase.USER
 
 @Composable
 fun ElementOfChatsList(navController: NavHostController) {

@@ -15,7 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.messenger.utilsFilies.MainImage
-import com.example.messenger.utilsFilies.USER
+import com.example.messenger.dataBase.USER
 
 @Composable
 fun YourProfile() {

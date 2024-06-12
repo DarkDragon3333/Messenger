@@ -1,4 +1,4 @@
-package com.example.messenger.utilsFilies
+package com.example.messenger.dataBase
 
 import android.app.Activity
 import android.content.Context
@@ -8,6 +8,13 @@ import com.example.messenger.modals.CommonModal
 import com.example.messenger.modals.User
 import com.example.messenger.modals.setLocalDataForUser
 import com.example.messenger.navigation.Screens
+import com.example.messenger.utilsFilies.READ_CONTACTS
+import com.example.messenger.utilsFilies.contactsListUSER
+import com.example.messenger.utilsFilies.goTo
+import com.example.messenger.utilsFilies.mainActivityContext
+import com.example.messenger.utilsFilies.makeToast
+import com.example.messenger.utilsFilies.mapContacts
+import com.example.messenger.utilsFilies.myCheckPermission
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.PhoneAuthOptions
 import com.google.firebase.auth.PhoneAuthProvider

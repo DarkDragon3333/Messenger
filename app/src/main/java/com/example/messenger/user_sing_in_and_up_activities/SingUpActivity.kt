@@ -18,10 +18,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.messenger.MainActivity
 import com.example.messenger.ui.theme.MessengerTheme
-import com.example.messenger.utilsFilies.AUTH
-import com.example.messenger.utilsFilies.authUser
+import com.example.messenger.dataBase.AUTH
+import com.example.messenger.dataBase.authUser
 import com.example.messenger.utilsFilies.goTo
-import com.example.messenger.utilsFilies.initFirebase
+import com.example.messenger.dataBase.initFirebase
 import com.example.messenger.utilsFilies.mainFieldStyle
 import com.example.messenger.utilsFilies.makeToast
 import com.example.messenger.utilsFilies.sign_in

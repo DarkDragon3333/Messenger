@@ -14,9 +14,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.example.messenger.utilsFilies.CHILD_BIO
-import com.example.messenger.utilsFilies.USER
-import com.example.messenger.utilsFilies.choseChangeInformation
+import com.example.messenger.dataBase.CHILD_BIO
+import com.example.messenger.dataBase.USER
+import com.example.messenger.dataBase.choseChangeInformation
 import com.example.messenger.utilsFilies.mainActivityContext
 import com.example.messenger.utilsFilies.mainFieldStyle
 import com.example.messenger.utilsFilies.makeToast

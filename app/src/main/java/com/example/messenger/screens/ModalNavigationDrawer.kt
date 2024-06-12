@@ -46,11 +46,11 @@ import androidx.navigation.compose.rememberNavController
 import com.example.messenger.navigation.DrawerNavigation
 import com.example.messenger.navigation.Screens
 import com.example.messenger.user_sing_in_and_up_activities.LoginActivity
-import com.example.messenger.utilsFilies.AUTH
-import com.example.messenger.utilsFilies.AppStatus
+import com.example.messenger.dataBase.AUTH
+import com.example.messenger.dataBase.AppStatus
 import com.example.messenger.utilsFilies.MainImage
 import com.example.messenger.utilsFilies.NavIconButton
-import com.example.messenger.utilsFilies.USER
+import com.example.messenger.dataBase.USER
 import com.example.messenger.utilsFilies.flagDropMenuButtonOnSettingsScreen
 import com.example.messenger.utilsFilies.flagNavButtonOnChatScreen
 import com.example.messenger.utilsFilies.flagNavButtonOnChatsScreen

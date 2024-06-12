@@ -23,7 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.messenger.modals.CommonModal
 import com.example.messenger.ui.theme.textMes
-import com.example.messenger.utilsFilies.UID
+import com.example.messenger.dataBase.UID
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale

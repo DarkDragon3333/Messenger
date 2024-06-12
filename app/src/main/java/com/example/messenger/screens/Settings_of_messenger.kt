@@ -23,7 +23,7 @@ import androidx.navigation.NavHostController
 import com.example.messenger.navigation.Screens
 import com.example.messenger.screens.changeInfoScreens.ChangeNumber
 import com.example.messenger.utilsFilies.MainImage
-import com.example.messenger.utilsFilies.USER
+import com.example.messenger.dataBase.USER
 import com.example.messenger.utilsFilies.goTo
 import com.example.messenger.utilsFilies.mainActivityContext
 import com.example.messenger.utilsFilies.mainFieldStyle

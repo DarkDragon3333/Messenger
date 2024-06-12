@@ -1,6 +1,7 @@
-package com.example.messenger.utilsFilies
+package com.example.messenger.dataBase
 
 import android.content.Context
+import com.example.messenger.utilsFilies.makeToast
 
 enum class AppStatus(val state: String) {
     ONLINE("В сети"),
