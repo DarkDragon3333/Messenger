@@ -19,33 +19,26 @@ import com.example.messenger.utilsFilies.goTo
 
 @Composable
 fun ContactCard(user: CommonModal?, navController: NavHostController) {
-    Row(
-        modifier = Modifier.fillMaxWidth().clickable {
-            if (user != null) {
+    if (user != null) {
+        Row(
+            modifier = Modifier.fillMaxWidth().clickable {
                 goTo(navController, user)
-            }
-        },
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Spacer(modifier = Modifier.padding(8.dp))
+            },
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Spacer(modifier = Modifier.padding(8.dp))
 
-        if (user != null) {
             MainImage(dp = 64.dp, user.photoUrl) {}
-        }
 
-        Spacer(modifier = Modifier.padding(4.dp))
-        Column {
-            if (user != null) {
+            Spacer(modifier = Modifier.padding(4.dp))
+            Column {
                 Text(text = user.fullname)
-            }
-            if (user != null) {
                 Text(text = user.phone)
             }
-        }
-        Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center){
-            if (user != null) {
+            Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center){
                 Text(text = user.status)
             }
         }
     }
+
 }

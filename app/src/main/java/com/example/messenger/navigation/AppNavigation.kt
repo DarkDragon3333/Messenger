@@ -44,7 +44,7 @@ fun DrawerNavigation(navController: NavHostController) {
             val fullname = backStackEntry.arguments?.getString("fullname")
             val status = backStackEntry.arguments?.getString("status")
             val photoURL = backStackEntry.arguments?.getString("photoURL")
-            val id = backStackEntry.arguments?.getString("id")
+            val id = backStackEntry.arguments?.getString("id").toString()
 
             ChatScreen(fullname, status, photoURL, id, navController)
         }

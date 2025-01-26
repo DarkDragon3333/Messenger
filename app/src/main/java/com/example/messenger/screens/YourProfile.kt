@@ -31,22 +31,22 @@ fun YourProfile() {
         Spacer(modifier = Modifier.padding(10.dp)) //Отступ
         Column(horizontalAlignment = Alignment.Start) {
             Row {
-                extracted("Ваше ФИО: ", USER.fullname)
+                Extracted("Ваше ФИО: ", USER.fullname)
             }
             HorizontalDivider(thickness = 1.dp, modifier = Modifier.padding(bottom = 10.dp)) //Линия
 
             Row {
-                extracted("Ваш номер телефона: ", USER.phone)
+                Extracted("Ваш номер телефона: ", USER.phone)
             }
             HorizontalDivider(thickness = 1.dp, modifier = Modifier.padding(bottom = 10.dp)) //Линия
 
             Row {
-                extracted("Ваш никнейм: ", USER.username)
+                Extracted("Ваш никнейм: ", USER.username)
             }
             HorizontalDivider(thickness = 1.dp, modifier = Modifier.padding(bottom = 10.dp)) //Линия
 
             Row {
-                extracted("Цитата: ", USER.bio)
+                Extracted("Цитата: ", USER.bio)
             }
             HorizontalDivider(thickness = 1.dp, modifier = Modifier.padding(bottom = 10.dp)) //Линия
 
@@ -58,7 +58,7 @@ fun YourProfile() {
 }
 
 @Composable
-private fun extracted(string: String, info: String) {
+private fun Extracted(string: String, info: String) {
     Spacer(modifier = Modifier.width(4.dp))
     Text(text = string, textAlign = TextAlign.Start)
     Text(text = info, textAlign = TextAlign.Start)

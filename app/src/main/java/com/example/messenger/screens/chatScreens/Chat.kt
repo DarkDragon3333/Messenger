@@ -1,5 +1,11 @@
 package com.example.messenger.screens.chatScreens
 
+import android.content.Context
+import android.graphics.Bitmap
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,6 +21,7 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -28,16 +35,20 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
-import androidx.compose.ui.input.nestedscroll.NestedScrollSource
-import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.example.messenger.R
+import com.example.messenger.dataBase.CHILD_PHOTO_URL
+import com.example.messenger.dataBase.FOLDER_MESSAGE_FILE
+import com.example.messenger.dataBase.FOLDER_PHOTOS
 import com.example.messenger.dataBase.NODE_MESSAGES
 import com.example.messenger.dataBase.REF_DATABASE_ROOT
+import com.example.messenger.dataBase.REF_STORAGE_ROOT
 import com.example.messenger.dataBase.TYPE_TEXT
 import com.example.messenger.dataBase.UID
+import com.example.messenger.dataBase.changeInfo
+import com.example.messenger.dataBase.sendImageAsSMessage
 import com.example.messenger.dataBase.sendMessage
 import com.example.messenger.dataBase.valueEventListenerClasses.AppValueEventListener
 import com.example.messenger.modals.CommonModal
@@ -46,36 +57,89 @@ import com.example.messenger.utilsFilies.getCommonModel
 import com.example.messenger.utilsFilies.mainActivityContext
 import com.example.messenger.utilsFilies.makeToast
 import com.google.firebase.database.DatabaseReference
+import com.google.firebase.storage.StorageReference
 import kotlinx.coroutines.launch
 import java.net.URLDecoder
 
 private lateinit var refToMessages: DatabaseReference
 private lateinit var MessagesListener: AppValueEventListener
+lateinit var pathToFile: StorageReference
 
 @Composable
 fun ChatScreen(
     fullnameContact: String?,
     statusContact: String?,
     photoURLContact: String?,
-    idContact: String?,
+    idContact: String,
     navController: NavHostController,
 ) {
     val fullname = URLDecoder.decode(fullnameContact, "UTF-8")
     val statusUSER = URLDecoder.decode(statusContact, "UTF-8")
     val photoURL = photoURLContact
-    val id = idContact
+    var messageKey = ""
+
+    val regex = Regex("[{}]")
+    val correctReceivingUserID = idContact.replace(regex, "")
+
     val chatScreenState = remember { mutableStateListOf<CommonModal>() }
-
     var text by remember { mutableStateOf("") }
-
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
 
-    val regex = Regex("[{}]")
-    val result = id.toString().replace(regex, "")
+    var fileUri by remember { mutableStateOf<Uri?>(null) } //Ссылка на картинку
+    val bitmap = remember { mutableStateOf<Bitmap?>(null) } //Само изображение
 
-    /*var countOfMessage = 10*/
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia()
+    ) { uri: Uri? ->
+        fileUri = uri
+        if (fileUri != null) {
+            pathToFile.putFile(fileUri!!)
+                .addOnSuccessListener {
+                    val tempUri = REF_STORAGE_ROOT.child(FOLDER_MESSAGE_FILE).child(messageKey)
+                    tempUri.downloadUrl.addOnCompleteListener { downloadTask ->
+                        if (downloadTask.isSuccessful) {
+                            val tempPhotoURL = downloadTask.result.toString()
+                            sendImageAsSMessage(
+                                correctReceivingUserID, tempPhotoURL, messageKey
+                            )
+                        } else {
+                            makeToast(downloadTask.exception?.message.toString(), mainActivityContext)
+                        }
+                    }
+                }
+                .addOnFailureListener { exception ->
+                    makeToast("Ошибка загрузки файла: ${exception.message}", mainActivityContext)
+                }
+        }
+    }
 
+
+    fun downloadImage(context: Context, navController: NavHostController) {
+        //Загружаем фото пользователя
+        val pathToPhoto = REF_STORAGE_ROOT.child(FOLDER_PHOTOS).child(UID)
+        pathToPhoto.downloadUrl.addOnCompleteListener { downloadTask -> //Получаем ссылку на загруженную фотку
+            if (downloadTask.isSuccessful) {
+                val tempPhotoURL = downloadTask.result.toString()
+                changeInfo(tempPhotoURL, CHILD_PHOTO_URL, context, navController)
+            } else {
+                makeToast(downloadTask.exception?.message.toString(), context)
+            }
+        }
+
+    }
+
+    fun attachFile() {
+        messageKey = REF_DATABASE_ROOT.child(NODE_MESSAGES).child(UID).child(correctReceivingUserID)
+            .push().key.toString()
+        pathToFile = REF_STORAGE_ROOT.child(FOLDER_MESSAGE_FILE).child(messageKey)
+
+        launcher.launch(
+            PickVisualMediaRequest(
+                mediaType = ActivityResultContracts.PickVisualMedia.ImageAndVideo
+            )
+        )
+    }
 
     fun initChat(id: String/*, count: Int*/) {
         refToMessages = REF_DATABASE_ROOT.child(NODE_MESSAGES).child(UID).child(id)
@@ -85,7 +149,7 @@ fun ChatScreen(
                 if (
                     (cacheMessages.last().timeStamp.toString().toLong() / 1000) !=
                     (chatScreenState.last().timeStamp.toString().toLong() / 1000)
-                    ) {
+                ) {
                     chatScreenState.add(cacheMessages.last())
                     cacheMessages.clear()
                     coroutineScope.launch() {
@@ -103,59 +167,7 @@ fun ChatScreen(
 
     }
 
-
-
-    if (id != null) {
-        initChat(result/*, countOfMessage*/)
-    }
-
-    val nestedScrollConnection = remember {
-        object : NestedScrollConnection {
-            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
-                if (available.getDistance() > 50) {
-                    /*countOfMessage += 10
-                    refToMessages.removeEventListener(MessagesListener)
-                    initChat(result, countOfMessage)*/
-                }
-                return Offset.Zero
-            }
-
-        }
-    }
-
-    /*val nestedScrollConnection = remember {
-        object : NestedScrollConnection {
-            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
-                val delta = available.y
-                extracted()
-                return Offset.Zero
-            }
-
-            override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
-                extracted()
-                return super.onPostFling(consumed, available)
-            }
-
-            override fun onPostScroll(
-                consumed: Offset,
-                available: Offset,
-                source: NestedScrollSource
-            ): Offset {
-                extracted()
-                return super.onPostScroll(consumed, available, source)
-            }
-
-            override suspend fun onPreFling(available: Velocity): Velocity {
-                extracted()
-                return super.onPreFling(available)
-            }
-
-            private fun extracted() {
-                count += 10
-                refToMessages.limitToLast(count).addValueEventListener(MessagesListener)
-            }
-        }
-    }*/
+    initChat(correctReceivingUserID)
 
     Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center) {
         Box(
@@ -163,13 +175,11 @@ fun ChatScreen(
                 .fillMaxWidth()
                 .fillMaxHeight(0.9f),
             contentAlignment = Alignment.TopStart
-        )
-        {
+        ) {
             if (chatScreenState.size > 0) {
                 LazyColumn(
                     modifier = Modifier
-                        .fillMaxSize().nestedScroll(nestedScrollConnection)
-                    /*.nestedScroll(nestedScrollConnection)*/,
+                        .fillMaxSize(),
                     state = listState
                 ) {
                     items(chatScreenState.size) { index ->
@@ -195,24 +205,50 @@ fun ChatScreen(
                     .requiredHeight(65.dp),
                 placeholder = { Text(text = "Введите сообщение") },
                 trailingIcon = {
-                    IconButton(onClick = {
-                        val message = text
-                        if (message.isEmpty()) {
-                            makeToast("Введите сообщение", mainActivityContext)
-                        } else {
-                            sendMessage(message, result, TYPE_TEXT) {
-                                text = ""
-                                coroutineScope.launch() {
-                                    listState.animateScrollToItem(chatScreenState.lastIndex)
-                                }
+                    Row {
+                        IconButton(onClick = {
+                            attachFile()
+                        }) {
+                            Column {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.ic_attach),
+                                    contentDescription = ""
+                                )
                             }
                         }
-                    }) {
-                        Column {
-                            Icon(Icons.AutoMirrored.Filled.Send, contentDescription = "")
-                        }
 
+                        IconButton(onClick = {
+                            val message = text
+                            if (message.isEmpty()) {
+                                makeToast("Введите сообщение", mainActivityContext)
+                            } else {
+                                sendMessage(message, correctReceivingUserID, TYPE_TEXT) {
+                                    text = ""
+                                    coroutineScope.launch() {
+                                        listState.animateScrollToItem(chatScreenState.lastIndex)
+                                    }
+                                }
+                            }
+
+
+                        }) {
+                            Column {
+                                if (text.isEmpty()) {
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.ic_microphone),
+                                        contentDescription = ""
+                                    )
+                                } else {
+                                    Icon(
+                                        Icons.AutoMirrored.Filled.Send,
+                                        contentDescription = ""
+                                    )
+                                }
+
+                            }
+                        }
                     }
+
                 },
             )
         }
@@ -225,10 +261,8 @@ fun ChatScreen(
     }
 }
 
-private fun isEditTagItemFullyVisible(
-    lazyListState: LazyListState,
-    editTagItemIndex: Int
-): Boolean {
+
+fun isEditTagItemFullyVisible(lazyListState: LazyListState, editTagItemIndex: Int): Boolean {
     with(lazyListState.layoutInfo) {
         val editingTagItemVisibleInfo = visibleItemsInfo.find { it.index == editTagItemIndex }
         return if (editingTagItemVisibleInfo == null) {
@@ -238,3 +272,4 @@ private fun isEditTagItemFullyVisible(
         }
     }
 }
+

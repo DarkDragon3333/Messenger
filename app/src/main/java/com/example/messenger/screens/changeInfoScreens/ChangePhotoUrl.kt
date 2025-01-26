@@ -70,6 +70,7 @@ fun ChangePhotoUrl(navController: NavHostController) {
         }
 
         Spacer(modifier = Modifier.height(12.dp))
+
         Button(
             onClick = {
                 pathToPhoto = REF_STORAGE_ROOT.child(FOLDER_PHOTOS)

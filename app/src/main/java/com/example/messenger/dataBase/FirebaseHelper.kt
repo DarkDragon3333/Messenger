@@ -4,11 +4,13 @@ import android.app.Activity
 import android.content.Context
 import android.provider.ContactsContract
 import androidx.navigation.NavHostController
+import com.example.messenger.MainActivity
 import com.example.messenger.modals.CommonModal
 import com.example.messenger.modals.User
 import com.example.messenger.modals.setLocalDataForUser
 import com.example.messenger.navigation.Screens
 import com.example.messenger.utilsFilies.READ_CONTACTS
+import com.example.messenger.utilsFilies.TYPE_MESSAGE_FILE
 import com.example.messenger.utilsFilies.contactsListUSER
 import com.example.messenger.utilsFilies.goTo
 import com.example.messenger.utilsFilies.mainActivityContext
@@ -45,6 +47,7 @@ const val NODE_PHONES_CONTACTS = "phones_contacts"
 const val NODE_MESSAGES = "messages"
 
 const val FOLDER_PHOTOS = "photos"
+const val FOLDER_MESSAGE_FILE = "files"
 
 const val CHILD_ID = "id"
 const val CHILD_PHONE = "phone"
@@ -54,6 +57,7 @@ const val CHILD_FULLNAME = "fullname"
 const val CHILD_BIO = "bio"
 const val CHILD_STATUS: String = "status"
 const val CHILD_PHOTO_URL: String = "photoUrl"
+const val CHILD_FILE_URL: String = "fileUrl"
 
 const val CHILD_TEXT: String = "text"
 const val CHILD_TYPE: String = "type"
@@ -72,7 +76,7 @@ fun initFirebase() {
 
 }
 
-/*fun initUser(context: Activity) {
+fun initUser(context: Activity) {
     REF_DATABASE_ROOT
         .child(NODE_USERS)
         .child(UID)
@@ -92,7 +96,7 @@ fun initFirebase() {
             }
         )
 
-}*/
+}
 
 fun authUser(
     context: Activity,
@@ -359,5 +363,25 @@ fun sendMessage(
     REF_DATABASE_ROOT
         .updateChildren(mapDialog)
         .addOnSuccessListener { function() }
+        .addOnFailureListener { makeToast(it.message.toString(), mainActivityContext) }
+}
+
+fun sendImageAsSMessage(receivingUserID: String?, fileURL: String, messageKey: String) {
+    val refDialogUser = "$NODE_MESSAGES/$UID/$receivingUserID"
+    val refDialogReceivingUser = "$NODE_MESSAGES/$receivingUserID/$UID"
+
+    val mapMessage = hashMapOf<String, Any>()
+    mapMessage[CHILD_ID] = messageKey
+    mapMessage[CHILD_FROM] = UID
+    mapMessage[CHILD_FILE_URL] = fileURL
+    mapMessage[CHILD_TYPE] = TYPE_MESSAGE_FILE
+    mapMessage[CHILD_TIME_STAMP] = ServerValue.TIMESTAMP
+
+    val mapDialog = hashMapOf<String, Any>()
+    mapDialog["$refDialogUser/$messageKey"] = mapMessage
+    mapDialog["$refDialogReceivingUser/$messageKey"] = mapMessage
+
+    REF_DATABASE_ROOT
+        .updateChildren(mapDialog)
         .addOnFailureListener { makeToast(it.message.toString(), mainActivityContext) }
 }
