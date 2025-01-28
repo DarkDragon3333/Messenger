@@ -216,9 +216,8 @@ fun ChatScreen(
                                 )
                             }
                         }
-
                         IconButton(onClick = {
-                            val message = text
+                            val message = text.trim()
                             if (message.isEmpty()) {
                                 makeToast("Введите сообщение", mainActivityContext)
                             } else {
@@ -229,8 +228,6 @@ fun ChatScreen(
                                     }
                                 }
                             }
-
-
                         }) {
                             Column {
                                 if (text.isEmpty()) {

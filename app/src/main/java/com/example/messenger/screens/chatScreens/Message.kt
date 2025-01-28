@@ -1,9 +1,9 @@
 package com.example.messenger.screens.chatScreens
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -23,11 +23,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.messenger.modals.CommonModal
-import com.example.messenger.ui.theme.textMes
 import com.example.messenger.dataBase.UID
-import com.example.messenger.dataBase.USER
-import com.example.messenger.utilsFilies.MainImage
-import org.intellij.lang.annotations.JdkConstants
+import com.example.messenger.ui.theme.textMes
+import com.example.messenger.utilsFilies.MessageImage
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -48,7 +46,7 @@ fun Message(commonModal: CommonModal) {
             )
             {
                 Spacer(modifier = Modifier.width(15.dp))
-                OutlinedCardMessage(commonModal, Alignment.Start)
+                OutlinedCardMessage(commonModal, Alignment.End)
             }
         }
 
@@ -64,28 +62,38 @@ fun OutlinedCardMessage(commonModal: CommonModal, alignment: Alignment.Horizonta
         ),
         border = BorderStroke(1.5.dp, Color.Black),
     ) {
-        Column(
-            horizontalAlignment = alignment,
-            modifier = Modifier
-                //.background(textMes)
-                .padding(8.dp)
-        )
-        {
-            if (commonModal.fileUrl != "empty") {
-                val pair = initMessage(commonModal)
-                val timeStamp = pair.second.toString()
+        if (commonModal.fileUrl != "empty") {
+            val pair = initMessage(commonModal)
+            val timeStamp = pair.second.toString()
 
-                MainImage(dp = 200.dp, uri = commonModal.fileUrl) {}
-                Text(text = timeStamp, fontSize = 10.sp, textAlign = TextAlign.End)
-            } else {
-                val pair = initMessage(commonModal)
-                val message = pair.first
-                val timeStamp = pair.second.toString()
-
-                Text(text = message)
-                Text(text = timeStamp, fontSize = 10.sp, textAlign = TextAlign.End)
+            Box {
+                MessageImage(uri = commonModal.fileUrl)
+                Text(
+                    text = timeStamp,
+                    fontSize = 10.sp,
+                    modifier = Modifier.align(Alignment.BottomEnd)
+                )
             }
 
+        } else {
+            val pair = initMessage(commonModal)
+            val message = pair.first
+            val timeStamp = pair.second.toString()
+
+            Column(
+                horizontalAlignment = alignment,
+                modifier = Modifier
+                    .background(textMes)
+                    .padding(8.dp)
+            )
+            {
+                Text(text = message)
+                Text(
+                    text = timeStamp,
+                    fontSize = 10.sp,
+                    textAlign = TextAlign.End
+                )
+            }
         }
     }
 }

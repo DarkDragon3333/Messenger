@@ -48,7 +48,7 @@ import com.example.messenger.navigation.Screens
 import com.example.messenger.user_sing_in_and_up_activities.LoginActivity
 import com.example.messenger.dataBase.AUTH
 import com.example.messenger.dataBase.AppStatus
-import com.example.messenger.utilsFilies.MainImage
+import com.example.messenger.utilsFilies.UriImage
 import com.example.messenger.utilsFilies.NavIconButton
 import com.example.messenger.dataBase.USER
 import com.example.messenger.utilsFilies.flagDropMenuButtonOnSettingsScreen
@@ -87,7 +87,7 @@ fun NavDrawer() {
 
                 Column(modifier = Modifier.padding(15.dp, 0.dp)) {
                     Spacer(modifier = Modifier.padding(10.dp))
-                    MainImage(64.dp, USER.photoUrl) {
+                    UriImage(64.dp, USER.photoUrl) {
                         goTo(
                             navController,
                             Screens.YourProfile,
@@ -151,7 +151,7 @@ fun NavDrawer() {
                                 }
                             }
                             Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                                MainImage(dp = 32.dp, photoURL) {}
+                                UriImage(dp = 32.dp, photoURL) {}
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Column {
                                     Text(text = fullname, fontSize = 16.sp)

@@ -14,7 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.messenger.modals.CommonModal
-import com.example.messenger.utilsFilies.MainImage
+import com.example.messenger.utilsFilies.UriImage
 import com.example.messenger.utilsFilies.goTo
 
 @Composable
@@ -28,7 +28,7 @@ fun ContactCard(user: CommonModal?, navController: NavHostController) {
         ) {
             Spacer(modifier = Modifier.padding(8.dp))
 
-            MainImage(dp = 64.dp, user.photoUrl) {}
+            UriImage(dp = 64.dp, user.photoUrl) {}
 
             Spacer(modifier = Modifier.padding(4.dp))
             Column {

@@ -40,7 +40,7 @@ fun ElementOfChatsList(navController: NavHostController) {
             verticalAlignment = Alignment.CenterVertically
         ){
             Spacer(modifier = Modifier.padding(4.dp))
-            MainImage(dp = 64.dp, 1) {}
+            MainImage(dp = 64.dp) {}
             Spacer(modifier = Modifier.padding(8.dp))
             Column {
                 Text(text = "Lexa")

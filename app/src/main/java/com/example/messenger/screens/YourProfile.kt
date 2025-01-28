@@ -14,7 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.example.messenger.utilsFilies.MainImage
+import com.example.messenger.utilsFilies.UriImage
 import com.example.messenger.dataBase.USER
 
 @Composable
@@ -25,7 +25,7 @@ fun YourProfile() {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Spacer(modifier = Modifier.padding(10.dp)) //Отступ
-        MainImage(dp = 200.dp, uri = USER.photoUrl) {}
+        UriImage(dp = 200.dp, uri = USER.photoUrl) {}
         Spacer(modifier = Modifier.padding(10.dp)) //Отступ
         HorizontalDivider(thickness = 1.dp, modifier = Modifier.padding(bottom = 10.dp)) //Линия
         Spacer(modifier = Modifier.padding(10.dp)) //Отступ

@@ -24,9 +24,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
@@ -184,7 +186,7 @@ fun NavIconButton(
 }
 
 @Composable
-fun MainImage(
+fun UriImage(
     dp: Dp,
     uri: String,
     action: () -> Unit,
@@ -205,7 +207,6 @@ fun MainImage(
 @Composable
 fun MainImage(
     dp: Dp,
-    i: Int,
     action: () -> Unit,
 ) {
     Image(
@@ -218,5 +219,19 @@ fun MainImage(
             .clickable {
                 action()
             }
+    )
+}
+
+@Composable
+fun MessageImage(
+    uri: String
+){
+    AsyncImage(
+        model = uri,
+        contentDescription = "",
+        contentScale = ContentScale.FillBounds,
+        modifier = Modifier
+            .clip(RectangleShape)
+            .size(200.dp)
     )
 }
