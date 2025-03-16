@@ -54,14 +54,14 @@ class EnterCode : ComponentActivity() {
         setContent {
             MessengerTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) {
-                    GreetingEnterCode(m = Modifier.padding(it))
+                    GreetingEnterCode(mod = Modifier.padding(it))
                 }
             }
         }
     }
 
     @Composable
-    fun GreetingEnterCode(m: Modifier = Modifier) {
+    fun GreetingEnterCode(mod: Modifier = Modifier) {
         var code by remember { mutableStateOf("") }
         val context = LocalContext.current
         val maxCount = 6

@@ -142,15 +142,24 @@ fun NavDrawer() {
                             var statusUSER = " "
                             var photoURL = " "
                             //var id = " "
-                            navController.addOnDestinationChangedListener{ _, destination, bundle ->
+                            navController.addOnDestinationChangedListener { _, destination, bundle ->
                                 if ((bundle != null) && (destination.route == "chatScreen/{fullname}/{status}/{photoURL}/{id}")) {
-                                    fullname = URLDecoder.decode(bundle.getString("fullname").toString(), "UTF-8")
-                                    statusUSER = URLDecoder.decode(bundle.getString("status").toString(), "UTF-8")
+                                    fullname = URLDecoder.decode(
+                                        bundle.getString("fullname").toString(),
+                                        "UTF-8"
+                                    )
+                                    statusUSER = URLDecoder.decode(
+                                        bundle.getString("status").toString(),
+                                        "UTF-8"
+                                    )
                                     photoURL = bundle.getString("photoURL").toString()
                                     //id = URLDecoder.decode(bundle.getString("id").toString(), "UTF-8")
                                 }
                             }
-                            Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
                                 UriImage(dp = 32.dp, photoURL) {}
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Column {
@@ -206,30 +215,18 @@ fun NavDrawer() {
 
 private fun checkButtonOnSettingsScreen(destination: NavDestination) {
     flagDropMenuButtonOnSettingsScreen =
-        if ((destination.route == Screens.Settings.route)) {
-            1
-        } else {
-            -1
-        }
+        if (destination.route == Screens.Settings.route) 1 else -1
 }
 
 
 private fun checkButtonOnChatsScreen(destination: NavDestination) {
     flagNavButtonOnChatsScreen =
-        if (destination.route == Screens.Chats.route) {
-            1
-        } else {
-            -1
-        }
+        if (destination.route == Screens.Chats.route) 1 else -1
 }
 
 private fun checkButtonOnChatScreen(destination: NavDestination) {
     flagNavButtonOnChatScreen =
-        if (destination.route == "chatScreen/{fullname}/{status}/{photoURL}/{id}") {
-            1
-        } else {
-            -1
-        }
+        if (destination.route == "chatScreen/{fullname}/{status}/{photoURL}/{id}") 1 else -1
 }
 
 
@@ -240,11 +237,11 @@ fun navButtonBack(navController: NavHostController) {
                 destination.route == Screens.ChangeBIO.route
     }
 
-    if (on_settings_screen) {
+    if (on_settings_screen)
         goTo(navController, Screens.Settings)
-    } else {
+    else
         goTo(navController, Screens.Chats)
-    }
+
 }
 
 @Composable

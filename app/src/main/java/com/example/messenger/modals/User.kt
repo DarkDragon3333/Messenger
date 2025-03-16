@@ -22,32 +22,19 @@ data class User(
 
 fun setLocalDataForUser(changeInfo: String, typeInfo: String) {
     when (typeInfo) {
-        CHILD_FULLNAME -> {
-            USER.fullname = changeInfo
-        }
+        CHILD_FULLNAME -> USER.fullname = changeInfo
 
-        CHILD_USER_NAME -> {
-            USER.username = changeInfo
-        }
+        CHILD_USER_NAME -> USER.username = changeInfo
 
-        CHILD_BIO -> {
-            USER.bio = changeInfo
-        }
+        CHILD_BIO -> USER.bio = changeInfo
 
-        CHILD_PHONE -> {
-            USER.phone = changeInfo
-        }
+        CHILD_PHONE -> USER.phone = changeInfo
 
-        CHILD_PASSWORD -> {
-            USER.password = changeInfo
-        }
+        CHILD_PASSWORD -> USER.password = changeInfo
 
-        CHILD_STATUS -> {
-            USER.status = changeInfo
-        }
+        CHILD_STATUS -> USER.status = changeInfo
 
-        CHILD_PHOTO_URL -> {
-            USER.photoUrl = changeInfo
-        }
+        CHILD_PHOTO_URL -> USER.photoUrl = changeInfo
+
     }
 }

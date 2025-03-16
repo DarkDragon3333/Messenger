@@ -64,16 +64,12 @@ const val CHILD_TYPE: String = "type"
 const val CHILD_FROM: String = "from"
 const val CHILD_TIME_STAMP: String = "timeStamp"
 
-
-
-
 fun initFirebase() {
     AUTH = FirebaseAuth.getInstance()
     REF_DATABASE_ROOT = FirebaseDatabase.getInstance().reference
     USER = User()
     UID = AUTH.currentUser?.uid.toString()
     REF_STORAGE_ROOT = FirebaseStorage.getInstance().reference
-
 }
 
 fun initUser(context: Activity) {
@@ -122,29 +118,17 @@ fun choseChangeInformation(
     navController: NavHostController
 ) {
     when (typeInfo) {
-        CHILD_FULLNAME -> {
-            changeInfo(changeInfo, typeInfo, context, navController)
-        }
+        CHILD_FULLNAME -> changeInfo(changeInfo, typeInfo, context, navController)
 
-        CHILD_USER_NAME -> {
-            checkUsername(changeInfo, context, navController)
-        }
+        CHILD_USER_NAME -> checkUsername(changeInfo, context, navController)
 
-        CHILD_BIO -> {
-            changeInfo(changeInfo, typeInfo, context, navController)
-        }
+        CHILD_BIO -> changeInfo(changeInfo, typeInfo, context, navController)
 
-        CHILD_PHONE -> {
-            changeInfo(changeInfo, typeInfo, context, navController)
-        }
+        CHILD_PHONE -> changeInfo(changeInfo, typeInfo, context, navController)
 
-        CHILD_PASSWORD -> {
-            changeInfo(changeInfo, typeInfo, context, navController)
-        }
+        CHILD_PASSWORD -> changeInfo(changeInfo, typeInfo, context, navController)
 
-        CHILD_PHOTO_URL -> {
-            downloadImage(context, navController)
-        }
+        CHILD_PHOTO_URL -> downloadImage(context, navController)
     }
 }
 
@@ -176,14 +160,14 @@ fun checkUsername(changeInfo: String, context: Context, navController: NavHostCo
             val tempArray = usernames.split("=").toMutableList()
             val oldUserName = tempArray[0].replace(regex, "")
 
-            if (oldUserName == changeInfo.lowercase()) { // Проверяем, есть ли такой ник в базе.
+            if (oldUserName == changeInfo.lowercase()) // Проверяем, есть ли такой ник в базе.
                 makeToast(
                     "Имя пользователя занято",
                     context
                 ) // Если есть, то выводим сообщение, что ник занят
-            } else {
+            else
                 changeUserName()
-            }
+
         }
 
         private fun changeUserName() {
@@ -223,12 +207,10 @@ fun downloadImage(context: Context, navController: NavHostController) {
     //Загружаем фото пользователя
     val pathToPhoto = REF_STORAGE_ROOT.child(FOLDER_PHOTOS).child(UID)
     pathToPhoto.downloadUrl.addOnCompleteListener { downloadTask -> //Получаем ссылку на загруженную фотку
-        if (downloadTask.isSuccessful) {
-            val photoURL = downloadTask.result.toString()
-            changeInfo(photoURL, CHILD_PHOTO_URL, context, navController)
-        } else {
+        if (downloadTask.isSuccessful)
+            changeInfo(downloadTask.result.toString(), CHILD_PHOTO_URL, context, navController)
+        else
             makeToast(downloadTask.exception?.message.toString(), context)
-        }
     }
 
 }
@@ -253,7 +235,7 @@ fun initContacts() {
                             ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME
                         )
                     )
-                val phone =
+                var phone =
                     cursor.getString(
                         cursor.getColumnIndexOrThrow(
                             ContactsContract.CommonDataKinds.Phone.NUMBER
@@ -262,7 +244,21 @@ fun initContacts() {
 
                 val newModal = CommonModal()
                 newModal.fullname = fullName
-                newModal.phone = phone.replace(Regex("[/s,-]"), "")
+
+                var pattern = Regex("[^\\d+]")
+                var formattedPhone = phone.replace(pattern, "")
+
+                formattedPhone = if (!formattedPhone.startsWith("+")) "+$formattedPhone" else formattedPhone
+                pattern = Regex("(\\+\\d+)(\\d{3})(\\d{3})(\\d{4})")
+
+                formattedPhone = pattern.replace(formattedPhone) { match ->
+                    "${match.groups[1]?.value}" +
+                            " ${match.groups[2]?.value}" +
+                            "-${match.groups[3]?.value}" +
+                            "-${match.groups[4]?.value}"
+                }
+
+                newModal.phone = formattedPhone
 
                 contactList.add(newModal)
             }
@@ -280,11 +276,9 @@ fun updateContactsForFirebase(contactList: MutableList<CommonModal>) {
             override fun onDataChange(snapshot: DataSnapshot) {
                 snapshot.children.forEach { itSnapshot ->
                     contactList.forEach { itContact ->
-                        if (itSnapshot.key.toString().replace("-", "") == itContact.phone) {
-                            val pattern = Regex("(\\+\\d) (\\d{3})(\\d{3})(\\d{4})")
-                            val formattedStr = pattern.replace(itContact.phone, "$1 $2-$3-$4")
+                        if (itSnapshot.key.toString() == itContact.phone) {
                             REF_DATABASE_ROOT.child(NODE_PHONES_CONTACTS)
-                                .child(UID).child(formattedStr).child(CHILD_ID)
+                                .child(UID).child(itContact.phone).child(CHILD_ID)
                                 .setValue(itSnapshot.value.toString())
                             contactsListUSER.add(itSnapshot.value.toString())
                         }
@@ -299,30 +293,24 @@ fun updateContactsForFirebase(contactList: MutableList<CommonModal>) {
         })
 
     REF_DATABASE_ROOT.child(NODE_USERS).addChildEventListener(object :
-        ChildEventListener{
+        ChildEventListener {
         override fun onChildAdded(
             snapshot: DataSnapshot,
             previousChildName: String?
         ) {
-            user = snapshot.getValue(CommonModal::class.java)
-                ?: CommonModal()
-            contactsListUSER.forEach{ contact ->
-                if (user.id == contact){
-                    mapContacts[user.id] = user
-                }
+            user = snapshot.getValue(CommonModal::class.java) ?: CommonModal()
+            contactsListUSER.forEach { contact ->
+                if (user.id == contact) mapContacts[user.id] = user
             }
-
         }
+
         override fun onChildChanged(
             snapshot: DataSnapshot,
             previousChildName: String?
         ) {
-            user = snapshot.getValue(CommonModal::class.java)
-                ?: CommonModal()
-            contactsListUSER.forEach{ contact ->
-                if (user.id == contact){
-                    mapContacts[user.id] = user
-                }
+            user = snapshot.getValue(CommonModal::class.java) ?: CommonModal()
+            contactsListUSER.forEach { contact ->
+                if (user.id == contact) mapContacts[user.id] = user
             }
         }
 
@@ -385,3 +373,8 @@ fun sendImageAsSMessage(receivingUserID: String?, fileURL: String, messageKey: S
         .updateChildren(mapDialog)
         .addOnFailureListener { makeToast(it.message.toString(), mainActivityContext) }
 }
+
+fun getMessageKey(receivingUserID: String) = REF_DATABASE_ROOT.child(NODE_MESSAGES)
+    .child(UID)
+    .child(receivingUserID)
+    .push().key.toString()

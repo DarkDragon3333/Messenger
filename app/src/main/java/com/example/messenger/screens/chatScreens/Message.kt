@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -36,8 +37,8 @@ fun Message(commonModal: CommonModal) {
         if (commonModal.from != UID) {
             Row(horizontalArrangement = Arrangement.Start)
             {
-                Spacer(modifier = Modifier.width(15.dp))
-                OutlinedCardMessage(commonModal, Alignment.End)
+                Spacer(modifier = Modifier.width(10.dp))
+                OutlinedCardMessage(commonModal, Arrangement.Start)
             }
         } else {
             Row(
@@ -45,8 +46,8 @@ fun Message(commonModal: CommonModal) {
                 modifier = Modifier.fillMaxWidth()
             )
             {
-                Spacer(modifier = Modifier.width(15.dp))
-                OutlinedCardMessage(commonModal, Alignment.End)
+                OutlinedCardMessage(commonModal, Arrangement.End)
+                Spacer(modifier = Modifier.width(10.dp))
             }
         }
 
@@ -55,47 +56,67 @@ fun Message(commonModal: CommonModal) {
 
 
 @Composable
-fun OutlinedCardMessage(commonModal: CommonModal, alignment: Alignment.Horizontal) {
-    OutlinedCard(
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface,
-        ),
-        border = BorderStroke(1.5.dp, Color.Black),
+fun OutlinedCardMessage(commonModal: CommonModal, arrangement: Arrangement.Horizontal) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth(0.9f),
+        horizontalArrangement = arrangement
     ) {
-        if (commonModal.fileUrl != "empty") {
-            val pair = initMessage(commonModal)
-            val timeStamp = pair.second.toString()
+        OutlinedCard(
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surface,
+            ),
+            border = BorderStroke(1.5.dp, Color.Black),
+            ) {
+            if (commonModal.fileUrl != "empty") {
+                val pair = initMessage(commonModal)
+                val timeStamp = pair.second.toString()
 
-            Box {
-                MessageImage(uri = commonModal.fileUrl)
-                Text(
-                    text = timeStamp,
-                    fontSize = 10.sp,
-                    modifier = Modifier.align(Alignment.BottomEnd)
-                )
-            }
+                Box {
+                    MessageImage(uri = commonModal.fileUrl)
+                    Text(
+                        text = timeStamp,
+                        fontSize = 10.sp,
+                        modifier = Modifier.align(Alignment.BottomEnd) .padding(end = 6.dp, bottom = 2.dp)
+                    )
+                }
 
-        } else {
-            val pair = initMessage(commonModal)
-            val message = pair.first
-            val timeStamp = pair.second.toString()
+            } else {
+                val pair = initMessage(commonModal)
+                val message = pair.first
+                val timeStamp = pair.second.toString()
+                Box(contentAlignment = Alignment.BottomEnd) {
+                    Row(
+                        modifier = Modifier
+                            .background(textMes)
+                            .padding(8.dp)
+                    )
+                    {
+                        Text(
+                            text = message,
+                            fontSize = 16.sp,
+                            color = Color.Black,
+                            modifier = Modifier.padding(end = 60.dp)
+                        )
 
-            Column(
-                horizontalAlignment = alignment,
-                modifier = Modifier
-                    .background(textMes)
-                    .padding(8.dp)
-            )
-            {
-                Text(text = message)
-                Text(
-                    text = timeStamp,
-                    fontSize = 10.sp,
-                    textAlign = TextAlign.End
-                )
+                    }
+                    Row(
+                        horizontalArrangement = Arrangement.End,
+                        modifier = Modifier
+                            .background(textMes)
+                    ) {
+                        Text(
+                            text = timeStamp,
+                            fontSize = 10.sp,
+                            modifier = Modifier
+                                .padding(end = 6.dp, bottom = 2.dp)
+                        )
+                    }
+                }
             }
         }
     }
+
 }
 
 @Composable

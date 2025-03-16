@@ -118,7 +118,18 @@ class LoginActivity : ComponentActivity() {
                 Spacer(modifier = Modifier.padding(120.dp))
                 Button(
                     onClick = {
-                        checkPhone(phone, password)
+                        var pattern = Regex("[^\\d+]")
+                        var formattedPhone = phone.replace(pattern, "")
+                        formattedPhone = if (!formattedPhone.startsWith("+")) "+$formattedPhone" else formattedPhone
+                        pattern = Regex("(\\+\\d+)(\\d{3})(\\d{3})(\\d{4})")
+
+                        formattedPhone = pattern.replace(formattedPhone) { match ->
+                            "${match.groups[1]?.value}" +
+                                    " ${match.groups[2]?.value}" +
+                                    "-${match.groups[3]?.value}" +
+                                    "-${match.groups[4]?.value}"
+                        }
+                        checkPhone(/*formattedPhone*/phone, password)
                     }
                 ) { Text("Sing in", fontSize = 18.sp) }
 
