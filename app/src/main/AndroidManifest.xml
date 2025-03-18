@@ -25,6 +25,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Messenger">
+        <profileable android:shell="true" />
 
         <activity
             android:name=".user_sing_in_and_up_activities.AddInfo"

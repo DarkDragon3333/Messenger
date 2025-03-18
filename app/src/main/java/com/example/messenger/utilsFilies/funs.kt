@@ -7,6 +7,7 @@ import android.widget.Toast
 import androidx.compose.material3.DrawerState
 import androidx.navigation.NavHostController
 import com.example.messenger.modals.CommonModal
+import com.example.messenger.modals.MessageModal
 import com.example.messenger.navigation.Screens
 import com.example.messenger.user_sing_in_and_up_activities.AddInfo
 import com.google.firebase.auth.PhoneAuthProvider
@@ -111,3 +112,6 @@ fun goTo(navController: NavHostController, user: CommonModal) {
 
 fun DataSnapshot.getCommonModel(): CommonModal =
     this.getValue(CommonModal::class.java) ?: CommonModal()
+
+fun DataSnapshot.getMessageModel(): MessageModal =
+    this.getValue(MessageModal::class.java) ?: MessageModal()

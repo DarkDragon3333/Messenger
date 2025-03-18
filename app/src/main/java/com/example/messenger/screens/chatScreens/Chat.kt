@@ -1,7 +1,6 @@
 package com.example.messenger.screens.chatScreens
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -9,12 +8,8 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.awaitEachGesture
-import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,7 +22,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
@@ -37,60 +31,45 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.AwaitPointerEventScope
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.messenger.R
-import com.example.messenger.dataBase.CHILD_PHOTO_URL
-import com.example.messenger.dataBase.FOLDER_MESSAGE_FILE
-import com.example.messenger.dataBase.FOLDER_PHOTOS
 import com.example.messenger.dataBase.NODE_MESSAGES
 import com.example.messenger.dataBase.REF_DATABASE_ROOT
-import com.example.messenger.dataBase.REF_STORAGE_ROOT
+import com.example.messenger.dataBase.TYPE_IMAGE
 import com.example.messenger.dataBase.TYPE_TEXT
+import com.example.messenger.dataBase.TYPE_VOICE
 import com.example.messenger.dataBase.UID
-import com.example.messenger.dataBase.changeInfo
 import com.example.messenger.dataBase.getMessageKey
-import com.example.messenger.dataBase.sendImageAsSMessage
 import com.example.messenger.dataBase.sendMessage
+import com.example.messenger.dataBase.uploadFileToStorage
 import com.example.messenger.dataBase.valueEventListenerClasses.AppValueEventListener
-import com.example.messenger.modals.CommonModal
+import com.example.messenger.modals.MessageModal
 import com.example.messenger.utilsFilies.AppVoiceRecorder
-import com.example.messenger.utilsFilies.AppVoiceRecorder.Companion.startRecording
-import com.example.messenger.utilsFilies.AppVoiceRecorder.Companion.stopRecording
 import com.example.messenger.utilsFilies.RECORD_AUDIO
-import com.example.messenger.utilsFilies.cacheMessages
-import com.example.messenger.utilsFilies.getCommonModel
-import com.example.messenger.utilsFilies.mainActivityContext
-import com.example.messenger.utilsFilies.makeToast
+import com.example.messenger.utilsFilies.getMessageModel
 import com.example.messenger.utilsFilies.myCheckPermission
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.storage.StorageReference
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
-import kotlinx.coroutines.withContext
-import java.io.File
 import java.net.URLDecoder
 
 private lateinit var refToMessages: DatabaseReference
 private lateinit var MessagesListener: AppValueEventListener
 lateinit var pathToFile: StorageReference
+private lateinit var appVoiceRecorder: AppVoiceRecorder
 
 @SuppressLint("ReturnFromAwaitPointerEventScope")
 @OptIn(ExperimentalFoundationApi::class)
@@ -112,16 +91,13 @@ fun ChatScreen(
 
     val recordVoiceFlag = remember { mutableStateOf(false) }
     val changeColor = remember { mutableStateOf(Color.Red) }
-    val chatScreenState = remember { mutableStateListOf<CommonModal>() }
+    val chatScreenState = remember { mutableStateListOf<MessageModal>() }
     var text by remember { mutableStateOf("") }
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
 
     var fileUri by remember { mutableStateOf<Uri?>(null) } //Ссылка на картинку
     val bitmap = remember { mutableStateOf<Bitmap?>(null) } //Само изображение
-
-    val voiceMessage = remember { (MutableInteractionSource()) }
-    val onPressVoiceButton by voiceMessage.collectIsPressedAsState()
 
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickMultipleVisualMedia(5)
@@ -135,39 +111,12 @@ fun ChatScreen(
         }
 
         //Переделка метода отправки сообщений. В теории, должно быть более оптимизированно
-        CoroutineScope(Dispatchers.IO).launch {
-            filesToUpload.forEach { (messageKey, fileUri) ->
-                val tempUri = REF_STORAGE_ROOT.child(FOLDER_MESSAGE_FILE).child(messageKey)
+        uploadFileToStorage(filesToUpload, receivingUserID, TYPE_IMAGE)
 
-                try {
-                    tempUri.putFile(fileUri).await()
-                    val downloadUrl = tempUri.downloadUrl.await().toString()
-                    withContext(Dispatchers.Main) {
-                        sendImageAsSMessage(receivingUserID, downloadUrl, messageKey)
-                    }
-                } catch (e: Exception) {
-                    withContext(Dispatchers.Main) {
-                        makeToast("Ошибка загрузки файла: ${e.message}", mainActivityContext)
-                    }
-                }
-            }
-        }
     }
 
+    appVoiceRecorder = AppVoiceRecorder()
 
-//    fun downloadImage(context: Context, navController: NavHostController) {
-//        //Загружаем фото пользователя
-//        val pathToPhoto = REF_STORAGE_ROOT.child(FOLDER_PHOTOS).child(UID)
-//        pathToPhoto.downloadUrl.addOnCompleteListener { downloadTask -> //Получаем ссылку на загруженную фотку
-//            if (downloadTask.isSuccessful) {
-//                val tempPhotoURL = downloadTask.result.toString()
-//                changeInfo(tempPhotoURL, CHILD_PHOTO_URL, context, navController)
-//            } else {
-//                makeToast(downloadTask.exception?.message.toString(), context)
-//            }
-//        }
-//
-//    }
 
     fun attachFile() {
         launcher.launch(
@@ -177,29 +126,44 @@ fun ChatScreen(
         )
     }
 
+    @Composable
+    fun AttachFileButton() {
+        IconButton(
+            modifier = Modifier.size(50.dp, 65.dp),
+            onClick = { attachFile() }
+        ) {
+            Column {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_attach),
+                    contentDescription = ""
+                )
+            }
+        }
+    }
+
     //Переделка метода инициализации класса. В теории, должно быть более оптимизированно
     fun initChat(id: String) {
         refToMessages = REF_DATABASE_ROOT.child(NODE_MESSAGES).child(UID).child(id)
         MessagesListener = AppValueEventListener { dataSnap ->
-            CoroutineScope(Dispatchers.IO).launch {
-                val cacheMessages = dataSnap.children.map { it.getCommonModel() }.toMutableList()
-
-                if (chatScreenState.isNotEmpty()) {
-                    if ((cacheMessages.size) != //Проблема в том, что в casheMessanges у последего элемента почему-то другой timestamp
-                        (chatScreenState.size) //Исправлено
-                    ) {
+            val cacheMessages = dataSnap.children.map { it.getMessageModel() }.toMutableList()
+            //Проблема в том, что в casheMessanges у последего элемента почему-то другой timestamp
+            when (chatScreenState.isNotEmpty()) {
+                true -> { //Исправлено
+                    if ((cacheMessages.size) != (chatScreenState.size)) {
                         chatScreenState.add(cacheMessages.last())
                         cacheMessages.clear()
                         coroutineScope.launch() {
                             listState.animateScrollToItem(chatScreenState.lastIndex)
                         }
                     }
-                } else {
+                }
+
+                false -> {
                     chatScreenState.addAll(cacheMessages)
                     cacheMessages.clear()
                 }
-
             }
+
         }
 
         refToMessages.addValueEventListener(MessagesListener)
@@ -219,14 +183,14 @@ fun ChatScreen(
                     modifier = Modifier.fillMaxSize(),
                     state = listState
                 ) {
+
                     items(chatScreenState) { message -> //Более читабельый код
-                        Message(message)
+                        Message(message, navController)
                         Spacer(modifier = Modifier.height(10.dp))
                     }
 
                     coroutineScope.launch() {
-                        if (chatScreenState.isNotEmpty())
-                            listState.animateScrollToItem(chatScreenState.lastIndex)
+                        listState.animateScrollToItem(chatScreenState.lastIndex)
                     }
 
                 }
@@ -244,17 +208,7 @@ fun ChatScreen(
                 placeholder = { Text(text = "Введите сообщение") },
                 trailingIcon = {
                     Row {
-                        IconButton(
-                            modifier = Modifier.size(50.dp, 65.dp),
-                            onClick = { attachFile() }
-                        ) {
-                            Column {
-                                Icon(
-                                    painter = painterResource(id = R.drawable.ic_attach),
-                                    contentDescription = ""
-                                )
-                            }
-                        }
+                        AttachFileButton()
 
                         Box(
                             modifier = Modifier
@@ -266,15 +220,11 @@ fun ChatScreen(
                                             val upOrCancel = waitForUpOrCancellation()
                                             if (upOrCancel == null) {
                                                 if (recordVoiceFlag.value) {
-                                                    makeToast("Палец вверх", mainActivityContext)
-                                                    stopRecording { file, messageKey ->
-                                                        sendVoiceMessage(
-                                                            Uri.fromFile(file),
-                                                            messageKey
-                                                        )
-                                                    }
-                                                    changeColor.value = Color.Red
-                                                    recordVoiceFlag.value = false
+                                                    stopRecord(
+                                                        receivingUserID,
+                                                        changeColor,
+                                                        recordVoiceFlag
+                                                    )
                                                 }
 
                                             }
@@ -287,39 +237,23 @@ fun ChatScreen(
                                             when (text.trim().isEmpty()) {
                                                 true -> {
                                                     if (myCheckPermission(RECORD_AUDIO)) {
-                                                        makeToast(
-                                                            "Запись идёт",
-                                                            mainActivityContext
+                                                        startRecord(
+                                                            changeColor,
+                                                            receivingUserID,
+                                                            recordVoiceFlag
                                                         )
-                                                        changeColor.value = Color.Blue
-                                                        val messageKey =
-                                                            getMessageKey(receivingUserID)
-                                                        startRecording(messageKey)
-                                                        recordVoiceFlag.value = true
                                                     }
                                                 }
 
                                                 false -> {
-                                                    sendText(
-                                                        text,
-                                                        receivingUserID,
-                                                        coroutineScope,
-                                                        listState,
-                                                        chatScreenState
-                                                    )
+                                                    sendText(text, receivingUserID)
                                                     text = ""
                                                 }
                                             }
                                         },
                                         onTap = {
                                             if (text.trim().isNotEmpty()) {
-                                                sendText(
-                                                    text,
-                                                    receivingUserID,
-                                                    coroutineScope,
-                                                    listState,
-                                                    chatScreenState
-                                                )
+                                                sendText(text, receivingUserID)
                                                 text = ""
                                             }
                                         },
@@ -354,56 +288,57 @@ fun ChatScreen(
     navController.addOnDestinationChangedListener { _, destination, _ ->
         if (destination.route != "chatScreen/{fullname}/{status}/{photoURL}/{id}") {
             refToMessages.removeEventListener(MessagesListener)
-            AppVoiceRecorder.releaseRecordedVoice()
+            appVoiceRecorder.releaseRecordedVoice()
         }
     }
 
+
 }
 
+private fun stopRecord(
+    receivingUserID: String,
+    changeColor: MutableState<Color>,
+    recordVoiceFlag: MutableState<Boolean>
+) {
+    appVoiceRecorder.stopRecording { file, messageKey ->
+        val list =
+            listOf(messageKey to Uri.fromFile(file))
+        uploadFileToStorage(
+            list,
+            receivingUserID,
+            TYPE_VOICE
+        )
+    }
+    changeColor.value = Color.Red
+    recordVoiceFlag.value = false
+}
+
+private fun startRecord(
+    changeColor: MutableState<Color>,
+    receivingUserID: String,
+    recordVoiceFlag: MutableState<Boolean>
+) {
+    changeColor.value = Color.Blue
+    val messageKey =
+        getMessageKey(receivingUserID)
+    appVoiceRecorder.startRecording(messageKey)
+    recordVoiceFlag.value = true
+}
 
 private fun sendText(
     text: String,
     receivingUserID: String,
-    coroutineScope: CoroutineScope,
-    listState: LazyListState,
-    chatScreenState: SnapshotStateList<CommonModal>
 ): String {
-    var text1 = text
+    var tempText = text
     sendMessage(
-        text1.trim(),
-        receivingUserID,
-        TYPE_TEXT
+        info = tempText.trim(),
+        receivingUserID = receivingUserID,
+        typeMessage = TYPE_TEXT,
+        key = ""
     ) {
-        text1 = ""
-        coroutineScope.launch {
-            listState.animateScrollToItem(
-                chatScreenState.lastIndex
-            )
-        }
+        tempText = ""
 
     }
-    return text1
+    return tempText
 }
-
-fun sendVoiceMessage(uri: Uri, messageKey: String) {
-    makeToast("Send Msg", mainActivityContext)
-
-
-}
-
-//fun changeIcon() {
-//
-//}
-
-
-//fun isEditTagItemFullyVisible(lazyListState: LazyListState, editTagItemIndex: Int): Boolean {
-//    with(lazyListState.layoutInfo) {
-//        val editingTagItemVisibleInfo = visibleItemsInfo.find { it.index == editTagItemIndex }
-//        return if (editingTagItemVisibleInfo == null) {
-//            false
-//        } else {
-//            viewportEndOffset - editingTagItemVisibleInfo.offset >= editingTagItemVisibleInfo.size
-//        }
-//    }
-//}
 

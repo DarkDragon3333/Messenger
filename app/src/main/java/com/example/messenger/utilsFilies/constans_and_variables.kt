@@ -20,8 +20,4 @@ var cacheMessages: MutableList<CommonModal> = mutableStateListOf()
 
 lateinit var mainActivityContext: MainActivity
 
-const val TYPE_MESSAGE_FILE = "file"
-const val TYPE_MESSAGE_TEXT = "text"
-const val TYPE_MESSAGE_VOICE = "voice"
-
 

@@ -9,9 +9,8 @@ data class CommonModal (
     var photoUrl: String = " ",
     var phone: String = " ",
     var password: String = " ",
-    var text: String = " ",
+    var info: String = "empty",
     var type: String = " ",
     var from: String = " ",
     var timeStamp: Any = " ",
-    var fileUrl: String = "empty"
 )

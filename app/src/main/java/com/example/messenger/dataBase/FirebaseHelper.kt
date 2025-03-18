@@ -2,6 +2,7 @@ package com.example.messenger.dataBase
 
 import android.app.Activity
 import android.content.Context
+import android.net.Uri
 import android.provider.ContactsContract
 import androidx.navigation.NavHostController
 import com.example.messenger.MainActivity
@@ -10,7 +11,6 @@ import com.example.messenger.modals.User
 import com.example.messenger.modals.setLocalDataForUser
 import com.example.messenger.navigation.Screens
 import com.example.messenger.utilsFilies.READ_CONTACTS
-import com.example.messenger.utilsFilies.TYPE_MESSAGE_FILE
 import com.example.messenger.utilsFilies.contactsListUSER
 import com.example.messenger.utilsFilies.goTo
 import com.example.messenger.utilsFilies.mainActivityContext
@@ -29,6 +29,11 @@ import com.google.firebase.database.ServerValue
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+import java.io.File
 import java.util.concurrent.TimeUnit
 
 lateinit var AUTH: FirebaseAuth
@@ -38,12 +43,14 @@ lateinit var USER: User
 lateinit var UID: String //Уникальный индификационный номер
 
 const val TYPE_TEXT = "text"
+const val TYPE_VOICE = "voice"
+const val TYPE_IMAGE = "image"
+const val TYPE_VIDEO = "video"
 
 const val NODE_USERS = "users"
 const val NODE_USERNAMES = "usernames"
 const val NODE_PHONES = "phones"
 const val NODE_PHONES_CONTACTS = "phones_contacts"
-
 const val NODE_MESSAGES = "messages"
 
 const val FOLDER_PHOTOS = "photos"
@@ -60,6 +67,7 @@ const val CHILD_PHOTO_URL: String = "photoUrl"
 const val CHILD_FILE_URL: String = "fileUrl"
 
 const val CHILD_TEXT: String = "text"
+const val CHILD_INFO: String = "info"
 const val CHILD_TYPE: String = "type"
 const val CHILD_FROM: String = "from"
 const val CHILD_TIME_STAMP: String = "timeStamp"
@@ -215,7 +223,6 @@ fun downloadImage(context: Context, navController: NavHostController) {
 
 }
 
-
 fun initContacts() {
     if (myCheckPermission(READ_CONTACTS)) {
         val contactList = mutableListOf<CommonModal>()
@@ -235,7 +242,7 @@ fun initContacts() {
                             ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME
                         )
                     )
-                var phone =
+                val phone =
                     cursor.getString(
                         cursor.getColumnIndexOrThrow(
                             ContactsContract.CommonDataKinds.Phone.NUMBER
@@ -248,7 +255,8 @@ fun initContacts() {
                 var pattern = Regex("[^\\d+]")
                 var formattedPhone = phone.replace(pattern, "")
 
-                formattedPhone = if (!formattedPhone.startsWith("+")) "+$formattedPhone" else formattedPhone
+                formattedPhone =
+                    if (!formattedPhone.startsWith("+")) "+$formattedPhone" else formattedPhone
                 pattern = Regex("(\\+\\d+)(\\d{3})(\\d{3})(\\d{4})")
 
                 formattedPhone = pattern.replace(formattedPhone) { match ->
@@ -298,20 +306,14 @@ fun updateContactsForFirebase(contactList: MutableList<CommonModal>) {
             snapshot: DataSnapshot,
             previousChildName: String?
         ) {
-            user = snapshot.getValue(CommonModal::class.java) ?: CommonModal()
-            contactsListUSER.forEach { contact ->
-                if (user.id == contact) mapContacts[user.id] = user
-            }
+            changeListOfContacts(snapshot)
         }
 
         override fun onChildChanged(
             snapshot: DataSnapshot,
             previousChildName: String?
         ) {
-            user = snapshot.getValue(CommonModal::class.java) ?: CommonModal()
-            contactsListUSER.forEach { contact ->
-                if (user.id == contact) mapContacts[user.id] = user
-            }
+            changeListOfContacts(snapshot)
         }
 
         override fun onChildRemoved(snapshot: DataSnapshot) {}
@@ -319,29 +321,41 @@ fun updateContactsForFirebase(contactList: MutableList<CommonModal>) {
         override fun onChildMoved(
             snapshot: DataSnapshot,
             previousChildName: String?
-        ) {}
+        ) {
+        }
 
         override fun onCancelled(error: DatabaseError) {
             makeToast(error.message, mainActivityContext)
+        }
+
+        private fun changeListOfContacts(snapshot: DataSnapshot) {
+            user = snapshot.getValue(CommonModal::class.java) ?: CommonModal()
+            contactsListUSER.forEach { contact ->
+                if (user.id == contact) mapContacts[user.id] = user
+            }
         }
 
     })
 }
 
 fun sendMessage(
-    message: String,
+    info: String,
     receivingUserID: String?,
-    typeText: String,
+    typeMessage: String,
+    key: String,
     function: () -> Unit
 ) {
     val refDialogUser = "$NODE_MESSAGES/$UID/$receivingUserID"
     val refDialogReceivingUser = "$NODE_MESSAGES/$receivingUserID/$UID"
-    val messageKey = REF_DATABASE_ROOT.child(refDialogUser).push().key
+    var messageKey = ""
+
+    messageKey = key.ifEmpty { REF_DATABASE_ROOT.child(refDialogUser).push().key.toString() }
 
     val mapMessage = hashMapOf<String, Any>()
+    mapMessage[CHILD_ID] = messageKey
     mapMessage[CHILD_FROM] = UID
-    mapMessage[CHILD_TYPE] = typeText
-    mapMessage[CHILD_TEXT] = message
+    mapMessage[CHILD_INFO] = info
+    mapMessage[CHILD_TYPE] = typeMessage
     mapMessage[CHILD_TIME_STAMP] = ServerValue.TIMESTAMP
 
     val mapDialog = hashMapOf<String, Any>()
@@ -354,27 +368,40 @@ fun sendMessage(
         .addOnFailureListener { makeToast(it.message.toString(), mainActivityContext) }
 }
 
-fun sendImageAsSMessage(receivingUserID: String?, fileURL: String, messageKey: String) {
-    val refDialogUser = "$NODE_MESSAGES/$UID/$receivingUserID"
-    val refDialogReceivingUser = "$NODE_MESSAGES/$receivingUserID/$UID"
-
-    val mapMessage = hashMapOf<String, Any>()
-    mapMessage[CHILD_ID] = messageKey
-    mapMessage[CHILD_FROM] = UID
-    mapMessage[CHILD_FILE_URL] = fileURL
-    mapMessage[CHILD_TYPE] = TYPE_MESSAGE_FILE
-    mapMessage[CHILD_TIME_STAMP] = ServerValue.TIMESTAMP
-
-    val mapDialog = hashMapOf<String, Any>()
-    mapDialog["$refDialogUser/$messageKey"] = mapMessage
-    mapDialog["$refDialogReceivingUser/$messageKey"] = mapMessage
-
-    REF_DATABASE_ROOT
-        .updateChildren(mapDialog)
-        .addOnFailureListener { makeToast(it.message.toString(), mainActivityContext) }
-}
-
 fun getMessageKey(receivingUserID: String) = REF_DATABASE_ROOT.child(NODE_MESSAGES)
     .child(UID)
     .child(receivingUserID)
     .push().key.toString()
+
+fun uploadFileToStorage(
+    filesToUpload: List<Pair<String, @JvmSuppressWildcards Uri>>,
+    receivingUserID: String,
+    typeMessage: String
+) {
+    CoroutineScope(Dispatchers.IO).launch {
+        filesToUpload.forEach { (messageKey, fileUri) ->
+            val tempUri = REF_STORAGE_ROOT.child(FOLDER_MESSAGE_FILE).child(messageKey)
+
+            try {
+                tempUri.putFile(fileUri).await()
+                val downloadUrl = tempUri.downloadUrl.await().toString()
+                sendMessage(downloadUrl, receivingUserID, typeMessage, messageKey) {}
+            } catch (e: Exception) {
+                makeToast("Ошибка загрузки файла: ${e.message}", mainActivityContext)
+
+            }
+        }
+    }
+
+}
+
+fun getFile(mAudioFile: File, fileUrl: String, function: () -> Unit) {
+    val path = REF_STORAGE_ROOT.storage.getReferenceFromUrl(fileUrl)
+    path.getFile(mAudioFile)
+        .addOnSuccessListener {
+            function()
+        }
+        .addOnFailureListener {
+            makeToast(it.message.toString(), mainActivityContext)
+        }
+}
