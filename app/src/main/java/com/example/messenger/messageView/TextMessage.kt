@@ -11,10 +11,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.messenger.dataBase.TYPE_TEXT
+import com.example.messenger.dataBase.sendMessage
 import com.example.messenger.ui.theme.textMes
 
 @Composable
-fun TextMessage(pair: Pair<String, Any>) {
+fun TextMsg(pair: Pair<String, Any>) {
     Box(contentAlignment = Alignment.BottomEnd) {
         Row(
             modifier = Modifier
@@ -43,4 +45,21 @@ fun TextMessage(pair: Pair<String, Any>) {
             )
         }
     }
+}
+
+fun sendText(
+    text: String,
+    receivingUserID: String,
+): String {
+    var tempText = text
+    sendMessage(
+        info = tempText.trim(),
+        receivingUserID = receivingUserID,
+        typeMessage = TYPE_TEXT,
+        key = ""
+    ) {
+        tempText = ""
+
+    }
+    return tempText
 }

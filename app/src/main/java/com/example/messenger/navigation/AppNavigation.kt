@@ -40,7 +40,7 @@ fun DrawerNavigation(navController: NavHostController) {
                 navArgument("id") { type = NavType.StringType}
             )
         )
-        {backStackEntry ->
+        { backStackEntry ->
             val fullname = backStackEntry.arguments?.getString("fullname")
             val status = backStackEntry.arguments?.getString("status")
             val photoURL = backStackEntry.arguments?.getString("photoURL")

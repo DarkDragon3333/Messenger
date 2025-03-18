@@ -1,5 +1,6 @@
 package com.example.messenger.messageView
 
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -15,6 +16,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableIntState
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -26,14 +28,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.messenger.R
+import com.example.messenger.dataBase.TYPE_VOICE
+import com.example.messenger.dataBase.getMessageKey
+import com.example.messenger.dataBase.uploadFileToStorage
 import com.example.messenger.modals.MessageModal
+import com.example.messenger.screens.chatScreens.appVoiceRecorder
 import com.example.messenger.ui.theme.textMes
 import com.example.messenger.utilsFilies.AppVoicePlayer
 import com.example.messenger.utilsFilies.mainActivityContext
 import com.example.messenger.utilsFilies.makeToast
 
 @Composable
-fun VoiceMessage(
+fun VoiceMsg(
     messageModal: MessageModal,
     timeStamp: String,
     navController: NavHostController
@@ -135,4 +141,34 @@ private fun play(
     appVoicePlayer.startPlaying(messageModal.id, messageModal.info) {
         function()
     }
+}
+
+fun stopRecord(
+    receivingUserID: String,
+    changeColor: MutableState<Color>,
+    recordVoiceFlag: MutableState<Boolean>
+) {
+    appVoiceRecorder.stopRecording { file, messageKey ->
+        val list =
+            listOf(messageKey to Uri.fromFile(file))
+        uploadFileToStorage(
+            list,
+            receivingUserID,
+            TYPE_VOICE
+        )
+    }
+    changeColor.value = Color.Red
+    recordVoiceFlag.value = false
+}
+
+fun startRecord(
+    changeColor: MutableState<Color>,
+    receivingUserID: String,
+    recordVoiceFlag: MutableState<Boolean>
+) {
+    changeColor.value = Color.Blue
+    val messageKey =
+        getMessageKey(receivingUserID)
+    appVoiceRecorder.startRecording(messageKey)
+    recordVoiceFlag.value = true
 }

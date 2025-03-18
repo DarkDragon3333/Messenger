@@ -1,7 +1,6 @@
 package com.example.messenger.screens.chatScreens
 
 import android.annotation.SuppressLint
-import android.graphics.Bitmap
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -31,7 +30,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -49,13 +47,13 @@ import com.example.messenger.R
 import com.example.messenger.dataBase.NODE_MESSAGES
 import com.example.messenger.dataBase.REF_DATABASE_ROOT
 import com.example.messenger.dataBase.TYPE_IMAGE
-import com.example.messenger.dataBase.TYPE_TEXT
-import com.example.messenger.dataBase.TYPE_VOICE
 import com.example.messenger.dataBase.UID
 import com.example.messenger.dataBase.getMessageKey
-import com.example.messenger.dataBase.sendMessage
 import com.example.messenger.dataBase.uploadFileToStorage
 import com.example.messenger.dataBase.valueEventListenerClasses.AppValueEventListener
+import com.example.messenger.messageView.sendText
+import com.example.messenger.messageView.startRecord
+import com.example.messenger.messageView.stopRecord
 import com.example.messenger.modals.MessageModal
 import com.example.messenger.utilsFilies.AppVoiceRecorder
 import com.example.messenger.utilsFilies.RECORD_AUDIO
@@ -69,7 +67,7 @@ import java.net.URLDecoder
 private lateinit var refToMessages: DatabaseReference
 private lateinit var MessagesListener: AppValueEventListener
 lateinit var pathToFile: StorageReference
-private lateinit var appVoiceRecorder: AppVoiceRecorder
+lateinit var appVoiceRecorder: AppVoiceRecorder
 
 @SuppressLint("ReturnFromAwaitPointerEventScope")
 @OptIn(ExperimentalFoundationApi::class)
@@ -95,9 +93,6 @@ fun ChatScreen(
     var text by remember { mutableStateOf("") }
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
-
-    var fileUri by remember { mutableStateOf<Uri?>(null) } //Ссылка на картинку
-    val bitmap = remember { mutableStateOf<Bitmap?>(null) } //Само изображение
 
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickMultipleVisualMedia(5)
@@ -163,7 +158,6 @@ fun ChatScreen(
                     cacheMessages.clear()
                 }
             }
-
         }
 
         refToMessages.addValueEventListener(MessagesListener)
@@ -183,7 +177,6 @@ fun ChatScreen(
                     modifier = Modifier.fillMaxSize(),
                     state = listState
                 ) {
-
                     items(chatScreenState) { message -> //Более читабельый код
                         Message(message, navController)
                         Spacer(modifier = Modifier.height(10.dp))
@@ -214,10 +207,10 @@ fun ChatScreen(
                             modifier = Modifier
                                 .size(50.dp, 65.dp)
                                 .background(changeColor.value)
-                                .pointerInput(Unit) { //Реагирую на то, что пользователь убрал палец с кнопки
+                                .pointerInput(Unit) {
                                     awaitPointerEventScope {
                                         while (true) {
-                                            val upOrCancel = waitForUpOrCancellation()
+                                            val upOrCancel = waitForUpOrCancellation() //Реагирую на то, что пользователь убрал палец с кнопки
                                             if (upOrCancel == null) {
                                                 if (recordVoiceFlag.value) {
                                                     stopRecord(
@@ -291,54 +284,5 @@ fun ChatScreen(
             appVoiceRecorder.releaseRecordedVoice()
         }
     }
-
-
-}
-
-private fun stopRecord(
-    receivingUserID: String,
-    changeColor: MutableState<Color>,
-    recordVoiceFlag: MutableState<Boolean>
-) {
-    appVoiceRecorder.stopRecording { file, messageKey ->
-        val list =
-            listOf(messageKey to Uri.fromFile(file))
-        uploadFileToStorage(
-            list,
-            receivingUserID,
-            TYPE_VOICE
-        )
-    }
-    changeColor.value = Color.Red
-    recordVoiceFlag.value = false
-}
-
-private fun startRecord(
-    changeColor: MutableState<Color>,
-    receivingUserID: String,
-    recordVoiceFlag: MutableState<Boolean>
-) {
-    changeColor.value = Color.Blue
-    val messageKey =
-        getMessageKey(receivingUserID)
-    appVoiceRecorder.startRecording(messageKey)
-    recordVoiceFlag.value = true
-}
-
-private fun sendText(
-    text: String,
-    receivingUserID: String,
-): String {
-    var tempText = text
-    sendMessage(
-        info = tempText.trim(),
-        receivingUserID = receivingUserID,
-        typeMessage = TYPE_TEXT,
-        key = ""
-    ) {
-        tempText = ""
-
-    }
-    return tempText
 }
 

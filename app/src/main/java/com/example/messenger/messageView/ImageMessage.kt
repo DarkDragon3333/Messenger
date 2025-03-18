@@ -12,7 +12,7 @@ import com.example.messenger.modals.MessageModal
 import com.example.messenger.utilsFilies.MessageImage
 
 @Composable
-fun ImageMessage(
+fun ImageMsg(
     messageModal: MessageModal,
     timeStamp: String
 ) {

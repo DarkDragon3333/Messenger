@@ -7,6 +7,7 @@ import android.provider.ContactsContract
 import androidx.navigation.NavHostController
 import com.example.messenger.MainActivity
 import com.example.messenger.modals.CommonModal
+import com.example.messenger.modals.ContactModal
 import com.example.messenger.modals.User
 import com.example.messenger.modals.setLocalDataForUser
 import com.example.messenger.navigation.Screens
@@ -223,9 +224,9 @@ fun downloadImage(context: Context, navController: NavHostController) {
 
 }
 
-fun initContacts() {
+fun getContactsFromSmartphone() {
     if (myCheckPermission(READ_CONTACTS)) {
-        val contactList = mutableListOf<CommonModal>()
+        val contactList = mutableListOf<ContactModal>()
         val cursor = mainActivityContext.contentResolver.query(
             ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
             null,
@@ -249,7 +250,7 @@ fun initContacts() {
                         )
                     )
 
-                val newModal = CommonModal()
+                val newModal = ContactModal()
                 newModal.fullname = fullName
 
                 var pattern = Regex("[^\\d+]")
@@ -277,8 +278,8 @@ fun initContacts() {
     }
 }
 
-fun updateContactsForFirebase(contactList: MutableList<CommonModal>) {
-    var user: CommonModal
+fun updateContactsForFirebase(contactList: MutableList<ContactModal>) {
+    var user: ContactModal
     REF_DATABASE_ROOT.child(NODE_PHONES)
         .addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -329,7 +330,7 @@ fun updateContactsForFirebase(contactList: MutableList<CommonModal>) {
         }
 
         private fun changeListOfContacts(snapshot: DataSnapshot) {
-            user = snapshot.getValue(CommonModal::class.java) ?: CommonModal()
+            user = snapshot.getValue(ContactModal::class.java) ?: ContactModal()
             contactsListUSER.forEach { contact ->
                 if (user.id == contact) mapContacts[user.id] = user
             }

@@ -16,13 +16,14 @@ class MessageViewFactory {
         val pair = initMessage(messageModal)
         val timeStamp = pair.second.toString()
 
-        return when (messageModal.type) {
-            TYPE_TEXT -> TextMessage(pair)
+         when (messageModal.type) {
+            TYPE_TEXT -> TextMsg(pair)
 
-            TYPE_IMAGE -> ImageMessage(messageModal, timeStamp)
+            TYPE_IMAGE -> ImageMsg(messageModal, timeStamp)
 
-            TYPE_VOICE -> VoiceMessage(messageModal, timeStamp, navController)
-            else -> TextMessage(pair)
+            TYPE_VOICE -> VoiceMsg(messageModal, timeStamp, navController)
+
+            else -> TextMsg(pair)
         }
     }
 }

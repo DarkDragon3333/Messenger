@@ -10,8 +10,7 @@ import com.example.messenger.ui.theme.MessengerTheme
 import com.example.messenger.dataBase.AppStatus
 import com.example.messenger.utilsFilies.READ_CONTACTS
 import com.example.messenger.utilsFilies.get_out_from_auth
-import com.example.messenger.dataBase.initContacts
-import com.example.messenger.utilsFilies.AppVoiceRecorder
+import com.example.messenger.dataBase.getContactsFromSmartphone
 import com.example.messenger.utilsFilies.mainActivityContext
 import com.example.messenger.utilsFilies.makeToast
 import com.example.messenger.utilsFilies.sign_out
@@ -24,7 +23,7 @@ class MainActivity : ComponentActivity() {
     private var requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()) { isGranted ->
         if (isGranted) {
-            initContacts()
+            getContactsFromSmartphone()
         } else {
             makeToast("Нет разрешения", mainActivityContext)
         }
