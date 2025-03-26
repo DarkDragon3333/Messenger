@@ -13,7 +13,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.example.messenger.modals.CommonModal
 import com.example.messenger.modals.ContactModal
 import com.example.messenger.utilsFilies.UriImage
 import com.example.messenger.utilsFilies.goTo

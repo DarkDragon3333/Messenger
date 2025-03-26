@@ -6,7 +6,6 @@ import android.net.Uri
 import android.provider.ContactsContract
 import androidx.navigation.NavHostController
 import com.example.messenger.MainActivity
-import com.example.messenger.modals.CommonModal
 import com.example.messenger.modals.ContactModal
 import com.example.messenger.modals.User
 import com.example.messenger.modals.setLocalDataForUser
@@ -279,7 +278,7 @@ fun getContactsFromSmartphone() {
 }
 
 fun updateContactsForFirebase(contactList: MutableList<ContactModal>) {
-    var user: ContactModal
+    var newContact: ContactModal
     REF_DATABASE_ROOT.child(NODE_PHONES)
         .addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -330,9 +329,9 @@ fun updateContactsForFirebase(contactList: MutableList<ContactModal>) {
         }
 
         private fun changeListOfContacts(snapshot: DataSnapshot) {
-            user = snapshot.getValue(ContactModal::class.java) ?: ContactModal()
+            newContact = snapshot.getValue(ContactModal::class.java) ?: ContactModal()
             contactsListUSER.forEach { contact ->
-                if (user.id == contact) mapContacts[user.id] = user
+                if (newContact.id == contact) mapContacts[newContact.id] = newContact
             }
         }
 
@@ -346,27 +345,32 @@ fun sendMessage(
     key: String,
     function: () -> Unit
 ) {
-    val refDialogUser = "$NODE_MESSAGES/$UID/$receivingUserID"
-    val refDialogReceivingUser = "$NODE_MESSAGES/$receivingUserID/$UID"
-    var messageKey = ""
+    try {
+        val refDialogUser = "$NODE_MESSAGES/$UID/$receivingUserID"
+        val refDialogReceivingUser = "$NODE_MESSAGES/$receivingUserID/$UID"
+        var messageKey = ""
 
-    messageKey = key.ifEmpty { REF_DATABASE_ROOT.child(refDialogUser).push().key.toString() }
+        messageKey = key.ifEmpty { REF_DATABASE_ROOT.child(refDialogUser).push().key.toString() }
 
-    val mapMessage = hashMapOf<String, Any>()
-    mapMessage[CHILD_ID] = messageKey
-    mapMessage[CHILD_FROM] = UID
-    mapMessage[CHILD_INFO] = info
-    mapMessage[CHILD_TYPE] = typeMessage
-    mapMessage[CHILD_TIME_STAMP] = ServerValue.TIMESTAMP
+        val mapMessage = hashMapOf<String, Any>()
+        mapMessage[CHILD_ID] = messageKey
+        mapMessage[CHILD_FROM] = UID
+        mapMessage[CHILD_INFO] = info
+        mapMessage[CHILD_TYPE] = typeMessage
+        mapMessage[CHILD_TIME_STAMP] = ServerValue.TIMESTAMP
 
-    val mapDialog = hashMapOf<String, Any>()
-    mapDialog["$refDialogUser/$messageKey"] = mapMessage
-    mapDialog["$refDialogReceivingUser/$messageKey"] = mapMessage
+        val mapDialog = hashMapOf<String, Any>()
+        mapDialog["$refDialogUser/$messageKey"] = mapMessage
+        mapDialog["$refDialogReceivingUser/$messageKey"] = mapMessage
 
-    REF_DATABASE_ROOT
-        .updateChildren(mapDialog)
-        .addOnSuccessListener { function() }
-        .addOnFailureListener { makeToast(it.message.toString(), mainActivityContext) }
+        REF_DATABASE_ROOT
+            .updateChildren(mapDialog)
+            .addOnSuccessListener { function() }
+            .addOnFailureListener { makeToast(it.message.toString(), mainActivityContext) }
+    } catch (e: Exception) {
+        makeToast(e.message.toString() + " отправка багует", mainActivityContext)
+    }
+
 }
 
 fun getMessageKey(receivingUserID: String) = REF_DATABASE_ROOT.child(NODE_MESSAGES)
@@ -379,6 +383,7 @@ fun uploadFileToStorage(
     receivingUserID: String,
     typeMessage: String
 ) {
+
     CoroutineScope(Dispatchers.IO).launch {
         filesToUpload.forEach { (messageKey, fileUri) ->
             val tempUri = REF_STORAGE_ROOT.child(FOLDER_MESSAGE_FILE).child(messageKey)

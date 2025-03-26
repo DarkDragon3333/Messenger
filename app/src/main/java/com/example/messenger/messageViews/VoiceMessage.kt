@@ -1,6 +1,7 @@
-package com.example.messenger.messageView
+package com.example.messenger.messageViews
 
 import android.net.Uri
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -122,15 +123,21 @@ fun VoiceMsg(
 
 }
 
-private fun stop(
-    appVoicePlayer: AppVoicePlayer,
-    clickOnButton: MutableIntState,
-    function: () -> Unit
+fun startRecord(
+    changeColor: MutableState<Color>,
+    receivingUserID: String,
+    recordVoiceFlag: MutableState<Boolean>
 ) {
-    appVoicePlayer.stopPlaying {
-        clickOnButton.intValue = 0
-        function()
+    try {
+        changeColor.value = Color.Blue
+        val messageKey =
+            getMessageKey(receivingUserID)
+        appVoiceRecorder.startRecording(messageKey)
+        recordVoiceFlag.value = true
+    } catch (e: Exception) {
+        makeToast(e.message.toString() + " ошибка записи", mainActivityContext)
     }
+
 }
 
 private fun play(
@@ -143,32 +150,43 @@ private fun play(
     }
 }
 
+private fun stop(
+    appVoicePlayer: AppVoicePlayer,
+    clickOnButton: MutableIntState,
+    function: () -> Unit
+) {
+    appVoicePlayer.stopPlaying {
+        clickOnButton.intValue = 0
+        function()
+    }
+}
+
 fun stopRecord(
     receivingUserID: String,
     changeColor: MutableState<Color>,
     recordVoiceFlag: MutableState<Boolean>
 ) {
-    appVoiceRecorder.stopRecording { file, messageKey ->
-        val list =
-            listOf(messageKey to Uri.fromFile(file))
-        uploadFileToStorage(
-            list,
-            receivingUserID,
-            TYPE_VOICE
-        )
+    try {
+        appVoiceRecorder.stopRecording { file, messageKey ->
+            if(file.exists() && file.length() > 0 && file.isFile && messageKey.isNotEmpty()) {
+                val list = listOf(messageKey to Uri.fromFile(file))
+                changeColor.value = Color.Red
+                recordVoiceFlag.value = false
+                uploadFileToStorage(
+                    list,
+                    receivingUserID,
+                    TYPE_VOICE
+                )
+            }
+            else file.delete()
+            changeColor.value = Color.Red
+            recordVoiceFlag.value = false
+        }
+    } catch (e: Exception) {
+        makeToast(e.message.toString() + " ошибка остановки", mainActivityContext)
+        changeColor.value = Color.Red
+        recordVoiceFlag.value = false
     }
-    changeColor.value = Color.Red
-    recordVoiceFlag.value = false
+
 }
 
-fun startRecord(
-    changeColor: MutableState<Color>,
-    receivingUserID: String,
-    recordVoiceFlag: MutableState<Boolean>
-) {
-    changeColor.value = Color.Blue
-    val messageKey =
-        getMessageKey(receivingUserID)
-    appVoiceRecorder.startRecording(messageKey)
-    recordVoiceFlag.value = true
-}

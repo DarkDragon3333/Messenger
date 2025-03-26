@@ -6,9 +6,8 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.gestures.waitForUpOrCancellation
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -30,6 +29,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -39,7 +39,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -51,9 +50,8 @@ import com.example.messenger.dataBase.UID
 import com.example.messenger.dataBase.getMessageKey
 import com.example.messenger.dataBase.uploadFileToStorage
 import com.example.messenger.dataBase.valueEventListenerClasses.AppValueEventListener
-import com.example.messenger.messageView.sendText
-import com.example.messenger.messageView.startRecord
-import com.example.messenger.messageView.stopRecord
+import com.example.messenger.messageViews.startRecord
+import com.example.messenger.messageViews.stopRecord
 import com.example.messenger.modals.MessageModal
 import com.example.messenger.utilsFilies.AppVoiceRecorder
 import com.example.messenger.utilsFilies.RECORD_AUDIO
@@ -94,6 +92,9 @@ fun ChatScreen(
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
 
+    val interactionSource = remember { MutableInteractionSource() } //Кнопка голосового сообщения
+    val voiceButtonIsPressed by interactionSource.collectIsPressedAsState()
+
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickMultipleVisualMedia(5)
     ) { uri: List<@JvmSuppressWildcards Uri> ->
@@ -105,13 +106,10 @@ fun ChatScreen(
             messageKey to item
         }
 
-        //Переделка метода отправки сообщений. В теории, должно быть более оптимизированно
+        //Переделка метода отправки сообщений
         uploadFileToStorage(filesToUpload, receivingUserID, TYPE_IMAGE)
 
     }
-
-    appVoiceRecorder = AppVoiceRecorder()
-
 
     fun attachFile() {
         launcher.launch(
@@ -196,90 +194,156 @@ fun ChatScreen(
                 value = text,
                 onValueChange = { text = it },
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .requiredHeight(65.dp),
+                    .requiredHeight(65.dp)
+                    .weight(1f),
                 placeholder = { Text(text = "Введите сообщение") },
                 trailingIcon = {
                     Row {
                         AttachFileButton()
+                    }
+                },
+            )
 
-                        Box(
-                            modifier = Modifier
-                                .size(50.dp, 65.dp)
-                                .background(changeColor.value)
-                                .pointerInput(Unit) {
-                                    awaitPointerEventScope {
-                                        while (true) {
-                                            val upOrCancel = waitForUpOrCancellation() //Реагирую на то, что пользователь убрал палец с кнопки
-                                            if (upOrCancel == null) {
-                                                if (recordVoiceFlag.value) {
-                                                    stopRecord(
-                                                        receivingUserID,
-                                                        changeColor,
-                                                        recordVoiceFlag
-                                                    )
-                                                }
+                IconButton(
+                    interactionSource = interactionSource,
+                    modifier = Modifier.size(50.dp, 65.dp).requiredHeight(65.dp),
+                    onClick = { }
+                ) {
 
-                                            }
-                                        }
-                                    }
-                                }
-                                .pointerInput(Unit) {
-                                    detectTapGestures(
-                                        onLongPress = {
-                                            when (text.trim().isEmpty()) {
-                                                true -> {
-                                                    if (myCheckPermission(RECORD_AUDIO)) {
-                                                        startRecord(
-                                                            changeColor,
-                                                            receivingUserID,
-                                                            recordVoiceFlag
-                                                        )
-                                                    }
-                                                }
+                    Column(verticalArrangement = Arrangement.Center) {
+                        when (text.isEmpty()) {
+                            true -> {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.ic_microphone),
+                                    contentDescription = ""
+                                )
+                            }
 
-                                                false -> {
-                                                    sendText(text, receivingUserID)
-                                                    text = ""
-                                                }
-                                            }
-                                        },
-                                        onTap = {
-                                            if (text.trim().isNotEmpty()) {
-                                                sendText(text, receivingUserID)
-                                                text = ""
-                                            }
-                                        },
+                            false -> {
+                                Icon(
+                                    Icons.AutoMirrored.Filled.Send,
+                                    contentDescription = ""
+                                )
+                            }
+                        }
+
+                        if (voiceButtonIsPressed && text.isEmpty() && myCheckPermission(RECORD_AUDIO)) {
+                            startRecord(
+                                changeColor,
+                                receivingUserID,
+                                recordVoiceFlag
+                            )
+                            DisposableEffect(Unit) {
+                                onDispose {
+                                    stopRecord(
+                                        receivingUserID,
+                                        changeColor,
+                                        recordVoiceFlag
                                     )
-                                }
 
-                        ) {
-                            when (text.isEmpty()) {
-                                true -> {
-                                    Icon(
-                                        painter = painterResource(id = R.drawable.ic_microphone),
-                                        contentDescription = "",
-                                        modifier = Modifier.align(Alignment.Center)
-                                    )
-                                }
-
-                                false -> {
-                                    Icon(
-                                        Icons.AutoMirrored.Filled.Send,
-                                        contentDescription = "",
-                                        modifier = Modifier.align(Alignment.Center)
-                                    )
                                 }
                             }
                         }
                     }
-                },
-            )
+                }
+
+
+
+//            Box(
+//                modifier = Modifier
+//                    .size(50.dp, 65.dp)
+//                    .background(changeColor.value)
+////                    .pointerInput(Unit) {
+////                        awaitPointerEventScope {
+////                            val upOrCancel = waitForUpOrCancellation() //Реагирую на то, что пользователь убрал палец с кнопки
+////                            if (upOrCancel != null) {
+////                                if (recordVoiceFlag.value) {
+////                                    stopRecord(
+////                                        receivingUserID,
+////                                        changeColor,
+////                                        recordVoiceFlag
+////                                    )
+////                                }
+////                            }
+////
+////                        }
+////                    }
+//                    .pointerInput(Unit) {
+//                        detectTapGestures(
+////                            onLongPress = {
+////                                when (text.trim().isEmpty()) {
+////                                    true -> {
+////                                        if (myCheckPermission(RECORD_AUDIO)) {
+////                                            startRecord(
+////                                                changeColor,
+////                                                receivingUserID,
+////                                                recordVoiceFlag
+////                                            )
+////                                        }
+////                                    }
+////
+////                                    false -> {
+////                                        sendText(text, receivingUserID)
+////                                        text = ""
+////                                    }
+////                                }
+////                            },
+//
+//                            onPress = {
+//                                when (text.trim().isEmpty()) {
+//                                    true -> {
+//                                        if (myCheckPermission(RECORD_AUDIO)) {
+//                                            startRecord(changeColor, receivingUserID, recordVoiceFlag)
+//                                        }
+//                                    }
+//                                    false -> {
+//                                        sendText(text, receivingUserID)
+//                                        text = ""
+//                                    }
+//                                }
+//                                tryAwaitRelease() // Ожидание отпускания перед началом действий
+//
+//
+//
+//                                if (recordVoiceFlag.value) {
+//                                    stopRecord(receivingUserID, changeColor, recordVoiceFlag)
+//                                }
+//                            },
+//
+//                            onTap = {
+//                                if (text.trim().isNotEmpty()) {
+//                                    sendText(text, receivingUserID)
+//                                    text = ""
+//                                }
+//                            },
+//                        )
+//                    }
+//
+//
+//            ) {
+//                when (text.isEmpty()) {
+//                    true -> {
+//                        Icon(
+//                            painter = painterResource(id = R.drawable.ic_microphone),
+//                            contentDescription = "",
+//                            modifier = Modifier.align(Alignment.Center)
+//                        )
+//                    }
+//
+//                    false -> {
+//                        Icon(
+//                            Icons.AutoMirrored.Filled.Send,
+//                            contentDescription = "",
+//                            modifier = Modifier.align(Alignment.Center)
+//                        )
+//                    }
+//                }
+//            }
         }
 
     }
-    navController.addOnDestinationChangedListener { _, destination, _ ->
-        if (destination.route != "chatScreen/{fullname}/{status}/{photoURL}/{id}") {
+    DisposableEffect(Unit) {
+        onDispose {
             refToMessages.removeEventListener(MessagesListener)
             appVoiceRecorder.releaseRecordedVoice()
         }

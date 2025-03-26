@@ -1,4 +1,4 @@
-package com.example.messenger.messageView
+package com.example.messenger.messageViews
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement

@@ -15,7 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.example.messenger.messageView.MessageViewFactory
+import com.example.messenger.messageViews.MessageViewFactory
 import com.example.messenger.dataBase.UID
 import com.example.messenger.modals.MessageModal
 

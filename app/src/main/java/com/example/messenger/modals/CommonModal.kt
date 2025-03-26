@@ -1,5 +1,6 @@
 package com.example.messenger.modals
 
+//Общая модель с большинством полей
 data class CommonModal (
     var id: String = " ",
     var username: String = " ",
