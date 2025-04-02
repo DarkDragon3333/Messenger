@@ -47,7 +47,6 @@ fun Message(messageModal: MessageModal) {
 fun OutlinedCardMessage(
     messageModal: MessageModal,
     arrangement: Arrangement.Horizontal,
-
 ) {
     Row(
         modifier = Modifier
@@ -61,8 +60,7 @@ fun OutlinedCardMessage(
             border = BorderStroke(1.5.dp, Color.Black),
         )
         {
-            val messageViewFactory = MessageViewFactory()
-            messageViewFactory.CreateMessageView(messageModal)
+            MessageViewFactory().apply { CreateMessageView(messageModal) }
         }
     }
 }

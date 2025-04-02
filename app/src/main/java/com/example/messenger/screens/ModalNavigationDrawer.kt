@@ -137,43 +137,45 @@ fun NavDrawer() {
             topBar = {
                 TopAppBar(
                     title = {
-                        if (flagNavButtonOnChatScreen == 1) {
-                            var fullname = " "
-                            var statusUSER = " "
-                            var photoURL = " "
-                            //var id = " "
-                            navController.addOnDestinationChangedListener { _, destination, bundle ->
-                                if ((bundle != null) && (destination.route == "chatScreen/{fullname}/{status}/{photoURL}/{id}")) {
-                                    fullname = URLDecoder.decode(
-                                        bundle.getString("fullname").toString(),
-                                        "UTF-8"
-                                    )
-                                    statusUSER = URLDecoder.decode(
-                                        bundle.getString("status").toString(),
-                                        "UTF-8"
-                                    )
-                                    photoURL = bundle.getString("photoURL").toString()
-                                    //id = URLDecoder.decode(bundle.getString("id").toString(), "UTF-8")
+                        when(flagNavButtonOnChatScreen == 1){
+                            true -> {
+                                var fullname = " "
+                                var statusUSER = " "
+                                var photoURL = " "
+                                //var id = " "
+                                navController.addOnDestinationChangedListener { _, destination, bundle ->
+                                    if ((bundle != null) && (destination.route == "chatScreen/{fullname}/{status}/{photoURL}/{id}")) {
+                                        fullname = URLDecoder.decode(
+                                            bundle.getString("fullname").toString(),
+                                            "UTF-8"
+                                        )
+                                        statusUSER = URLDecoder.decode(
+                                            bundle.getString("status").toString(),
+                                            "UTF-8"
+                                        )
+                                        photoURL = bundle.getString("photoURL").toString()
+                                        //id = URLDecoder.decode(bundle.getString("id").toString(), "UTF-8")
+                                    }
+                                }
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    UriImage(dp = 32.dp, photoURL) {}
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Column {
+                                        Text(text = fullname, fontSize = 16.sp)
+                                        Text(text = statusUSER, fontSize = 14.sp)
+                                    }
                                 }
                             }
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                UriImage(dp = 32.dp, photoURL) {}
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Column {
-                                    Text(text = fullname, fontSize = 16.sp)
-                                    Text(text = statusUSER, fontSize = 14.sp)
-                                }
+                            false -> {
+                                Text(
+                                    text = currentRoute
+                                        .toString()
+                                        .replaceFirstChar { it.uppercase() })
                             }
-                        } else {
-                            Text(
-                                text = currentRoute
-                                    .toString()
-                                    .replaceFirstChar { it.uppercase() })
                         }
-
                     },
                     modifier = Modifier.fillMaxWidth(),
                     colors = TopAppBarDefaults.topAppBarColors(
@@ -192,12 +194,15 @@ fun NavDrawer() {
                         navController.addOnDestinationChangedListener { _, destination, _ ->
                             checkButtonOnChatsScreen(destination)
                         }
-                        if (flagNavButtonOnChatsScreen == 1) {
-                            NavIconButton(coroutineScope, drawerState)
-                        } else {
-                            NavIconButton(coroutineScope, navController)
-                        }
+                        when (flagNavButtonOnChatsScreen == 1) {
+                            true -> {
+                                NavIconButton(coroutineScope, drawerState)
+                            }
 
+                            false -> {
+                                NavIconButton(coroutineScope, navController)
+                            }
+                        }
                     },
                 )
             }

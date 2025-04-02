@@ -1,7 +1,6 @@
 package com.example.messenger.messageViews
 
 import androidx.compose.runtime.Composable
-import androidx.navigation.NavHostController
 import com.example.messenger.dataBase.TYPE_IMAGE
 import com.example.messenger.dataBase.TYPE_TEXT
 import com.example.messenger.dataBase.TYPE_VOICE
@@ -12,30 +11,28 @@ import java.util.Locale
 
 class MessageViewFactory {
     @Composable
-    fun CreateMessageView(messageModal: MessageModal){
-        val pair = initMessage(messageModal)
-        val timeStamp = pair.second.toString()
+    fun CreateMessageView(messageFromDB: MessageModal){
+        val message = initMessage(messageFromDB)
 
-         when (messageModal.type) {
-            TYPE_TEXT -> TextMsg(pair)
+         when (messageFromDB.type) {
+            TYPE_TEXT -> TextMsg(message)
 
-            TYPE_IMAGE -> ImageMsg(messageModal, timeStamp)
+            TYPE_IMAGE -> ImageMsg(message)
 
-            TYPE_VOICE -> VoiceMsg(messageModal, timeStamp)
+            TYPE_VOICE -> VoiceMsg(message)
 
-            else -> TextMsg(pair)
+            else -> TextMsg(message)
         }
     }
 }
 
-@Composable
-fun initMessage(messageModal: MessageModal): Pair<String, Any> {
-    val message = messageModal.info
-    var timeStamp = messageModal.timeStamp
-    if (timeStamp != "" && timeStamp != " ") {
-        timeStamp = messageModal.timeStamp.toString().asTimestamp()
-    }
-    return Pair(message, timeStamp)
+
+fun initMessage(messageModal: MessageModal): Pair<MessageModal, Any> {
+    return if (messageModal.timeStamp.toString().trim().isNotEmpty())
+        Pair(messageModal, messageModal.timeStamp.toString().asTimestamp())
+    else
+        Pair(messageModal, "Error")
+
 }
 
 fun String.asTimestamp(): String {

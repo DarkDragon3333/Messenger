@@ -1,10 +1,8 @@
 package com.example.messenger.messageViews
 
 import android.net.Uri
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
@@ -16,7 +14,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.MutableIntState
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableIntStateOf
@@ -28,7 +25,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavHostController
 import com.example.messenger.R
 import com.example.messenger.dataBase.TYPE_VOICE
 import com.example.messenger.dataBase.getMessageKey
@@ -42,8 +38,7 @@ import com.example.messenger.utilsFilies.makeToast
 
 @Composable
 fun VoiceMsg(
-    messageModal: MessageModal,
-    timeStamp: String,
+    pair: Pair<MessageModal, Any>
 ) {
     val clickOnButton = remember { mutableIntStateOf(0) }
     var appVoicePlayer: AppVoicePlayer
@@ -62,42 +57,13 @@ fun VoiceMsg(
                     .border(1.dp, Color.Black, CircleShape)
                     .background(Color.White),
                 onClick = {
-                    makeToast("Идёт запись", mainActivityContext)
+                    //makeToast("Идёт запись", mainActivityContext)
                     clickOnButton.intValue += 1
-                    //Решена проьлема инициализации множества объектов класса MediaPlayer
-                    appVoicePlayer = AppVoicePlayer()
-                    appVoicePlayer.initMediaPlayer()
-
-                    when (clickOnButton.intValue) {
-                        0 -> {}
-                        1 -> {
-
-                            play(appVoicePlayer, messageModal) {
-                                clickOnButton.intValue = 0
-                                appVoicePlayer.releaseMediaPlayer()
-                            }
-
-                        }
-
-                        2 -> {
-                            stop(appVoicePlayer, clickOnButton) {
-                                clickOnButton.intValue = 0
-                                appVoicePlayer.releaseMediaPlayer()
-                            }
-                        }
-                    }
+                    appVoicePlayer = AppVoicePlayer().apply { initMediaPlayer() }
+                    controlVoiceButton(clickOnButton, appVoicePlayer, pair)
                 }
             ) {
-                when (clickOnButton.intValue) {
-                    0 -> Icon(Icons.Default.PlayArrow, contentDescription = "")
-                    1 ->
-                        Icon(
-                            painter = painterResource(id = R.drawable.sharp_autopause_24),
-                            contentDescription = ""
-                        )
-
-                    2 -> Icon(Icons.Default.PlayArrow, contentDescription = "")
-                }
+                ControlIconOfPlayButton(clickOnButton)
             }
 
             Text(
@@ -108,20 +74,61 @@ fun VoiceMsg(
             )
 
         }
-        Row(
-            horizontalArrangement = Arrangement.End,
+
+        Text(
+            text = pair.second.toString(),
+            fontSize = 10.sp,
             modifier = Modifier
                 .background(textMes)
-        ) {
-            Text(
-                text = timeStamp,
-                fontSize = 10.sp,
-                modifier = Modifier
-                    .padding(end = 6.dp, bottom = 2.dp)
-            )
-        }
+                .padding(end = 6.dp, bottom = 2.dp)
+                .align(Alignment.BottomEnd)
+        )
     }
 
+}
+
+@Composable
+private fun ControlIconOfPlayButton(clickOnButton: MutableIntState) {
+    when (clickOnButton.intValue) {
+        1 ->
+            Icon(
+                painter = painterResource(id = R.drawable.sharp_autopause_24),
+                contentDescription = null
+            )
+
+        else ->
+            Icon(imageVector = Icons.Default.PlayArrow, contentDescription = null)
+    }
+}
+
+
+private fun controlVoiceButton(
+    clickOnButton: MutableIntState,
+    appVoicePlayer: AppVoicePlayer,
+    pair: Pair<MessageModal, Any>
+) {
+    when (clickOnButton.intValue) {
+        1 -> {
+            play(appVoicePlayer, pair.first) {
+                release(clickOnButton, appVoicePlayer)
+            }
+        }
+
+        2 -> {
+            stop(appVoicePlayer, clickOnButton) {
+                release(clickOnButton, appVoicePlayer)
+            }
+        }
+    }
+}
+
+
+private fun release(
+    clickOnButton: MutableIntState,
+    appVoicePlayer: AppVoicePlayer
+) {
+    clickOnButton.intValue = 0
+    appVoicePlayer.releaseMediaPlayer()
 }
 
 fun startRecord(
@@ -131,8 +138,7 @@ fun startRecord(
 ) {
     try {
         changeColor.value = Color.Blue
-        val messageKey =
-            getMessageKey(receivingUserID)
+        val messageKey = getMessageKey(receivingUserID)
         appVoiceRecorder.startRecording(messageKey)
         recordVoiceFlag.value = true
     } catch (e: Exception) {

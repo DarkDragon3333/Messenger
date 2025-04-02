@@ -13,13 +13,12 @@ import com.example.messenger.utilsFilies.MessageImage
 
 @Composable
 fun ImageMsg(
-    messageModal: MessageModal,
-    timeStamp: String
+    pair: Pair<MessageModal, Any>
 ) {
     Box {
-        MessageImage(uri = messageModal.info)
+        MessageImage(uri = pair.first.info)
         Text(
-            text = timeStamp,
+            text = pair.second.toString(),
             fontSize = 10.sp,
             modifier = Modifier
                 .align(Alignment.BottomEnd)
