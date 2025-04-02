@@ -16,6 +16,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.MutableIntState
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableIntStateOf
@@ -43,11 +44,10 @@ import com.example.messenger.utilsFilies.makeToast
 fun VoiceMsg(
     messageModal: MessageModal,
     timeStamp: String,
-    navController: NavHostController
 ) {
     val clickOnButton = remember { mutableIntStateOf(0) }
-    val appVoicePlayer = AppVoicePlayer()
-    appVoicePlayer.initMediaPlayer()
+    var appVoicePlayer: AppVoicePlayer
+
     Box(contentAlignment = Alignment.BottomEnd) {
         Row(
             modifier = Modifier
@@ -64,12 +64,17 @@ fun VoiceMsg(
                 onClick = {
                     makeToast("Идёт запись", mainActivityContext)
                     clickOnButton.intValue += 1
+                    //Решена проьлема инициализации множества объектов класса MediaPlayer
+                    appVoicePlayer = AppVoicePlayer()
+                    appVoicePlayer.initMediaPlayer()
 
                     when (clickOnButton.intValue) {
                         0 -> {}
                         1 -> {
+
                             play(appVoicePlayer, messageModal) {
                                 clickOnButton.intValue = 0
+                                appVoicePlayer.releaseMediaPlayer()
                             }
 
                         }
@@ -77,6 +82,7 @@ fun VoiceMsg(
                         2 -> {
                             stop(appVoicePlayer, clickOnButton) {
                                 clickOnButton.intValue = 0
+                                appVoicePlayer.releaseMediaPlayer()
                             }
                         }
                     }
@@ -113,11 +119,6 @@ fun VoiceMsg(
                 modifier = Modifier
                     .padding(end = 6.dp, bottom = 2.dp)
             )
-        }
-    }
-    navController.addOnDestinationChangedListener { _, destination, _ ->
-        if (destination.route != "chatScreen/{fullname}/{status}/{photoURL}/{id}") {
-            appVoicePlayer.releaseMediaPlayer()
         }
     }
 
@@ -168,7 +169,7 @@ fun stopRecord(
 ) {
     try {
         appVoiceRecorder.stopRecording { file, messageKey ->
-            if(file.exists() && file.length() > 0 && file.isFile && messageKey.isNotEmpty()) {
+            if (file.exists() && file.length() > 0 && file.isFile && messageKey.isNotEmpty()) {
                 val list = listOf(messageKey to Uri.fromFile(file))
                 changeColor.value = Color.Red
                 recordVoiceFlag.value = false
@@ -177,8 +178,7 @@ fun stopRecord(
                     receivingUserID,
                     TYPE_VOICE
                 )
-            }
-            else file.delete()
+            } else file.delete()
             changeColor.value = Color.Red
             recordVoiceFlag.value = false
         }

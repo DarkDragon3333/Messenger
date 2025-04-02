@@ -48,7 +48,7 @@ class MainActivity : ComponentActivity() {
 
     private fun init() {
         mainActivityContext = this
-        appVoiceRecorder = AppVoiceRecorder()
+
         startLocationPermissionRequest()
     }
 
@@ -87,7 +87,7 @@ class MainActivity : ComponentActivity() {
     }
 
     override fun onDestroy() {
-        appVoiceRecorder.releaseRecordedVoice()
+
         super.onDestroy()
     }
 }

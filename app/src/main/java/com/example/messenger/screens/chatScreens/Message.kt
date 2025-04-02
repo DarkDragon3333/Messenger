@@ -20,13 +20,13 @@ import com.example.messenger.dataBase.UID
 import com.example.messenger.modals.MessageModal
 
 @Composable
-fun Message(messageModal: MessageModal, navController: NavHostController) {
+fun Message(messageModal: MessageModal) {
     Row(modifier = Modifier.fillMaxSize()) {
         if (messageModal.from != UID) {
             Row(horizontalArrangement = Arrangement.Start)
             {
                 Spacer(modifier = Modifier.width(10.dp))
-                OutlinedCardMessage(messageModal, Arrangement.Start, navController)
+                OutlinedCardMessage(messageModal, Arrangement.Start)
             }
         } else {
             Row(
@@ -34,7 +34,7 @@ fun Message(messageModal: MessageModal, navController: NavHostController) {
                 modifier = Modifier.fillMaxWidth()
             )
             {
-                OutlinedCardMessage(messageModal, Arrangement.End, navController)
+                OutlinedCardMessage(messageModal, Arrangement.End)
                 Spacer(modifier = Modifier.width(10.dp))
             }
         }
@@ -47,7 +47,7 @@ fun Message(messageModal: MessageModal, navController: NavHostController) {
 fun OutlinedCardMessage(
     messageModal: MessageModal,
     arrangement: Arrangement.Horizontal,
-    navController: NavHostController
+
 ) {
     Row(
         modifier = Modifier
@@ -62,7 +62,7 @@ fun OutlinedCardMessage(
         )
         {
             val messageViewFactory = MessageViewFactory()
-            messageViewFactory.CreateMessageView(messageModal, navController)
+            messageViewFactory.CreateMessageView(messageModal)
         }
     }
 }

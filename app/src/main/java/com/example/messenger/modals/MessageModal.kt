@@ -1,5 +1,8 @@
 package com.example.messenger.modals
 
+import androidx.compose.runtime.Stable
+
+@Stable
 data class MessageModal (
     var from: String = " ",
     var id: String = " ",

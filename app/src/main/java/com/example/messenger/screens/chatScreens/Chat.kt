@@ -6,22 +6,26 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.interaction.collectIsPressedAsState
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.requiredHeight
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material3.Icon
@@ -30,15 +34,20 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.platform.LocalViewConfiguration
+import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -50,15 +59,16 @@ import com.example.messenger.dataBase.UID
 import com.example.messenger.dataBase.getMessageKey
 import com.example.messenger.dataBase.uploadFileToStorage
 import com.example.messenger.dataBase.valueEventListenerClasses.AppValueEventListener
+import com.example.messenger.messageViews.sendText
 import com.example.messenger.messageViews.startRecord
 import com.example.messenger.messageViews.stopRecord
 import com.example.messenger.modals.MessageModal
 import com.example.messenger.utilsFilies.AppVoiceRecorder
-import com.example.messenger.utilsFilies.RECORD_AUDIO
 import com.example.messenger.utilsFilies.getMessageModel
-import com.example.messenger.utilsFilies.myCheckPermission
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.storage.StorageReference
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.net.URLDecoder
 
@@ -87,13 +97,18 @@ fun ChatScreen(
 
     val recordVoiceFlag = remember { mutableStateOf(false) }
     val changeColor = remember { mutableStateOf(Color.Red) }
+
     val chatScreenState = remember { mutableStateListOf<MessageModal>() }
-    var text by remember { mutableStateOf("") }
+
+    var text = remember { mutableStateOf("") }
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
 
+
     val interactionSource = remember { MutableInteractionSource() } //Кнопка голосового сообщения
     val voiceButtonIsPressed by interactionSource.collectIsPressedAsState()
+
+    val viewConfiguration = LocalViewConfiguration.current
 
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickMultipleVisualMedia(5)
@@ -122,7 +137,7 @@ fun ChatScreen(
     @Composable
     fun AttachFileButton() {
         IconButton(
-            modifier = Modifier.size(50.dp, 65.dp),
+            modifier = Modifier,
             onClick = { attachFile() }
         ) {
             Column {
@@ -139,9 +154,8 @@ fun ChatScreen(
         refToMessages = REF_DATABASE_ROOT.child(NODE_MESSAGES).child(UID).child(id)
         MessagesListener = AppValueEventListener { dataSnap ->
             val cacheMessages = dataSnap.children.map { it.getMessageModel() }.toMutableList()
-            //Проблема в том, что в casheMessanges у последего элемента почему-то другой timestamp
             when (chatScreenState.isNotEmpty()) {
-                true -> { //Исправлено
+                true -> {
                     if ((cacheMessages.size) != (chatScreenState.size)) {
                         chatScreenState.add(cacheMessages.last())
                         cacheMessages.clear()
@@ -163,189 +177,157 @@ fun ChatScreen(
 
     initChat(receivingUserID)
 
-    Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center) {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+    ) {
         Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxHeight(0.9f),
-            contentAlignment = Alignment.TopStart
+            modifier = Modifier.weight(1f)
         ) {
             if (chatScreenState.isNotEmpty()) {
                 LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier,
                     state = listState
                 ) {
-                    items(chatScreenState) { message -> //Более читабельый код
-                        Message(message, navController)
+                    items(
+                        chatScreenState,
+                        key = { chatScreenState -> chatScreenState.id }) { message -> //Более читабельый код
+                        Message(messageModal = message)
                         Spacer(modifier = Modifier.height(10.dp))
                     }
 
                     coroutineScope.launch() {
                         listState.animateScrollToItem(chatScreenState.lastIndex)
                     }
-
                 }
             }
         }
-        Spacer(modifier = Modifier.height(10.dp))
 
-        Row(modifier = Modifier.fillMaxSize()) {
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(IntrinsicSize.Min)
+                .background(Color.Gray),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             TextField(
-                value = text,
-                onValueChange = { text = it },
-                modifier = Modifier
-                    .requiredHeight(65.dp)
-                    .weight(1f),
+                value = text.value,
+                onValueChange = { text.value = it },
+                modifier = Modifier.weight(1f).fillMaxHeight().background(Color.Transparent),
                 placeholder = { Text(text = "Введите сообщение") },
+                shape = RectangleShape,
                 trailingIcon = {
-                    Row {
-                        AttachFileButton()
-                    }
+                    Row { AttachFileButton() }
                 },
             )
+            VoiceButton(
+                interactionSource,
+                fieldText = text,
+                voiceButtonIsPressed,
+                changeColor,
+                receivingUserID,
+                recordVoiceFlag,
+                viewConfiguration
+            ) {
+                text.value = ""
+            }
+        }
+    }
+}
 
-                IconButton(
-                    interactionSource = interactionSource,
-                    modifier = Modifier.size(50.dp, 65.dp).requiredHeight(65.dp),
-                    onClick = { }
-                ) {
+@Composable
+private fun VoiceButton(
+    interactionSource: MutableInteractionSource,
+    fieldText: MutableState<String>,
+    voiceButtonIsPressed: Boolean,
+    changeColor: MutableState<Color>,
+    receivingUserID: String,
+    recordVoiceFlag: MutableState<Boolean>,
+    viewConfiguration: ViewConfiguration,
+    cleanText: () -> Unit
+) {
 
-                    Column(verticalArrangement = Arrangement.Center) {
-                        when (text.isEmpty()) {
-                            true -> {
-                                Icon(
-                                    painter = painterResource(id = R.drawable.ic_microphone),
-                                    contentDescription = ""
-                                )
-                            }
+    IconButton(
+        interactionSource = interactionSource,
+        modifier = Modifier
+            .fillMaxHeight()
+            .background(Color.Transparent),
+        onClick = {
 
-                            false -> {
-                                Icon(
-                                    Icons.AutoMirrored.Filled.Send,
-                                    contentDescription = ""
-                                )
-                            }
-                        }
+        }
+    ) {
+        when (fieldText.value.isNotEmpty()) {
+            false -> {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_microphone),
+                    contentDescription = "",
+                )
+            }
 
-                        if (voiceButtonIsPressed && text.isEmpty() && myCheckPermission(RECORD_AUDIO)) {
-                            startRecord(
-                                changeColor,
+            true -> {
+                Icon(
+                    Icons.AutoMirrored.Filled.Send,
+                    contentDescription = ""
+                )
+            }
+        }
+
+        LaunchedEffect(interactionSource) {
+            var isLongClick = false
+
+            interactionSource.interactions.collectLatest { interaction ->
+                when (interaction) {
+                    is PressInteraction.Press -> {
+                        isLongClick = false
+                        delay(viewConfiguration.longPressTimeoutMillis)
+                        isLongClick = true
+                        startRecord(
+                            changeColor,
+                            receivingUserID,
+                            recordVoiceFlag
+                        )
+                    }
+
+                    is PressInteraction.Cancel -> {
+                        if (isLongClick) {
+                            stopRecord(
                                 receivingUserID,
+                                changeColor,
                                 recordVoiceFlag
                             )
-                            DisposableEffect(Unit) {
-                                onDispose {
-                                    stopRecord(
-                                        receivingUserID,
-                                        changeColor,
-                                        recordVoiceFlag
-                                    )
+                        }
+                    }
 
-                                }
+                    is PressInteraction.Release -> {
+                        if (isLongClick) {
+                            stopRecord(
+                                receivingUserID,
+                                changeColor,
+                                recordVoiceFlag
+                            )
+                        }
+
+                        if (isLongClick.not()) {
+                            if (fieldText.value.isNotEmpty()) {
+                                sendText(
+                                    fieldText.value,
+                                    receivingUserID
+                                )
+                                cleanText()
                             }
+
                         }
                     }
                 }
-
-
-
-//            Box(
-//                modifier = Modifier
-//                    .size(50.dp, 65.dp)
-//                    .background(changeColor.value)
-////                    .pointerInput(Unit) {
-////                        awaitPointerEventScope {
-////                            val upOrCancel = waitForUpOrCancellation() //Реагирую на то, что пользователь убрал палец с кнопки
-////                            if (upOrCancel != null) {
-////                                if (recordVoiceFlag.value) {
-////                                    stopRecord(
-////                                        receivingUserID,
-////                                        changeColor,
-////                                        recordVoiceFlag
-////                                    )
-////                                }
-////                            }
-////
-////                        }
-////                    }
-//                    .pointerInput(Unit) {
-//                        detectTapGestures(
-////                            onLongPress = {
-////                                when (text.trim().isEmpty()) {
-////                                    true -> {
-////                                        if (myCheckPermission(RECORD_AUDIO)) {
-////                                            startRecord(
-////                                                changeColor,
-////                                                receivingUserID,
-////                                                recordVoiceFlag
-////                                            )
-////                                        }
-////                                    }
-////
-////                                    false -> {
-////                                        sendText(text, receivingUserID)
-////                                        text = ""
-////                                    }
-////                                }
-////                            },
-//
-//                            onPress = {
-//                                when (text.trim().isEmpty()) {
-//                                    true -> {
-//                                        if (myCheckPermission(RECORD_AUDIO)) {
-//                                            startRecord(changeColor, receivingUserID, recordVoiceFlag)
-//                                        }
-//                                    }
-//                                    false -> {
-//                                        sendText(text, receivingUserID)
-//                                        text = ""
-//                                    }
-//                                }
-//                                tryAwaitRelease() // Ожидание отпускания перед началом действий
-//
-//
-//
-//                                if (recordVoiceFlag.value) {
-//                                    stopRecord(receivingUserID, changeColor, recordVoiceFlag)
-//                                }
-//                            },
-//
-//                            onTap = {
-//                                if (text.trim().isNotEmpty()) {
-//                                    sendText(text, receivingUserID)
-//                                    text = ""
-//                                }
-//                            },
-//                        )
-//                    }
-//
-//
-//            ) {
-//                when (text.isEmpty()) {
-//                    true -> {
-//                        Icon(
-//                            painter = painterResource(id = R.drawable.ic_microphone),
-//                            contentDescription = "",
-//                            modifier = Modifier.align(Alignment.Center)
-//                        )
-//                    }
-//
-//                    false -> {
-//                        Icon(
-//                            Icons.AutoMirrored.Filled.Send,
-//                            contentDescription = "",
-//                            modifier = Modifier.align(Alignment.Center)
-//                        )
-//                    }
-//                }
-//            }
+            }
         }
 
-    }
-    DisposableEffect(Unit) {
-        onDispose {
-            refToMessages.removeEventListener(MessagesListener)
-            appVoiceRecorder.releaseRecordedVoice()
+        DisposableEffect(Unit) {
+            appVoiceRecorder = AppVoiceRecorder()
+            onDispose {
+                refToMessages.removeEventListener(MessagesListener)
+                appVoiceRecorder.releaseRecordedVoice()
+            }
         }
     }
 }

@@ -12,7 +12,7 @@ import java.util.Locale
 
 class MessageViewFactory {
     @Composable
-    fun CreateMessageView(messageModal: MessageModal, navController: NavHostController){
+    fun CreateMessageView(messageModal: MessageModal){
         val pair = initMessage(messageModal)
         val timeStamp = pair.second.toString()
 
@@ -21,7 +21,7 @@ class MessageViewFactory {
 
             TYPE_IMAGE -> ImageMsg(messageModal, timeStamp)
 
-            TYPE_VOICE -> VoiceMsg(messageModal, timeStamp, navController)
+            TYPE_VOICE -> VoiceMsg(messageModal, timeStamp)
 
             else -> TextMsg(pair)
         }
