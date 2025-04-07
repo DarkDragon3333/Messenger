@@ -2,6 +2,7 @@ package com.example.messenger.screens.chatScreens
 
 import android.annotation.SuppressLint
 import android.net.Uri
+import android.util.Log
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -47,9 +48,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.messenger.R
-import com.example.messenger.dataBase.NODE_MESSAGES
 import com.example.messenger.dataBase.REF_DATABASE_ROOT
-import com.example.messenger.dataBase.TYPE_IMAGE
 import com.example.messenger.dataBase.UID
 import com.example.messenger.dataBase.getMessageKey
 import com.example.messenger.dataBase.uploadFileToStorage
@@ -59,8 +58,13 @@ import com.example.messenger.messageViews.startRecord
 import com.example.messenger.messageViews.stopRecord
 import com.example.messenger.modals.MessageModal
 import com.example.messenger.utilsFilies.AppVoiceRecorder
+import com.example.messenger.utilsFilies.Constants.NODE_MESSAGES
+import com.example.messenger.utilsFilies.Constants.TYPE_IMAGE
 import com.example.messenger.utilsFilies.getMessageModel
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.ValueEventListener
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -135,7 +139,7 @@ fun ChatScreen(
     }
 
     LaunchedEffect(chatScreenState.size) {
-        initChat(receivingUserID, chatScreenState)
+        updateChat(receivingUserID, chatScreenState)
         if (chatScreenState.size > 0) {
             coroutineScope.launch {
                 listState.animateScrollToItem(chatScreenState.lastIndex)
@@ -144,8 +148,13 @@ fun ChatScreen(
     }
 
     DisposableEffect(Unit) {
+        refToMessages = REF_DATABASE_ROOT.child(NODE_MESSAGES).child(UID).child(receivingUserID)
+        initChat(chatScreenState)
         onDispose {
-            chatScreenState.clear()
+            if (::MessagesListener.isInitialized){
+                refToMessages.removeEventListener(MessagesListener)
+                chatScreenState.clear()
+            }
         }
     }
 }
@@ -336,8 +345,8 @@ fun attachFile(launcher: ManagedActivityResultLauncher<PickVisualMediaRequest, L
     )
 }
 
-fun initChat(id: String, chatScreenState: SnapshotStateList<MessageModal>) {
-    refToMessages = REF_DATABASE_ROOT.child(NODE_MESSAGES).child(UID).child(id)
+//Разделение логики инициализации и обновления чата
+fun updateChat(id: String, chatScreenState: SnapshotStateList<MessageModal>) {
 
     if (::MessagesListener.isInitialized) {
         refToMessages.removeEventListener(MessagesListener)
@@ -347,18 +356,31 @@ fun initChat(id: String, chatScreenState: SnapshotStateList<MessageModal>) {
         val cacheMessages = dataSnap.children.map { it.getMessageModel() }.toMutableList()
         when (chatScreenState.isNotEmpty()) {
             true -> {
-                if ((cacheMessages.size) != (chatScreenState.size)) {
+                if ((cacheMessages.size) != (chatScreenState.size))
                     chatScreenState.add(cacheMessages.last())
-                    cacheMessages.clear()
-                }
             }
-
             false -> {
                 chatScreenState.addAll(cacheMessages)
-                cacheMessages.clear()
             }
         }
     }
 
     refToMessages.addValueEventListener(MessagesListener)
+
+}
+
+//Разделение логики инициализации и обновления чата
+fun initChat(chatScreenState: SnapshotStateList<MessageModal>){
+    refToMessages.addListenerForSingleValueEvent(object : ValueEventListener {
+        override fun onDataChange(dataSnapshot: DataSnapshot) {
+            val cacheMessages = dataSnapshot.children.map { it.getMessageModel() }.toMutableList()
+            chatScreenState.clear()
+            chatScreenState.addAll(cacheMessages)
+            Log.d("myFirebase", "Загружено сообщений: ${cacheMessages.size}")
+        }
+
+        override fun onCancelled(databaseError: DatabaseError) {
+            Log.e("myFirebase", "Ошибка: ${databaseError.message}")
+        }
+    })
 }

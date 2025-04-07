@@ -1,10 +1,10 @@
 package com.example.messenger.messageViews
 
 import androidx.compose.runtime.Composable
-import com.example.messenger.dataBase.TYPE_IMAGE
-import com.example.messenger.dataBase.TYPE_TEXT
-import com.example.messenger.dataBase.TYPE_VOICE
 import com.example.messenger.modals.MessageModal
+import com.example.messenger.utilsFilies.Constants.TYPE_IMAGE
+import com.example.messenger.utilsFilies.Constants.TYPE_TEXT
+import com.example.messenger.utilsFilies.Constants.TYPE_VOICE
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale

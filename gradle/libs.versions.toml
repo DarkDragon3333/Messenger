@@ -20,6 +20,8 @@ firebaseDatabaseKtx = "21.0.0"
 firebaseStorage = "21.0.0"
 volley = "1.2.1"
 cronetEmbedded = "119.6045.31"
+pagingCommonAndroid = "3.3.6"
+pagingCommonJvm = "3.3.6"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -48,6 +50,7 @@ firebase-database-ktx = { group = "com.google.firebase", name = "firebase-databa
 firebase-storage = { group = "com.google.firebase", name = "firebase-storage", version.ref = "firebaseStorage" }
 volley = { group = "com.android.volley", name = "volley", version.ref = "volley" }
 cronet-embedded = { group = "org.chromium.net", name = "cronet-embedded", version.ref = "cronetEmbedded" }
+androidx-paging-common-android = { group = "androidx.paging", name = "paging-common-android", version.ref = "pagingCommonAndroid" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

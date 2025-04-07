@@ -10,6 +10,24 @@ import com.example.messenger.modals.ContactModal
 import com.example.messenger.modals.User
 import com.example.messenger.modals.setLocalDataForUser
 import com.example.messenger.navigation.Screens
+import com.example.messenger.utilsFilies.Constants.CHILD_BIO
+import com.example.messenger.utilsFilies.Constants.CHILD_FROM
+import com.example.messenger.utilsFilies.Constants.CHILD_FULLNAME
+import com.example.messenger.utilsFilies.Constants.CHILD_ID
+import com.example.messenger.utilsFilies.Constants.CHILD_INFO
+import com.example.messenger.utilsFilies.Constants.CHILD_PASSWORD
+import com.example.messenger.utilsFilies.Constants.CHILD_PHONE
+import com.example.messenger.utilsFilies.Constants.CHILD_PHOTO_URL
+import com.example.messenger.utilsFilies.Constants.CHILD_TIME_STAMP
+import com.example.messenger.utilsFilies.Constants.CHILD_TYPE
+import com.example.messenger.utilsFilies.Constants.CHILD_USER_NAME
+import com.example.messenger.utilsFilies.Constants.FOLDER_MESSAGE_FILE
+import com.example.messenger.utilsFilies.Constants.FOLDER_PHOTOS
+import com.example.messenger.utilsFilies.Constants.NODE_MESSAGES
+import com.example.messenger.utilsFilies.Constants.NODE_PHONES
+import com.example.messenger.utilsFilies.Constants.NODE_PHONES_CONTACTS
+import com.example.messenger.utilsFilies.Constants.NODE_USERNAMES
+import com.example.messenger.utilsFilies.Constants.NODE_USERS
 import com.example.messenger.utilsFilies.READ_CONTACTS
 import com.example.messenger.utilsFilies.contactsListUSER
 import com.example.messenger.utilsFilies.goTo
@@ -41,36 +59,6 @@ lateinit var REF_DATABASE_ROOT: DatabaseReference
 lateinit var REF_STORAGE_ROOT: StorageReference
 lateinit var USER: User
 lateinit var UID: String //Уникальный индификационный номер
-
-const val TYPE_TEXT = "text"
-const val TYPE_VOICE = "voice"
-const val TYPE_IMAGE = "image"
-const val TYPE_VIDEO = "video"
-
-const val NODE_USERS = "users"
-const val NODE_USERNAMES = "usernames"
-const val NODE_PHONES = "phones"
-const val NODE_PHONES_CONTACTS = "phones_contacts"
-const val NODE_MESSAGES = "messages"
-
-const val FOLDER_PHOTOS = "photos"
-const val FOLDER_MESSAGE_FILE = "files"
-
-const val CHILD_ID = "id"
-const val CHILD_PHONE = "phone"
-const val CHILD_PASSWORD = "password"
-const val CHILD_USER_NAME = "username"
-const val CHILD_FULLNAME = "fullname"
-const val CHILD_BIO = "bio"
-const val CHILD_STATUS: String = "status"
-const val CHILD_PHOTO_URL: String = "photoUrl"
-const val CHILD_FILE_URL: String = "fileUrl"
-
-const val CHILD_TEXT: String = "text"
-const val CHILD_INFO: String = "info"
-const val CHILD_TYPE: String = "type"
-const val CHILD_FROM: String = "from"
-const val CHILD_TIME_STAMP: String = "timeStamp"
 
 fun initFirebase() {
     AUTH = FirebaseAuth.getInstance()
@@ -151,11 +139,17 @@ fun changeInfo(
         .child(UID)
         .child(typeInfo)
         .setValue(changeInfo).addOnCompleteListener {
-            if (it.isSuccessful) {
-                setLocalDataForUser(changeInfo, typeInfo)
-                goTo(navController, Screens.Settings)
-            } else
-                makeToast("Ошибка", context)
+            when (it.isSuccessful) {
+                true -> {
+                    setLocalDataForUser(changeInfo, typeInfo)
+                    goTo(navController, Screens.Settings)
+                }
+
+                false -> {
+                    makeToast("Ошибка", context)
+                }
+            }
+
         }
 }
 
@@ -168,14 +162,11 @@ fun checkUsername(changeInfo: String, context: Context, navController: NavHostCo
             val tempArray = usernames.split("=").toMutableList()
             val oldUserName = tempArray[0].replace(regex, "")
 
-            if (oldUserName == changeInfo.lowercase()) // Проверяем, есть ли такой ник в базе.
-                makeToast(
-                    "Имя пользователя занято",
-                    context
-                ) // Если есть, то выводим сообщение, что ник занят
-            else
-                changeUserName()
+            when (oldUserName == changeInfo.lowercase()) {
+                true -> makeToast("Имя пользователя занято", mainActivityContext)
 
+                false -> changeUserName()
+            }
         }
 
         private fun changeUserName() {
@@ -199,14 +190,14 @@ fun checkUsername(changeInfo: String, context: Context, navController: NavHostCo
                         setLocalDataForUser(
                             changeInfo.lowercase(),
                             CHILD_USER_NAME
-                        )  //И обновляем нашу локальную модель юзера
+                        )  //И обновляем нашу локальную модель пользователя
                     }
                 }
 
         }
 
         override fun onCancelled(error: DatabaseError) {
-            makeToast(error.message, context)
+            makeToast(error.message, mainActivityContext)
         }
     })
 }
@@ -215,12 +206,20 @@ fun downloadImage(context: Context, navController: NavHostController) {
     //Загружаем фото пользователя
     val pathToPhoto = REF_STORAGE_ROOT.child(FOLDER_PHOTOS).child(UID)
     pathToPhoto.downloadUrl.addOnCompleteListener { downloadTask -> //Получаем ссылку на загруженную фотку
-        if (downloadTask.isSuccessful)
-            changeInfo(downloadTask.result.toString(), CHILD_PHOTO_URL, context, navController)
-        else
-            makeToast(downloadTask.exception?.message.toString(), context)
-    }
 
+        when (downloadTask.isSuccessful) {
+            true ->
+                changeInfo(
+                    downloadTask.result.toString(),
+                    CHILD_PHOTO_URL,
+                    context,
+                    navController
+                )
+
+            false -> makeToast(downloadTask.exception?.message.toString(), context)
+
+        }
+    }
 }
 
 fun getContactsFromSmartphone() {
@@ -249,8 +248,7 @@ fun getContactsFromSmartphone() {
                         )
                     )
 
-                val newModal = ContactModal()
-                newModal.fullname = fullName
+                val newModal = ContactModal().apply { ContactModal().fullname = fullName }
 
                 var pattern = Regex("[^\\d+]")
                 var formattedPhone = phone.replace(pattern, "")
@@ -348,9 +346,7 @@ fun sendMessage(
     try {
         val refDialogUser = "$NODE_MESSAGES/$UID/$receivingUserID"
         val refDialogReceivingUser = "$NODE_MESSAGES/$receivingUserID/$UID"
-        var messageKey = ""
-
-        messageKey = key.ifEmpty { REF_DATABASE_ROOT.child(refDialogUser).push().key.toString() }
+        val messageKey = key.ifEmpty { REF_DATABASE_ROOT.child(refDialogUser).push().key.toString() }
 
         val mapMessage = hashMapOf<String, Any>()
         mapMessage[CHILD_ID] = messageKey
@@ -394,7 +390,6 @@ fun uploadFileToStorage(
                 sendMessage(downloadUrl, receivingUserID, typeMessage, messageKey) {}
             } catch (e: Exception) {
                 makeToast("Ошибка загрузки файла: ${e.message}", mainActivityContext)
-
             }
         }
     }

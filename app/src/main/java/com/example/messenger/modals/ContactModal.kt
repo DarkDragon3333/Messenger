@@ -1,5 +1,8 @@
 package com.example.messenger.modals
 
+import androidx.compose.runtime.Stable
+
+@Stable
 data class ContactModal (
     var id: String = "",
     var fullname: String = "",

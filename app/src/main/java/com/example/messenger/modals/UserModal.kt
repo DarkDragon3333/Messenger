@@ -1,14 +1,16 @@
 package com.example.messenger.modals
 
-import com.example.messenger.dataBase.CHILD_BIO
-import com.example.messenger.dataBase.CHILD_FULLNAME
-import com.example.messenger.dataBase.CHILD_PASSWORD
-import com.example.messenger.dataBase.CHILD_PHONE
-import com.example.messenger.dataBase.CHILD_PHOTO_URL
-import com.example.messenger.dataBase.CHILD_STATUS
-import com.example.messenger.dataBase.CHILD_USER_NAME
+import androidx.compose.runtime.Stable
 import com.example.messenger.dataBase.USER
+import com.example.messenger.utilsFilies.Constants.CHILD_BIO
+import com.example.messenger.utilsFilies.Constants.CHILD_FULLNAME
+import com.example.messenger.utilsFilies.Constants.CHILD_PASSWORD
+import com.example.messenger.utilsFilies.Constants.CHILD_PHONE
+import com.example.messenger.utilsFilies.Constants.CHILD_PHOTO_URL
+import com.example.messenger.utilsFilies.Constants.CHILD_STATUS
+import com.example.messenger.utilsFilies.Constants.CHILD_USER_NAME
 
+@Stable
 data class User(
     var id: String = "",
     var username: String = "",

@@ -26,13 +26,13 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.messenger.R
-import com.example.messenger.dataBase.TYPE_VOICE
 import com.example.messenger.dataBase.getMessageKey
 import com.example.messenger.dataBase.uploadFileToStorage
 import com.example.messenger.modals.MessageModal
 import com.example.messenger.screens.chatScreens.appVoiceRecorder
 import com.example.messenger.ui.theme.textMes
 import com.example.messenger.utilsFilies.AppVoicePlayer
+import com.example.messenger.utilsFilies.Constants.TYPE_VOICE
 import com.example.messenger.utilsFilies.mainActivityContext
 import com.example.messenger.utilsFilies.makeToast
 

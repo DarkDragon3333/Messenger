@@ -123,8 +123,8 @@ fun goTo(navController: NavHostController, user: ContactModal) {
     }
 }
 
-fun DataSnapshot.getCommonModel(): CommonModal =
-    this.getValue(CommonModal::class.java) ?: CommonModal()
+//fun DataSnapshot.getCommonModel(): CommonModal =
+//    this.getValue(CommonModal::class.java) ?: CommonModal()
 
 fun DataSnapshot.getMessageModel(): MessageModal =
     this.getValue(MessageModal::class.java) ?: MessageModal()

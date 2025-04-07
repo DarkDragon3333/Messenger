@@ -1,6 +1,9 @@
 package com.example.messenger.modals
 
+import androidx.compose.runtime.Stable
+
 //Общая модель с большинством полей
+@Stable
 data class CommonModal (
     var id: String = " ",
     var username: String = " ",
