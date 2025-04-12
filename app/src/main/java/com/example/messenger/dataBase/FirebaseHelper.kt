@@ -35,6 +35,7 @@ import com.example.messenger.utilsFilies.mainActivityContext
 import com.example.messenger.utilsFilies.makeToast
 import com.example.messenger.utilsFilies.mapContacts
 import com.example.messenger.utilsFilies.myCheckPermission
+import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.PhoneAuthOptions
 import com.google.firebase.auth.PhoneAuthProvider
@@ -45,6 +46,8 @@ import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ServerValue
 import com.google.firebase.database.ValueEventListener
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.firestore
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import kotlinx.coroutines.CoroutineScope
@@ -66,6 +69,7 @@ fun initFirebase() {
     USER = User()
     UID = AUTH.currentUser?.uid.toString()
     REF_STORAGE_ROOT = FirebaseStorage.getInstance().reference
+
 }
 
 fun initUser(context: Activity) {
@@ -343,10 +347,24 @@ fun sendMessage(
     key: String,
     function: () -> Unit
 ) {
+    val db = Firebase.firestore
     try {
-        val refDialogUser = "$NODE_MESSAGES/$UID/$receivingUserID"
-        val refDialogReceivingUser = "$NODE_MESSAGES/$receivingUserID/$UID"
-        val messageKey = key.ifEmpty { REF_DATABASE_ROOT.child(refDialogUser).push().key.toString() }
+        val refDialogUser = receivingUserID?.let {
+            db
+                .collection("users_messages").document(UID)
+                .collection("messages").document(it)
+        }
+
+        val refDialogReceivingUser =
+            receivingUserID?.let {
+                db
+                    .collection("users_messages").document(it)
+                    .collection("messages").document(UID)
+            }
+
+        val messageKey = key.ifEmpty {
+            db.collection(refDialogUser.toString()).document().id
+        }
 
         val mapMessage = hashMapOf<String, Any>()
         mapMessage[CHILD_ID] = messageKey
@@ -359,10 +377,20 @@ fun sendMessage(
         mapDialog["$refDialogUser/$messageKey"] = mapMessage
         mapDialog["$refDialogReceivingUser/$messageKey"] = mapMessage
 
-        REF_DATABASE_ROOT
-            .updateChildren(mapDialog)
-            .addOnSuccessListener { function() }
-            .addOnFailureListener { makeToast(it.message.toString(), mainActivityContext) }
+        mapDialog["$refDialogUser/$messageKey"]?.let {
+            refDialogUser?.collection("TheirMessages")?.document(messageKey)?.set(
+                it
+            )
+        }
+
+        mapDialog["$refDialogReceivingUser/$messageKey"]?.let {
+            refDialogReceivingUser?.collection("TheirMessages")?.document(messageKey)?.set(
+                it
+            )
+        }
+
+        function()
+
     } catch (e: Exception) {
         makeToast(e.message.toString() + " отправка багует", mainActivityContext)
     }

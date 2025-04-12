@@ -29,7 +29,7 @@ class MessageViewFactory {
 
 fun initMessage(messageModal: MessageModal): Pair<MessageModal, Any> {
     return if (messageModal.timeStamp.toString().trim().isNotEmpty())
-        Pair(messageModal, messageModal.timeStamp.toString().asTimestamp())
+        Pair(messageModal, messageModal.timeStamp.toString()/*.asTimestamp()*/)
     else
         Pair(messageModal, "Error")
 
