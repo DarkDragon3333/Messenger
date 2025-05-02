@@ -5,9 +5,7 @@ import com.example.messenger.modals.MessageModal
 import com.example.messenger.utilsFilies.Constants.TYPE_IMAGE
 import com.example.messenger.utilsFilies.Constants.TYPE_TEXT
 import com.example.messenger.utilsFilies.Constants.TYPE_VOICE
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
+import com.example.messenger.utilsFilies.toFormattedLocalTime
 
 class MessageViewFactory {
     @Composable
@@ -29,14 +27,8 @@ class MessageViewFactory {
 
 fun initMessage(messageModal: MessageModal): Pair<MessageModal, Any> {
     return if (messageModal.timeStamp.toString().trim().isNotEmpty())
-        Pair(messageModal, messageModal.timeStamp.toString()/*.asTimestamp()*/)
+        Pair(messageModal, messageModal.timeStamp.toFormattedLocalTime())
     else
         Pair(messageModal, "Error")
-
 }
 
-fun String.asTimestamp(): String {
-    val time = Date(this.toLong())
-    val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
-    return timeFormat.format(time)
-}

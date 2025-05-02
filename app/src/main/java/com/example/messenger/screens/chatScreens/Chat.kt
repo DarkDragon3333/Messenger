@@ -1,9 +1,7 @@
 package com.example.messenger.screens.chatScreens
 
 import android.annotation.SuppressLint
-import android.content.ContentValues.TAG
 import android.net.Uri
-import android.util.Log
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -49,36 +47,25 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.messenger.R
-import com.example.messenger.dataBase.REF_DATABASE_ROOT
 import com.example.messenger.dataBase.UID
+import com.example.messenger.dataBase.attachFile
 import com.example.messenger.dataBase.getMessageKey
+import com.example.messenger.dataBase.initChat
+import com.example.messenger.dataBase.updateChat
 import com.example.messenger.dataBase.uploadFileToStorage
-import com.example.messenger.dataBase.valueEventListenerClasses.AppValueEventListener
 import com.example.messenger.messageViews.sendText
 import com.example.messenger.messageViews.startRecord
 import com.example.messenger.messageViews.stopRecord
 import com.example.messenger.modals.MessageModal
 import com.example.messenger.utilsFilies.AppVoiceRecorder
-import com.example.messenger.utilsFilies.Constants.CHILD_TEXT
-import com.example.messenger.utilsFilies.Constants.NODE_MESSAGES
 import com.example.messenger.utilsFilies.Constants.TYPE_IMAGE
-import com.example.messenger.utilsFilies.getMessageModel
 import com.google.firebase.Firebase
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.ValueEventListener
-import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.firestore
-import com.google.firebase.firestore.toObject
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.net.URLDecoder
 
-private lateinit var refToMessages: DatabaseReference
-private lateinit var refToMessagesFirestore: DocumentReference
-private lateinit var MessagesListener: AppValueEventListener
 lateinit var appVoiceRecorder: AppVoiceRecorder
 
 @SuppressLint("ReturnFromAwaitPointerEventScope")
@@ -105,16 +92,15 @@ fun ChatScreen(
     val text = remember { mutableStateOf("") }
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
+    val isLoading = remember { mutableStateOf(false) }
 
     val interactionSource = remember { MutableInteractionSource() } //Кнопка голосового сообщения
 
     val viewConfiguration = LocalViewConfiguration.current
 
     val db = Firebase.firestore
-    val referenceToMessages = "TheirMessages"
-
-
-    // Create a new user with a first and last name
+    val cleanIdContact = idContact.replace("{", "").replace("}", "")
+    val messLink = db.collection("users_messages").document(UID).collection("messages").document(cleanIdContact)
 
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickMultipleVisualMedia(5)
@@ -137,7 +123,8 @@ fun ChatScreen(
         Box(
             modifier = Modifier.weight(1f)
         ) {
-            Chat(listState, chatScreenState)
+            if (isLoading.value)
+                Chat(listState, chatScreenState)
         }
 
         PanelOfEnter(
@@ -152,7 +139,7 @@ fun ChatScreen(
     }
 
     LaunchedEffect(chatScreenState.size) {
-        //updateChat(receivingUserID, chatScreenState)
+        updateChat(chatScreenState, messLink)
         if (chatScreenState.size > 0) {
             coroutineScope.launch {
                 listState.animateScrollToItem(chatScreenState.lastIndex)
@@ -161,19 +148,12 @@ fun ChatScreen(
     }
 
     DisposableEffect(Unit) {
+        initChat(chatScreenState, messLink) {
+            isLoading.value = true
+        }
 
-        refToMessages = REF_DATABASE_ROOT.child(NODE_MESSAGES).child(UID).child(receivingUserID)
-
-        refToMessagesFirestore = db
-            .collection("users_messages").document(UID)
-            .collection("messages").document(idContact)
-
-        initChat(chatScreenState, idContact)
         onDispose {
-            if (::MessagesListener.isInitialized){
-                refToMessages.removeEventListener(MessagesListener)
-                chatScreenState.clear()
-            }
+            chatScreenState.clear()
         }
     }
 }
@@ -181,16 +161,14 @@ fun ChatScreen(
 @Composable
 private fun Chat(
     listState: LazyListState,
-    chatScreenState: SnapshotStateList<MessageModal>
+    chatScreenState: SnapshotStateList<MessageModal>,
 ) {
     if (chatScreenState.isNotEmpty()) {
         LazyColumn(
             modifier = Modifier,
             state = listState
         ) {
-            items(
-                chatScreenState
-            ) { message ->
+            items(chatScreenState, key = { it.id }) { message ->
                 Message(messageModal = message)
                 Spacer(modifier = Modifier.height(10.dp))
             }
@@ -228,7 +206,7 @@ private fun PanelOfEnter(
                 Row { AttachFileButton(launcher) }
             },
         )
-        VoiceButton(
+        SendMessageButton(
             interactionSource,
             fieldText = text,
             changeColor,
@@ -257,7 +235,7 @@ fun AttachFileButton(launcher: ManagedActivityResultLauncher<PickVisualMediaRequ
 }
 
 @Composable
-private fun VoiceButton(
+private fun SendMessageButton(
     interactionSource: MutableInteractionSource,
     fieldText: MutableState<String>,
     changeColor: MutableState<Color>,
@@ -330,7 +308,6 @@ private fun VoiceButton(
         DisposableEffect(Unit) {
             appVoiceRecorder = AppVoiceRecorder()
             onDispose {
-                refToMessages.removeEventListener(MessagesListener)
                 appVoiceRecorder.releaseRecordedVoice()
             }
         }
@@ -340,81 +317,19 @@ private fun VoiceButton(
 @Composable
 private fun ControlIconOfVoiceButton(fieldText: MutableState<String>) {
     when (fieldText.value.isNotEmpty()) {
-        false -> {
-            Icon(
-                painter = painterResource(id = R.drawable.ic_microphone),
-                contentDescription = "",
-            )
-        }
-
         true -> {
             Icon(
                 Icons.AutoMirrored.Filled.Send,
                 contentDescription = ""
             )
         }
-    }
-}
 
-fun attachFile(launcher: ManagedActivityResultLauncher<PickVisualMediaRequest, List<@JvmSuppressWildcards Uri>>) {
-    launcher.launch(
-        PickVisualMediaRequest(
-            mediaType = ActivityResultContracts.PickVisualMedia.ImageAndVideo
-        )
-    )
-}
-
-//Разделение логики инициализации и обновления чата
-fun updateChat(id: String, chatScreenState: SnapshotStateList<MessageModal>) {
-
-    if (::MessagesListener.isInitialized) {
-        refToMessages.removeEventListener(MessagesListener)
-    }
-
-    MessagesListener = AppValueEventListener { dataSnap ->
-        val cacheMessages = dataSnap.children.map { it.getMessageModel() }.toMutableList()
-        when (chatScreenState.isNotEmpty()) {
-            true -> {
-                if ((cacheMessages.size) != (chatScreenState.size))
-                    chatScreenState.add(cacheMessages.last())
-            }
-            false -> {
-                chatScreenState.addAll(cacheMessages)
-            }
+        false -> {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_microphone),
+                contentDescription = "",
+            )
         }
     }
-
-    refToMessages.addValueEventListener(MessagesListener)
-
 }
 
-//Разделение логики инициализации и обновления чата
-fun initChat(chatScreenState: SnapshotStateList<MessageModal>, idContact: String){
-    var t: Any
-
-    refToMessagesFirestore.collection("TheirMessages").get()
-        .addOnSuccessListener { document ->
-            if (!document.isEmpty){
-                val mess = document.documents.mapNotNull { it.toObject(MessageModal::class.java) }
-                chatScreenState.addAll(mess)
-                Log.d(TAG, "DocumentSnapshot data: $mess")
-            }
-
-        }
-        .addOnFailureListener { e ->
-            Log.d(TAG, "get failed with ", e)
-        }
-
-//    refToMessages.addListenerForSingleValueEvent(object : ValueEventListener {
-//        override fun onDataChange(dataSnapshot: DataSnapshot) {
-//            val cacheMessages = dataSnapshot.children.map { it.getMessageModel() }.toMutableList()
-//            chatScreenState.clear()
-//            chatScreenState.addAll(cacheMessages)
-//            Log.d("myFirebase", "Загружено сообщений: ${cacheMessages.size}")
-//        }
-//
-//        override fun onCancelled(databaseError: DatabaseError) {
-//            Log.e("myFirebase", "Ошибка: ${databaseError.message}")
-//        }
-//    })
-}

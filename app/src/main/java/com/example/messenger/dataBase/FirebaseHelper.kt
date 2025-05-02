@@ -1,12 +1,19 @@
 package com.example.messenger.dataBase
 
 import android.app.Activity
+import android.content.ContentValues
 import android.content.Context
 import android.net.Uri
 import android.provider.ContactsContract
+import android.util.Log
+import androidx.activity.compose.ManagedActivityResultLauncher
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.navigation.NavHostController
 import com.example.messenger.MainActivity
 import com.example.messenger.modals.ContactModal
+import com.example.messenger.modals.MessageModal
 import com.example.messenger.modals.User
 import com.example.messenger.modals.setLocalDataForUser
 import com.example.messenger.navigation.Screens
@@ -44,9 +51,10 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ServerValue
 import com.google.firebase.database.ValueEventListener
-import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.DocumentChange
+import com.google.firebase.firestore.DocumentReference
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.firestore
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
@@ -349,11 +357,12 @@ fun sendMessage(
 ) {
     val db = Firebase.firestore
     try {
-        val refDialogUser = receivingUserID?.let {
-            db
-                .collection("users_messages").document(UID)
-                .collection("messages").document(it)
-        }
+        val refDialogUser =
+            receivingUserID?.let {
+                db
+                    .collection("users_messages").document(UID)
+                    .collection("messages").document(it)
+            }
 
         val refDialogReceivingUser =
             receivingUserID?.let {
@@ -371,7 +380,7 @@ fun sendMessage(
         mapMessage[CHILD_FROM] = UID
         mapMessage[CHILD_INFO] = info
         mapMessage[CHILD_TYPE] = typeMessage
-        mapMessage[CHILD_TIME_STAMP] = ServerValue.TIMESTAMP
+        mapMessage[CHILD_TIME_STAMP] = FieldValue.serverTimestamp()
 
         val mapDialog = hashMapOf<String, Any>()
         mapDialog["$refDialogUser/$messageKey"] = mapMessage
@@ -396,6 +405,7 @@ fun sendMessage(
     }
 
 }
+
 
 fun getMessageKey(receivingUserID: String) = REF_DATABASE_ROOT.child(NODE_MESSAGES)
     .child(UID)
@@ -433,4 +443,63 @@ fun getFile(mAudioFile: File, fileUrl: String, function: () -> Unit) {
         .addOnFailureListener {
             makeToast(it.message.toString(), mainActivityContext)
         }
+}
+
+fun updateChat(chatScreenState: SnapshotStateList<MessageModal>, messLink: DocumentReference) {
+    messLink.collection("TheirMessages")
+        .addSnapshotListener { snapshots, e ->
+            if (e != null) {
+                Log.w(ContentValues.TAG, "listen:error", e)
+                return@addSnapshotListener
+            }
+            for (dc in snapshots!!.documentChanges) {
+                when (dc.type) {
+                    DocumentChange.Type.ADDED -> {
+                        val newMessage = dc.document.toObject(MessageModal::class.java)
+                        if (chatScreenState.none { it.id == newMessage.id })
+                            chatScreenState.add(newMessage)
+
+                    }
+
+                    DocumentChange.Type.MODIFIED -> Log.d(
+                        ContentValues.TAG,
+                        "Modified city: ${dc.document.data}"
+                    )
+
+                    DocumentChange.Type.REMOVED -> Log.d(
+                        ContentValues.TAG,
+                        "Removed city: ${dc.document.data}"
+                    )
+                }
+            }
+        }
+}
+
+fun initChat(
+    chatScreenState: SnapshotStateList<MessageModal>,
+    messLink: DocumentReference,
+    function: () -> Unit
+) {
+    messLink
+        .collection("TheirMessages")
+        .orderBy("timeStamp")
+        .get()
+        .addOnSuccessListener { result ->
+            val cacheMessages =
+                result.documents.map { it.toObject(MessageModal::class.java)!! }.toMutableList()
+            chatScreenState.clear()
+            chatScreenState.addAll(cacheMessages.distinctBy { it.id })
+            function()
+        }
+        .addOnFailureListener { exception ->
+            Log.w(ContentValues.TAG, "Error getting documents.", exception)
+        }
+}
+
+fun attachFile(launcher: ManagedActivityResultLauncher<PickVisualMediaRequest, List<@JvmSuppressWildcards Uri>>) {
+    launcher.launch(
+        PickVisualMediaRequest(
+            mediaType = ActivityResultContracts.PickVisualMedia.ImageAndVideo
+        )
+    )
 }

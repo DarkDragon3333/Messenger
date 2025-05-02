@@ -13,6 +13,7 @@
     <uses-permission android:name="com.sec.android.provider.badge.permission.WRITE"/>
 
     <uses-permission android:name="android.permission.READ_CONTACTS"/>
+    <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission
         android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="32" />
