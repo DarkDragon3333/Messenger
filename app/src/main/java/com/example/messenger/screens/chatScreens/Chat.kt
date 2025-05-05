@@ -22,6 +22,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material3.Icon
@@ -32,10 +34,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -51,7 +56,7 @@ import com.example.messenger.dataBase.UID
 import com.example.messenger.dataBase.attachFile
 import com.example.messenger.dataBase.getMessageKey
 import com.example.messenger.dataBase.initChat
-import com.example.messenger.dataBase.updateChat
+import com.example.messenger.dataBase.listeningUpdateChat
 import com.example.messenger.dataBase.uploadFileToStorage
 import com.example.messenger.messageViews.sendText
 import com.example.messenger.messageViews.startRecord
@@ -60,7 +65,9 @@ import com.example.messenger.modals.MessageModal
 import com.example.messenger.utilsFilies.AppVoiceRecorder
 import com.example.messenger.utilsFilies.Constants.TYPE_IMAGE
 import com.google.firebase.Firebase
+import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.firestore
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -92,7 +99,9 @@ fun ChatScreen(
     val text = remember { mutableStateOf("") }
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
+
     val isLoading = remember { mutableStateOf(false) }
+    var isLoadingOldMessages by remember { mutableStateOf(false) }
 
     val interactionSource = remember { MutableInteractionSource() } //Кнопка голосового сообщения
 
@@ -100,7 +109,13 @@ fun ChatScreen(
 
     val db = Firebase.firestore
     val cleanIdContact = idContact.replace("{", "").replace("}", "")
-    val messLink = db.collection("users_messages").document(UID).collection("messages").document(cleanIdContact)
+    val messLink =
+        db.collection("users_messages")
+            .document(UID).collection("messages")
+            .document(cleanIdContact).collection("TheirMessages")
+            .orderBy("timeStamp", Query.Direction.DESCENDING) //Делает обратный порядок
+            .limit(30)
+
 
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickMultipleVisualMedia(5)
@@ -134,23 +149,54 @@ fun ChatScreen(
             receivingUserID,
             recordVoiceFlag,
             viewConfiguration,
-            launcher
+            launcher,
+            chatScreenState,
+            coroutineScope,
+            listState
         )
     }
 
-    LaunchedEffect(chatScreenState.size) {
-        updateChat(chatScreenState, messLink)
-        if (chatScreenState.size > 0) {
-            coroutineScope.launch {
-                listState.animateScrollToItem(chatScreenState.lastIndex)
+
+
+
+    LaunchedEffect(listState) {
+        snapshotFlow {
+            listState.layoutInfo.visibleItemsInfo.any { it.index == chatScreenState.lastIndex - 10 }
+        }.collect { isVisible ->
+            if (isVisible && !isLoadingOldMessages && chatScreenState.isNotEmpty()) {
+                isLoadingOldMessages = true
+
+                val lastTimestamp = chatScreenState[chatScreenState.lastIndex].timeStamp
+                db.collection("users_messages")
+                    .document(UID)
+                    .collection("messages")
+                    .document(cleanIdContact)
+                    .collection("TheirMessages")
+                    .orderBy("timeStamp", Query.Direction.DESCENDING)
+                    .startAfter(lastTimestamp)
+                    .limit(30)
+                    .get()
+                    .addOnSuccessListener { result ->
+                        val newMessages = result.documents.mapNotNull {
+                            it.toObject(MessageModal::class.java)
+                        }.filterNot { msg ->
+                            chatScreenState.any { it.id == msg.id }
+                        }
+                        chatScreenState.addAll(newMessages)
+
+                        isLoadingOldMessages = false
+                    }
+                    .addOnFailureListener {
+                        isLoadingOldMessages = false
+                    }
             }
+
         }
     }
 
     DisposableEffect(Unit) {
-        initChat(chatScreenState, messLink) {
-            isLoading.value = true
-        }
+        initChat(chatScreenState, messLink) { isLoading.value = true }
+        listeningUpdateChat(chatScreenState, messLink)
 
         onDispose {
             chatScreenState.clear()
@@ -166,13 +212,15 @@ private fun Chat(
     if (chatScreenState.isNotEmpty()) {
         LazyColumn(
             modifier = Modifier,
-            state = listState
+            state = listState,
+            reverseLayout = true
         ) {
             items(chatScreenState, key = { it.id }) { message ->
                 Message(messageModal = message)
                 Spacer(modifier = Modifier.height(10.dp))
             }
         }
+
     }
 }
 
@@ -184,7 +232,10 @@ private fun PanelOfEnter(
     receivingUserID: String,
     recordVoiceFlag: MutableState<Boolean>,
     viewConfiguration: ViewConfiguration,
-    launcher: ManagedActivityResultLauncher<PickVisualMediaRequest, List<@JvmSuppressWildcards Uri>>
+    launcher: ManagedActivityResultLauncher<PickVisualMediaRequest, List<@JvmSuppressWildcards Uri>>,
+    chatScreenState: SnapshotStateList<MessageModal>,
+    coroutineScope: CoroutineScope,
+    listState: LazyListState
 ) {
     Row(
         modifier = Modifier
@@ -199,7 +250,8 @@ private fun PanelOfEnter(
             modifier = Modifier
                 .weight(1f)
                 .fillMaxHeight()
-                .background(Color.Transparent),
+                .background(Color.Transparent)
+                .verticalScroll(rememberScrollState()),
             placeholder = { Text(text = "Введите сообщение") },
             shape = RectangleShape,
             trailingIcon = {
@@ -212,7 +264,10 @@ private fun PanelOfEnter(
             changeColor,
             receivingUserID,
             recordVoiceFlag,
-            viewConfiguration
+            viewConfiguration,
+            chatScreenState,
+            coroutineScope,
+            listState
         ) {
             text.value = ""
         }
@@ -242,6 +297,9 @@ private fun SendMessageButton(
     receivingUserID: String,
     recordVoiceFlag: MutableState<Boolean>,
     viewConfiguration: ViewConfiguration,
+    chatScreenState: SnapshotStateList<MessageModal>,
+    coroutineScope: CoroutineScope,
+    listState: LazyListState,
     cleanText: () -> Unit
 ) {
     IconButton(
@@ -254,6 +312,10 @@ private fun SendMessageButton(
         }
     ) {
         ControlIconOfVoiceButton(fieldText)
+
+        LaunchedEffect(chatScreenState.size) {
+
+        }
 
         LaunchedEffect(interactionSource) {
             var isLongClick = false
@@ -278,6 +340,10 @@ private fun SendMessageButton(
                                 changeColor,
                                 recordVoiceFlag
                             )
+                            if (chatScreenState.size > 0)
+                                coroutineScope.launch {
+                                    listState.animateScrollToItem(0)
+                                }
                         }
                     }
 
@@ -288,6 +354,10 @@ private fun SendMessageButton(
                                 changeColor,
                                 recordVoiceFlag
                             )
+                            if (chatScreenState.size > 0)
+                                coroutineScope.launch {
+                                    listState.animateScrollToItem(0)
+                                }
                         }
 
                         if (isLongClick.not()) {
@@ -296,6 +366,10 @@ private fun SendMessageButton(
                                     fieldText.value,
                                     receivingUserID
                                 )
+                                if (chatScreenState.size > 0)
+                                    coroutineScope.launch {
+                                        listState.animateScrollToItem(0)
+                                    }
                                 cleanText()
                             }
 

@@ -53,8 +53,8 @@ import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.firestore.DocumentChange
-import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.firestore
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
@@ -445,31 +445,33 @@ fun getFile(mAudioFile: File, fileUrl: String, function: () -> Unit) {
         }
 }
 
-fun updateChat(chatScreenState: SnapshotStateList<MessageModal>, messLink: DocumentReference) {
-    messLink.collection("TheirMessages")
+fun listeningUpdateChat(chatScreenState: SnapshotStateList<MessageModal>, messLink: Query) {
+    messLink
         .addSnapshotListener { snapshots, e ->
             if (e != null) {
                 Log.w(ContentValues.TAG, "listen:error", e)
                 return@addSnapshotListener
             }
-            for (dc in snapshots!!.documentChanges) {
-                when (dc.type) {
-                    DocumentChange.Type.ADDED -> {
-                        val newMessage = dc.document.toObject(MessageModal::class.java)
-                        if (chatScreenState.none { it.id == newMessage.id })
-                            chatScreenState.add(newMessage)
 
+            for (document in snapshots!!.documentChanges) {
+                when (document.type) {
+                    DocumentChange.Type.ADDED -> {
+                        val newMessage = document.document.toObject(MessageModal::class.java)
+                        if (chatScreenState.none { it.id == newMessage.id }) {
+                            chatScreenState.add(0, newMessage)
+                        }
                     }
 
                     DocumentChange.Type.MODIFIED -> Log.d(
                         ContentValues.TAG,
-                        "Modified city: ${dc.document.data}"
+                        "Modified city: ${document.document.data}"
                     )
 
                     DocumentChange.Type.REMOVED -> Log.d(
                         ContentValues.TAG,
-                        "Removed city: ${dc.document.data}"
+                        "Removed city: ${document.document.data}"
                     )
+
                 }
             }
         }
@@ -477,12 +479,10 @@ fun updateChat(chatScreenState: SnapshotStateList<MessageModal>, messLink: Docum
 
 fun initChat(
     chatScreenState: SnapshotStateList<MessageModal>,
-    messLink: DocumentReference,
+    messLink: Query,
     function: () -> Unit
 ) {
     messLink
-        .collection("TheirMessages")
-        .orderBy("timeStamp")
         .get()
         .addOnSuccessListener { result ->
             val cacheMessages =
