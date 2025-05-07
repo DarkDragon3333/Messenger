@@ -2,6 +2,7 @@ package com.example.messenger.messageViews
 
 import androidx.compose.runtime.Composable
 import com.example.messenger.modals.MessageModal
+import com.example.messenger.utilsFilies.Constants.TYPE_FILE
 import com.example.messenger.utilsFilies.Constants.TYPE_IMAGE
 import com.example.messenger.utilsFilies.Constants.TYPE_TEXT
 import com.example.messenger.utilsFilies.Constants.TYPE_VOICE
@@ -18,6 +19,8 @@ class MessageViewFactory {
             TYPE_IMAGE -> ImageMsg(message)
 
             TYPE_VOICE -> VoiceMsg(message)
+
+            TYPE_FILE -> FileMsg(message)
 
             else -> TextMsg(message)
         }

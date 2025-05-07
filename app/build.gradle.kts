@@ -71,6 +71,7 @@ dependencies {
     implementation(libs.volley)
     implementation(libs.cronet.embedded)
     implementation(libs.androidx.paging.common.android)
+    implementation(libs.androidx.appcompat)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

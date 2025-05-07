@@ -5,6 +5,7 @@ object Constants {
     const val TYPE_VOICE = "voice"
     const val TYPE_IMAGE = "image"
     const val TYPE_VIDEO = "video"
+    const val TYPE_FILE = "file"
 
     const val NODE_USERS = "users"
     const val NODE_USERNAMES = "usernames"

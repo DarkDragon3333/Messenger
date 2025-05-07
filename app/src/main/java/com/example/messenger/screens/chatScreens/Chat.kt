@@ -1,11 +1,15 @@
 package com.example.messenger.screens.chatScreens
 
 import android.annotation.SuppressLint
+import android.app.Activity
+import android.content.Intent
 import android.net.Uri
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.ActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
@@ -26,10 +30,15 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -54,6 +63,7 @@ import androidx.navigation.NavHostController
 import com.example.messenger.R
 import com.example.messenger.dataBase.UID
 import com.example.messenger.dataBase.attachFile
+import com.example.messenger.dataBase.attachImage
 import com.example.messenger.dataBase.getMessageKey
 import com.example.messenger.dataBase.initChat
 import com.example.messenger.dataBase.listeningUpdateChat
@@ -63,8 +73,12 @@ import com.example.messenger.messageViews.startRecord
 import com.example.messenger.messageViews.stopRecord
 import com.example.messenger.modals.MessageModal
 import com.example.messenger.utilsFilies.AppVoiceRecorder
+import com.example.messenger.utilsFilies.Constants.TYPE_FILE
 import com.example.messenger.utilsFilies.Constants.TYPE_IMAGE
+import com.example.messenger.utilsFilies.mainActivityContext
+import com.example.messenger.utilsFilies.makeToast
 import com.google.firebase.Firebase
+import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.CoroutineScope
@@ -100,15 +114,20 @@ fun ChatScreen(
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
 
-    val isLoading = remember { mutableStateOf(false) }
+    val isLoadingFirstMessages = remember { mutableStateOf(false) }
     var isLoadingOldMessages by remember { mutableStateOf(false) }
 
+    var listenerRegistration: ListenerRegistration
+
     val interactionSource = remember { MutableInteractionSource() } //Кнопка голосового сообщения
+
+    val showBottomSheetState = remember { mutableStateOf(false) }
 
     val viewConfiguration = LocalViewConfiguration.current
 
     val db = Firebase.firestore
     val cleanIdContact = idContact.replace("{", "").replace("}", "")
+
     val messLink =
         db.collection("users_messages")
             .document(UID).collection("messages")
@@ -117,7 +136,7 @@ fun ChatScreen(
             .limit(30)
 
 
-    val launcher = rememberLauncherForActivityResult(
+    val imageLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickMultipleVisualMedia(5)
     ) { uri: List<@JvmSuppressWildcards Uri> ->
 
@@ -129,7 +148,20 @@ fun ChatScreen(
         }
 
         uploadFileToStorage(filesToUpload, receivingUserID, TYPE_IMAGE)
+    }
 
+    val fileLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetMultipleContents()
+    ) { uri: List<@JvmSuppressWildcards Uri> ->
+
+        if (uri.isEmpty()) return@rememberLauncherForActivityResult
+
+        val filesToUpload = uri.map { item ->
+            val messageKey = getMessageKey(receivingUserID)
+            messageKey to item
+        }
+
+        uploadFileToStorage(filesToUpload, receivingUserID, TYPE_FILE)
     }
 
     Column(
@@ -138,7 +170,7 @@ fun ChatScreen(
         Box(
             modifier = Modifier.weight(1f)
         ) {
-            if (isLoading.value)
+            if (isLoadingFirstMessages.value)
                 Chat(listState, chatScreenState)
         }
 
@@ -149,15 +181,14 @@ fun ChatScreen(
             receivingUserID,
             recordVoiceFlag,
             viewConfiguration,
-            launcher,
+            imageLauncher,
+            fileLauncher,
             chatScreenState,
             coroutineScope,
-            listState
+            listState,
+            showBottomSheetState
         )
     }
-
-
-
 
     LaunchedEffect(listState) {
         snapshotFlow {
@@ -190,18 +221,19 @@ fun ChatScreen(
                         isLoadingOldMessages = false
                     }
             }
-
         }
     }
 
     DisposableEffect(Unit) {
-        initChat(chatScreenState, messLink) { isLoading.value = true }
-        listeningUpdateChat(chatScreenState, messLink)
+        initChat(chatScreenState, messLink) { isLoadingFirstMessages.value = true }
+        listenerRegistration = listeningUpdateChat(chatScreenState, messLink)
 
         onDispose {
             chatScreenState.clear()
+            listenerRegistration.remove()
         }
     }
+
 }
 
 @Composable
@@ -233,10 +265,13 @@ private fun PanelOfEnter(
     recordVoiceFlag: MutableState<Boolean>,
     viewConfiguration: ViewConfiguration,
     launcher: ManagedActivityResultLauncher<PickVisualMediaRequest, List<@JvmSuppressWildcards Uri>>,
+    launcherFile: ManagedActivityResultLauncher<String, List<@JvmSuppressWildcards Uri>>,
     chatScreenState: SnapshotStateList<MessageModal>,
     coroutineScope: CoroutineScope,
-    listState: LazyListState
-) {
+    listState: LazyListState,
+    showBottomSheetState: MutableState<Boolean>,
+
+    ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -255,9 +290,17 @@ private fun PanelOfEnter(
             placeholder = { Text(text = "Введите сообщение") },
             shape = RectangleShape,
             trailingIcon = {
-                Row { AttachFileButton(launcher) }
+                Row {
+                    AttachFileButton(
+                        launcher,
+                        launcherFile,
+                        showBottomSheetState,
+                        coroutineScope
+                    )
+                }
             },
         )
+
         SendMessageButton(
             interactionSource,
             fieldText = text,
@@ -274,11 +317,19 @@ private fun PanelOfEnter(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AttachFileButton(launcher: ManagedActivityResultLauncher<PickVisualMediaRequest, List<@JvmSuppressWildcards Uri>>) {
+fun AttachFileButton(
+    launcher: ManagedActivityResultLauncher<PickVisualMediaRequest, List<@JvmSuppressWildcards Uri>>,
+    launcherFile: ManagedActivityResultLauncher<String, List<@JvmSuppressWildcards Uri>>,
+    showBottomSheetState: MutableState<Boolean>,
+    coroutineScope: CoroutineScope
+) {
+    val sheetState = rememberModalBottomSheetState()
+
     IconButton(
         modifier = Modifier,
-        onClick = { attachFile(launcher) }
+        onClick = { showBottomSheetState.value = true }
     ) {
         Column {
             Icon(
@@ -287,6 +338,62 @@ fun AttachFileButton(launcher: ManagedActivityResultLauncher<PickVisualMediaRequ
             )
         }
     }
+
+    if (showBottomSheetState.value) {
+        ModalBottomSheet(
+            onDismissRequest = { showBottomSheetState.value = false },
+            sheetState = sheetState
+        ) {
+            // Sheet content
+            SheetContent(launcher, launcherFile, coroutineScope, sheetState, showBottomSheetState)
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SheetContent(
+    launcher: ManagedActivityResultLauncher<PickVisualMediaRequest, List<@JvmSuppressWildcards Uri>>,
+    launcherFile: ManagedActivityResultLauncher<String, List<@JvmSuppressWildcards Uri>>,
+    coroutineScope: CoroutineScope,
+    sheetState: SheetState,
+    showBottomSheetState: MutableState<Boolean>
+) {
+
+    Row {
+        Button(onClick = {
+            attachImage(launcher)
+            coroutineScope.launch { sheetState.hide() }.invokeOnCompletion {
+                if (!sheetState.isVisible) {
+                    showBottomSheetState.value = false
+                }
+            }
+        }) {
+            Text("Image")
+        }
+
+        Button(onClick = {
+            attachFile(launcherFile)
+            coroutineScope.launch { sheetState.hide() }.invokeOnCompletion {
+                if (!sheetState.isVisible) {
+                    showBottomSheetState.value = false
+                }
+            }
+        }) {
+            Text("File")
+        }
+
+        Button(onClick = {
+            coroutineScope.launch { sheetState.hide() }.invokeOnCompletion {
+                if (!sheetState.isVisible) {
+                    showBottomSheetState.value = false
+                }
+            }
+        }) {
+            Text("TO-DO")
+        }
+    }
+
 }
 
 @Composable
@@ -312,10 +419,6 @@ private fun SendMessageButton(
         }
     ) {
         ControlIconOfVoiceButton(fieldText)
-
-        LaunchedEffect(chatScreenState.size) {
-
-        }
 
         LaunchedEffect(interactionSource) {
             var isLongClick = false
@@ -406,4 +509,3 @@ private fun ControlIconOfVoiceButton(fieldText: MutableState<String>) {
         }
     }
 }
-

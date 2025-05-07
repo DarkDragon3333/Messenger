@@ -5,11 +5,13 @@ import android.content.ContentValues
 import android.content.Context
 import android.net.Uri
 import android.provider.ContactsContract
+import android.provider.OpenableColumns
 import android.util.Log
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.core.net.toUri
 import androidx.navigation.NavHostController
 import com.example.messenger.MainActivity
 import com.example.messenger.modals.ContactModal
@@ -35,6 +37,7 @@ import com.example.messenger.utilsFilies.Constants.NODE_PHONES
 import com.example.messenger.utilsFilies.Constants.NODE_PHONES_CONTACTS
 import com.example.messenger.utilsFilies.Constants.NODE_USERNAMES
 import com.example.messenger.utilsFilies.Constants.NODE_USERS
+import com.example.messenger.utilsFilies.Constants.TYPE_FILE
 import com.example.messenger.utilsFilies.READ_CONTACTS
 import com.example.messenger.utilsFilies.contactsListUSER
 import com.example.messenger.utilsFilies.goTo
@@ -54,6 +57,7 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.firestore
 import com.google.firebase.storage.FirebaseStorage
@@ -229,7 +233,6 @@ fun downloadImage(context: Context, navController: NavHostController) {
                 )
 
             false -> makeToast(downloadTask.exception?.message.toString(), context)
-
         }
     }
 }
@@ -382,6 +385,7 @@ fun sendMessage(
         mapMessage[CHILD_TYPE] = typeMessage
         mapMessage[CHILD_TIME_STAMP] = FieldValue.serverTimestamp()
 
+
         val mapDialog = hashMapOf<String, Any>()
         mapDialog["$refDialogUser/$messageKey"] = mapMessage
         mapDialog["$refDialogReceivingUser/$messageKey"] = mapMessage
@@ -420,12 +424,27 @@ fun uploadFileToStorage(
 
     CoroutineScope(Dispatchers.IO).launch {
         filesToUpload.forEach { (messageKey, fileUri) ->
-            val tempUri = REF_STORAGE_ROOT.child(FOLDER_MESSAGE_FILE).child(messageKey)
+            val storageReference = REF_STORAGE_ROOT.child(FOLDER_MESSAGE_FILE).child(messageKey)
 
             try {
-                tempUri.putFile(fileUri).await()
-                val downloadUrl = tempUri.downloadUrl.await().toString()
-                sendMessage(downloadUrl, receivingUserID, typeMessage, messageKey) {}
+                storageReference.putFile(fileUri).await()
+                val downloadUrl = storageReference.downloadUrl.await().toString()
+                when (typeMessage) {
+                    TYPE_FILE -> {
+                        val fileName = getFileName(mainActivityContext, fileUri)
+                        sendMessage(
+                            downloadUrl + "__" + fileName,
+                            receivingUserID,
+                            typeMessage,
+                            messageKey
+                        ) {}
+                    }
+
+                    else -> {
+                        sendMessage(downloadUrl, receivingUserID, typeMessage, messageKey) {}
+                    }
+                }
+
             } catch (e: Exception) {
                 makeToast("Ошибка загрузки файла: ${e.message}", mainActivityContext)
             }
@@ -445,36 +464,40 @@ fun getFile(mAudioFile: File, fileUrl: String, function: () -> Unit) {
         }
 }
 
-fun listeningUpdateChat(chatScreenState: SnapshotStateList<MessageModal>, messLink: Query) {
-    messLink
-        .addSnapshotListener { snapshots, e ->
-            if (e != null) {
-                Log.w(ContentValues.TAG, "listen:error", e)
-                return@addSnapshotListener
-            }
+fun listeningUpdateChat(
+    chatScreenState: SnapshotStateList<MessageModal>,
+    messLink: Query,
+): ListenerRegistration {
+    val listing = messLink.addSnapshotListener { snapshots, e ->
+        if (e != null) {
+            Log.w(ContentValues.TAG, "listen:error", e)
+            return@addSnapshotListener
+        }
 
-            for (document in snapshots!!.documentChanges) {
-                when (document.type) {
-                    DocumentChange.Type.ADDED -> {
-                        val newMessage = document.document.toObject(MessageModal::class.java)
-                        if (chatScreenState.none { it.id == newMessage.id }) {
-                            chatScreenState.add(0, newMessage)
-                        }
+        for (document in snapshots!!.documentChanges) {
+            when (document.type) {
+                DocumentChange.Type.ADDED -> {
+                    val newMessage = document.document.toObject(MessageModal::class.java)
+                    if (chatScreenState.none { it.id == newMessage.id }) {
+                        chatScreenState.add(0, newMessage)
                     }
-
-                    DocumentChange.Type.MODIFIED -> Log.d(
-                        ContentValues.TAG,
-                        "Modified city: ${document.document.data}"
-                    )
-
-                    DocumentChange.Type.REMOVED -> Log.d(
-                        ContentValues.TAG,
-                        "Removed city: ${document.document.data}"
-                    )
-
                 }
+
+                DocumentChange.Type.MODIFIED -> Log.d(
+                    ContentValues.TAG,
+                    "Modified city: ${document.document.data}"
+                )
+
+                DocumentChange.Type.REMOVED -> Log.d(
+                    ContentValues.TAG,
+                    "Removed city: ${document.document.data}"
+                )
+
             }
         }
+    }
+
+    return listing
 }
 
 fun initChat(
@@ -496,10 +519,28 @@ fun initChat(
         }
 }
 
-fun attachFile(launcher: ManagedActivityResultLauncher<PickVisualMediaRequest, List<@JvmSuppressWildcards Uri>>) {
+fun attachImage(launcher: ManagedActivityResultLauncher<PickVisualMediaRequest, List<@JvmSuppressWildcards Uri>>) {
     launcher.launch(
         PickVisualMediaRequest(
             mediaType = ActivityResultContracts.PickVisualMedia.ImageAndVideo
         )
     )
+}
+
+fun attachFile(
+    launcherFile: ManagedActivityResultLauncher<String, List<@JvmSuppressWildcards Uri>>,
+) {
+    launcherFile.launch("*/*")
+}
+
+fun getFileName(context: Context, uri: Uri): String? {
+    val returnCursor = context.contentResolver.query(uri, null, null, null, null)
+    returnCursor?.use { cursor ->
+        val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+        if (nameIndex != -1) {
+            cursor.moveToFirst()
+            return cursor.getString(nameIndex)
+        }
+    }
+    return null
 }
