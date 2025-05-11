@@ -87,7 +87,7 @@ class MainActivity : ComponentActivity() {
     }
 
     override fun onDestroy() {
-
+        AppStatus.updateStates(AppStatus.OFFLINE, mainActivityContext)
         super.onDestroy()
     }
 }

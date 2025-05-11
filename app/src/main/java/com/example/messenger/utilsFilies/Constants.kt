@@ -7,12 +7,16 @@ object Constants {
     const val TYPE_VIDEO = "video"
     const val TYPE_FILE = "file"
 
+    const val TYPE_CHAT = "chat"
+    const val TYPE_GROUP = "group"
+    const val TYPE_CHANEL = "chanel"
+
     const val NODE_USERS = "users"
     const val NODE_USERNAMES = "usernames"
     const val NODE_PHONES = "phones"
     const val NODE_PHONES_CONTACTS = "phones_contacts"
-
     const val NODE_MESSAGES = "messages"
+
     const val FOLDER_PHOTOS = "photos"
     const val FOLDER_MESSAGE_FILE = "files"
 
@@ -24,6 +28,7 @@ object Constants {
     const val CHILD_BIO = "bio"
     const val CHILD_STATUS: String = "status"
     const val CHILD_PHOTO_URL: String = "photoUrl"
+    const val CHILD_LAST_MESSAGE: String = "lastMessage"
 
     const val CHILD_FILE_URL: String = "fileUrl"
     const val CHILD_TEXT: String = "text"

@@ -6,6 +6,7 @@ import android.content.Intent
 import android.widget.Toast
 import androidx.compose.material3.DrawerState
 import androidx.navigation.NavHostController
+import com.example.messenger.modals.ChatModal
 import com.example.messenger.modals.CommonModal
 import com.example.messenger.modals.ContactModal
 import com.example.messenger.modals.MessageModal
@@ -112,6 +113,18 @@ fun goTo(navController: NavHostController, user: CommonModal) {
 }
 
 fun goTo(navController: NavHostController, user: ContactModal) {
+    user.id
+    val fullname = URLEncoder.encode(user.fullname, "UTF-8")
+    val status = URLEncoder.encode(user.status, "UTF-8")
+    val uri = URLEncoder.encode(user.photoUrl, "UTF-8")
+
+    //Используем navController для перемещения по экранам
+    navController.navigate("chatScreen/${fullname}/${status}/${uri}/{${user.id}}") {
+        launchSingleTop = true
+    }
+}
+
+fun goTo(navController: NavHostController, user: ChatModal) {
     user.id
     val fullname = URLEncoder.encode(user.fullname, "UTF-8")
     val status = URLEncoder.encode(user.status, "UTF-8")

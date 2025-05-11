@@ -1,4 +1,4 @@
-package com.example.messenger.screens.chatScreens
+package com.example.messenger.screens.componentOfScreens
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
@@ -14,7 +14,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
 import com.example.messenger.messageViews.MessageViewFactory
 import com.example.messenger.dataBase.UID
 import com.example.messenger.modals.MessageModal
