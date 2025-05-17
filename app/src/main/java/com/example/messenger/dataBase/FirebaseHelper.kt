@@ -11,9 +11,9 @@ import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.snapshots.SnapshotStateList
-import androidx.core.net.toUri
 import androidx.navigation.NavHostController
 import com.example.messenger.MainActivity
+import com.example.messenger.modals.ChatModal
 import com.example.messenger.modals.ContactModal
 import com.example.messenger.modals.MessageModal
 import com.example.messenger.modals.User
@@ -24,9 +24,11 @@ import com.example.messenger.utilsFilies.Constants.CHILD_FROM
 import com.example.messenger.utilsFilies.Constants.CHILD_FULLNAME
 import com.example.messenger.utilsFilies.Constants.CHILD_ID
 import com.example.messenger.utilsFilies.Constants.CHILD_INFO
+import com.example.messenger.utilsFilies.Constants.CHILD_LAST_MESSAGE
 import com.example.messenger.utilsFilies.Constants.CHILD_PASSWORD
 import com.example.messenger.utilsFilies.Constants.CHILD_PHONE
 import com.example.messenger.utilsFilies.Constants.CHILD_PHOTO_URL
+import com.example.messenger.utilsFilies.Constants.CHILD_STATUS
 import com.example.messenger.utilsFilies.Constants.CHILD_TIME_STAMP
 import com.example.messenger.utilsFilies.Constants.CHILD_TYPE
 import com.example.messenger.utilsFilies.Constants.CHILD_USER_NAME
@@ -81,7 +83,6 @@ fun initFirebase() {
     USER = User()
     UID = AUTH.currentUser?.uid.toString()
     REF_STORAGE_ROOT = FirebaseStorage.getInstance().reference
-
 }
 
 fun initUser(context: Activity) {
@@ -356,9 +357,10 @@ fun sendMessage(
     receivingUserID: String?,
     typeMessage: String,
     key: String,
-    function: () -> Unit
+    callback: () -> Unit
 ) {
     val db = Firebase.firestore
+
     try {
         val refDialogUser =
             receivingUserID?.let {
@@ -402,10 +404,65 @@ fun sendMessage(
             )
         }
 
-        function()
+        callback()
 
     } catch (e: Exception) {
         makeToast(e.message.toString() + " отправка багует", mainActivityContext)
+    }
+
+}
+
+fun createChatsListObj(infoArray: Array<String>) {
+    try {
+        val db = Firebase.firestore
+
+        val userChats =
+            infoArray[2].let {
+                db
+                    .collection("users_talkers").document(UID).collection("talkers").document(it)
+            }
+
+        val receivingUserChats =
+            infoArray[2].let {
+                db
+                    .collection("users_talkers").document(it).collection("talkers").document(UID)
+            }
+
+        val mapChat = hashMapOf<String, Any>()
+        mapChat[CHILD_FULLNAME] = infoArray[0]
+        mapChat[CHILD_PHOTO_URL] = infoArray[1]
+        mapChat[CHILD_ID] = infoArray[2]
+        mapChat[CHILD_STATUS] = infoArray[3]
+        mapChat[CHILD_TYPE] = infoArray[4]
+        mapChat[CHILD_LAST_MESSAGE] = infoArray[5]
+        mapChat[CHILD_TIME_STAMP] = "00:00:00"
+
+        val mapReceivingUserChat = hashMapOf<String, Any>()
+        mapReceivingUserChat[CHILD_FULLNAME] = USER.fullname
+        mapReceivingUserChat[CHILD_PHOTO_URL] = USER.photoUrl
+        mapReceivingUserChat[CHILD_ID] = USER.id
+        mapReceivingUserChat[CHILD_STATUS] = USER.status
+        mapReceivingUserChat[CHILD_TYPE] = infoArray[4]
+        mapReceivingUserChat[CHILD_LAST_MESSAGE] = infoArray[5]
+        mapReceivingUserChat[CHILD_TIME_STAMP] = "00:00:00"
+
+        val mapChats = hashMapOf<String, Any>()
+        mapChats["$userChats/$infoArray[2]"] = mapChat
+        mapChats["$receivingUserChats/$UID"] = mapReceivingUserChat
+
+        mapChats["$userChats/$infoArray[2]"]?.let {
+            userChats.set(
+                it
+            )
+        }
+
+        mapChats["$receivingUserChats/$UID"]?.let {
+            receivingUserChats.set(
+                it
+            )
+        }
+    } catch (e: Exception) {
+        makeToast(e.message.toString(), mainActivityContext)
     }
 
 }
@@ -513,6 +570,62 @@ fun initChat(
             chatScreenState.clear()
             chatScreenState.addAll(cacheMessages.distinctBy { it.id })
             function()
+        }
+        .addOnFailureListener { exception ->
+            Log.w(ContentValues.TAG, "Error getting documents.", exception)
+        }
+}
+
+fun listeningUpdateChatsList(
+    chatsScreenState: SnapshotStateList<ChatModal>,
+    messLink: Query
+): ListenerRegistration {
+    val listing = messLink.addSnapshotListener { snapshots, e ->
+        if (e != null) {
+            Log.w(ContentValues.TAG, "listen:error", e)
+            return@addSnapshotListener
+        }
+
+        for (document in snapshots!!.documentChanges) {
+            when (document.type) {
+                DocumentChange.Type.ADDED -> {
+                    val newMessage = document.document.toObject(ChatModal::class.java)
+                    if (chatsScreenState.none { it.id == newMessage.id }) {
+                        chatsScreenState.add(0, newMessage)
+                    }
+                }
+
+                DocumentChange.Type.MODIFIED -> Log.d(
+                    ContentValues.TAG,
+                    "Modified city: ${document.document.data}"
+                )
+
+                DocumentChange.Type.REMOVED -> Log.d(
+                    ContentValues.TAG,
+                    "Removed city: ${document.document.data}"
+                )
+
+            }
+        }
+    }
+
+    return listing
+}
+
+fun initChatsList(
+    chatsScreenState: SnapshotStateList<ChatModal>,
+    messLink: Query,
+    function: () -> Unit
+) {
+    messLink
+        .get()
+        .addOnSuccessListener { result ->
+            val cacheMessages =
+                result.documents.map { it.toObject(ChatModal::class.java)!! }.toMutableList()
+            chatsScreenState.clear()
+            chatsScreenState.addAll(cacheMessages.distinctBy { it.id })
+            function()
+            Log.i(ContentValues.TAG, chatsScreenState.size.toString())
         }
         .addOnFailureListener { exception ->
             Log.w(ContentValues.TAG, "Error getting documents.", exception)

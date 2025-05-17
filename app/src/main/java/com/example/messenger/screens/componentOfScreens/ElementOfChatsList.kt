@@ -1,6 +1,7 @@
 package com.example.messenger.screens.componentOfScreens
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -16,17 +17,23 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import androidx.navigation.NavHostController
+import coil.compose.AsyncImage
 import com.example.messenger.utilsFilies.MainImage
-import com.example.messenger.dataBase.USER
+import com.example.messenger.modals.ChatModal
+import com.example.messenger.navigation.Screens
+import com.example.messenger.utilsFilies.UriImage
+import com.example.messenger.utilsFilies.goTo
 
 @Composable
-fun ElementOfChatsList(navController: NavHostController) {
+fun ElementOfChatsList(chatModal: ChatModal, navController: NavHostController) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .height(60.dp)
             .clickable {
+                goTo(navController, chatModal)
             },
         shape = RoundedCornerShape(
             topStart = 0.dp,
@@ -36,17 +43,22 @@ fun ElementOfChatsList(navController: NavHostController) {
         ),
     ) {
         Row(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
-        ){
+        ) {
             Spacer(modifier = Modifier.padding(4.dp))
-            MainImage(dp = 64.dp) {}
-            Spacer(modifier = Modifier.padding(8.dp))
-            Column {
-                Text(text = "Lexa")
-                Text(text = USER.status)
-            }
 
+            UriImage(64.dp, chatModal.photoUrl) {}
+
+            Spacer(modifier = Modifier.padding(8.dp))
+
+            Column {
+                Text(text = chatModal.fullname)
+                chatModal.lastMessage?.let { Text(text = it) }
+            }
+            Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center){
+                Text(text = chatModal.status)
+            }
         }
     }
     HorizontalDivider()

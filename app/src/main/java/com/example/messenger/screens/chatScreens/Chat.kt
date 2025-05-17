@@ -1,15 +1,11 @@
 package com.example.messenger.screens.chatScreens
 
 import android.annotation.SuppressLint
-import android.app.Activity
-import android.content.Intent
 import android.net.Uri
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.ActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
@@ -64,19 +60,21 @@ import com.example.messenger.R
 import com.example.messenger.dataBase.UID
 import com.example.messenger.dataBase.attachFile
 import com.example.messenger.dataBase.attachImage
+import com.example.messenger.dataBase.createChatsListObj
 import com.example.messenger.dataBase.getMessageKey
 import com.example.messenger.dataBase.initChat
 import com.example.messenger.dataBase.listeningUpdateChat
 import com.example.messenger.dataBase.uploadFileToStorage
+import com.example.messenger.dataBase.valueEventListenerClasses.LastMessageState
 import com.example.messenger.messageViews.sendText
 import com.example.messenger.messageViews.startRecord
 import com.example.messenger.messageViews.stopRecord
 import com.example.messenger.modals.MessageModal
+import com.example.messenger.screens.componentOfScreens.Message
 import com.example.messenger.utilsFilies.AppVoiceRecorder
+import com.example.messenger.utilsFilies.Constants.TYPE_CHAT
 import com.example.messenger.utilsFilies.Constants.TYPE_FILE
 import com.example.messenger.utilsFilies.Constants.TYPE_IMAGE
-import com.example.messenger.utilsFilies.mainActivityContext
-import com.example.messenger.utilsFilies.makeToast
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.Query
@@ -98,12 +96,28 @@ fun ChatScreen(
     idContact: String,
     navController: NavHostController,
 ) {
-    val fullname = URLDecoder.decode(fullnameContact, "UTF-8")
-    val statusUSER = URLDecoder.decode(statusContact, "UTF-8")
-    val photoURL = photoURLContact
+    val fullname = URLDecoder.decode(fullnameContact, "UTF-8").toString()
+    val statusUSER = URLDecoder.decode(statusContact, "UTF-8").toString()
+    val photoURL = photoURLContact.toString()
 
     val regex = Regex("[{}]")
     val receivingUserID = idContact.replace(regex, "")
+
+    val infoArray = arrayOf(
+        fullname,
+        photoURL,
+        receivingUserID,
+        statusUSER,
+        TYPE_CHAT,
+        "lastMes_null",
+        "timeStamp_null"
+    )
+
+    var listenerRegistration: ListenerRegistration
+
+    val viewConfiguration = LocalViewConfiguration.current
+
+    val db = Firebase.firestore
 
     val recordVoiceFlag = remember { mutableStateOf(false) }
     val changeColor = remember { mutableStateOf(Color.Red) }
@@ -117,21 +131,15 @@ fun ChatScreen(
     val isLoadingFirstMessages = remember { mutableStateOf(false) }
     var isLoadingOldMessages by remember { mutableStateOf(false) }
 
-    var listenerRegistration: ListenerRegistration
-
     val interactionSource = remember { MutableInteractionSource() } //Кнопка голосового сообщения
 
     val showBottomSheetState = remember { mutableStateOf(false) }
 
-    val viewConfiguration = LocalViewConfiguration.current
-
-    val db = Firebase.firestore
-    val cleanIdContact = idContact.replace("{", "").replace("}", "")
-
     val messLink =
-        db.collection("users_messages")
-            .document(UID).collection("messages")
-            .document(cleanIdContact).collection("TheirMessages")
+        db
+            .collection("users_messages").document(UID)
+            .collection("messages").document(receivingUserID)
+            .collection("TheirMessages")
             .orderBy("timeStamp", Query.Direction.DESCENDING) //Делает обратный порядок
             .limit(30)
 
@@ -186,7 +194,8 @@ fun ChatScreen(
             chatScreenState,
             coroutineScope,
             listState,
-            showBottomSheetState
+            showBottomSheetState,
+            infoArray
         )
     }
 
@@ -201,7 +210,7 @@ fun ChatScreen(
                 db.collection("users_messages")
                     .document(UID)
                     .collection("messages")
-                    .document(cleanIdContact)
+                    .document(receivingUserID)
                     .collection("TheirMessages")
                     .orderBy("timeStamp", Query.Direction.DESCENDING)
                     .startAfter(lastTimestamp)
@@ -270,8 +279,9 @@ private fun PanelOfEnter(
     coroutineScope: CoroutineScope,
     listState: LazyListState,
     showBottomSheetState: MutableState<Boolean>,
+    infoArray: Array<String>
+) {
 
-    ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -295,7 +305,8 @@ private fun PanelOfEnter(
                         launcher,
                         launcherFile,
                         showBottomSheetState,
-                        coroutineScope
+                        coroutineScope,
+                        infoArray
                     )
                 }
             },
@@ -310,7 +321,8 @@ private fun PanelOfEnter(
             viewConfiguration,
             chatScreenState,
             coroutineScope,
-            listState
+            listState,
+            infoArray
         ) {
             text.value = ""
         }
@@ -323,7 +335,8 @@ fun AttachFileButton(
     launcher: ManagedActivityResultLauncher<PickVisualMediaRequest, List<@JvmSuppressWildcards Uri>>,
     launcherFile: ManagedActivityResultLauncher<String, List<@JvmSuppressWildcards Uri>>,
     showBottomSheetState: MutableState<Boolean>,
-    coroutineScope: CoroutineScope
+    coroutineScope: CoroutineScope,
+    infoArray: Array<String>
 ) {
     val sheetState = rememberModalBottomSheetState()
 
@@ -345,7 +358,10 @@ fun AttachFileButton(
             sheetState = sheetState
         ) {
             // Sheet content
-            SheetContent(launcher, launcherFile, coroutineScope, sheetState, showBottomSheetState)
+            SheetContent(
+                launcher, launcherFile, coroutineScope, sheetState, showBottomSheetState,
+                infoArray
+            )
         }
     }
 }
@@ -357,7 +373,8 @@ fun SheetContent(
     launcherFile: ManagedActivityResultLauncher<String, List<@JvmSuppressWildcards Uri>>,
     coroutineScope: CoroutineScope,
     sheetState: SheetState,
-    showBottomSheetState: MutableState<Boolean>
+    showBottomSheetState: MutableState<Boolean>,
+    infoArray: Array<String>
 ) {
 
     Row {
@@ -368,6 +385,7 @@ fun SheetContent(
                     showBottomSheetState.value = false
                 }
             }
+            createChatsListObj(infoArray)
         }) {
             Text("Image")
         }
@@ -379,6 +397,7 @@ fun SheetContent(
                     showBottomSheetState.value = false
                 }
             }
+            createChatsListObj(infoArray)
         }) {
             Text("File")
         }
@@ -407,6 +426,7 @@ private fun SendMessageButton(
     chatScreenState: SnapshotStateList<MessageModal>,
     coroutineScope: CoroutineScope,
     listState: LazyListState,
+    infoArray: Array<String>,
     cleanText: () -> Unit
 ) {
     IconButton(
@@ -447,6 +467,8 @@ private fun SendMessageButton(
                                 coroutineScope.launch {
                                     listState.animateScrollToItem(0)
                                 }
+                            createChatsListObj(infoArray)
+                            LastMessageState.updateLastMessage("Голосовое сообщение", receivingUserID)
                         }
                     }
 
@@ -461,6 +483,7 @@ private fun SendMessageButton(
                                 coroutineScope.launch {
                                     listState.animateScrollToItem(0)
                                 }
+                            createChatsListObj(infoArray)
                         }
 
                         if (isLongClick.not()) {
@@ -473,6 +496,8 @@ private fun SendMessageButton(
                                     coroutineScope.launch {
                                         listState.animateScrollToItem(0)
                                     }
+                                createChatsListObj(infoArray)
+                                LastMessageState.updateLastMessage(fieldText.value, receivingUserID)
                                 cleanText()
                             }
 
