@@ -3,9 +3,16 @@ package com.example.messenger.utilsFilies
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
+import android.provider.ContactsContract
+import android.provider.OpenableColumns
 import android.widget.Toast
+import androidx.activity.compose.ManagedActivityResultLauncher
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material3.DrawerState
 import androidx.navigation.NavHostController
+import com.example.messenger.dataBase.firebaseFuns.updateContactsForFirebase
 import com.example.messenger.modals.ChatModal
 import com.example.messenger.modals.CommonModal
 import com.example.messenger.modals.ContactModal
@@ -141,3 +148,82 @@ fun goTo(navController: NavHostController, user: ChatModal) {
 
 fun DataSnapshot.getMessageModel(): MessageModal =
     this.getValue(MessageModal::class.java) ?: MessageModal()
+
+fun attachImage(launcher: ManagedActivityResultLauncher<PickVisualMediaRequest, List<@JvmSuppressWildcards Uri>>) {
+    launcher.launch(
+        PickVisualMediaRequest(
+            mediaType = ActivityResultContracts.PickVisualMedia.ImageAndVideo
+        )
+    )
+}
+
+fun attachFile(
+    launcherFile: ManagedActivityResultLauncher<String, List<@JvmSuppressWildcards Uri>>,
+) {
+    launcherFile.launch("*/*")
+}
+
+fun getFileName(context: Context, uri: Uri): String? {
+    val returnCursor = context.contentResolver.query(uri, null, null, null, null)
+    returnCursor?.use { cursor ->
+        val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+        if (nameIndex != -1) {
+            cursor.moveToFirst()
+            return cursor.getString(nameIndex)
+        }
+    }
+    return null
+}
+
+fun getContactsFromSmartphone() {
+    if (myCheckPermission(READ_CONTACTS)) {
+        val contactList = mutableListOf<ContactModal>()
+        val cursor = mainActivityContext.contentResolver.query(
+            ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+            null,
+            null,
+            null,
+            null
+        )
+
+        cursor?.let {
+            while (it.moveToNext()) {
+                val fullName =
+                    cursor.getString(
+                        cursor.getColumnIndexOrThrow(
+                            ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME
+                        )
+                    )
+                val phone =
+                    cursor.getString(
+                        cursor.getColumnIndexOrThrow(
+                            ContactsContract.CommonDataKinds.Phone.NUMBER
+                        )
+                    )
+
+                val newModal = ContactModal().apply { ContactModal().fullname = fullName }
+
+                var pattern = Regex("[^\\d+]")
+                var formattedPhone = phone.replace(pattern, "")
+
+                formattedPhone =
+                    if (!formattedPhone.startsWith("+")) "+$formattedPhone" else formattedPhone
+                pattern = Regex("(\\+\\d+)(\\d{3})(\\d{3})(\\d{4})")
+
+                formattedPhone = pattern.replace(formattedPhone) { match ->
+                    "${match.groups[1]?.value}" +
+                            " ${match.groups[2]?.value}" +
+                            "-${match.groups[3]?.value}" +
+                            "-${match.groups[4]?.value}"
+                }
+
+                newModal.phone = formattedPhone
+
+                contactList.add(newModal)
+            }
+        }
+        cursor?.close()
+
+        updateContactsForFirebase(contactList)
+    }
+}

@@ -1,6 +1,9 @@
-package com.example.messenger.dataBase
+package com.example.messenger.dataBase.valueEventListenerClasses
 
 import android.content.Context
+import com.example.messenger.dataBase.firebaseFuns.REF_DATABASE_ROOT
+import com.example.messenger.dataBase.firebaseFuns.UID
+import com.example.messenger.dataBase.firebaseFuns.USER
 import com.example.messenger.utilsFilies.Constants.CHILD_STATUS
 import com.example.messenger.utilsFilies.Constants.NODE_USERS
 import com.example.messenger.utilsFilies.makeToast

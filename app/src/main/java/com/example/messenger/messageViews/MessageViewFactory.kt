@@ -8,25 +8,22 @@ import com.example.messenger.utilsFilies.Constants.TYPE_TEXT
 import com.example.messenger.utilsFilies.Constants.TYPE_VOICE
 import com.example.messenger.utilsFilies.toFormattedLocalTime
 
-class MessageViewFactory {
-    @Composable
-    fun CreateMessageView(messageFromDB: MessageModal){
-        val message = initMessage(messageFromDB)
+@Composable
+fun CreateMessageView(messageFromDB: MessageModal){
+    val message = initMessage(messageFromDB)
 
-         when (messageFromDB.type) {
-            TYPE_TEXT -> TextMsg(message)
+    when (messageFromDB.type) {
+        TYPE_TEXT -> TextMsg(message)
 
-            TYPE_IMAGE -> ImageMsg(message)
+        TYPE_IMAGE -> ImageMsg(message)
 
-            TYPE_VOICE -> VoiceMsg(message)
+        TYPE_VOICE -> VoiceMsg(message)
 
-            TYPE_FILE -> FileMsg(message)
+        TYPE_FILE -> FileMsg(message)
 
-            else -> TextMsg(message)
-        }
+        else -> TextMsg(message)
     }
 }
-
 
 fun initMessage(messageModal: MessageModal): Pair<MessageModal, Any> {
     return if (messageModal.timeStamp.toString().trim().isNotEmpty())

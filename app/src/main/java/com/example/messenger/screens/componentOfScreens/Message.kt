@@ -14,8 +14,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.example.messenger.messageViews.MessageViewFactory
-import com.example.messenger.dataBase.UID
+import com.example.messenger.dataBase.firebaseFuns.UID
+import com.example.messenger.messageViews.CreateMessageView
 import com.example.messenger.modals.MessageModal
 
 @Composable
@@ -59,7 +59,7 @@ fun OutlinedCardMessage(
             border = BorderStroke(1.5.dp, Color.Black),
         )
         {
-            MessageViewFactory().apply { CreateMessageView(messageModal) }
+            CreateMessageView(messageModal)
         }
     }
 }

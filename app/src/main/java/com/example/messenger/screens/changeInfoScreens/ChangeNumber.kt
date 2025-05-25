@@ -32,7 +32,7 @@ import com.example.messenger.R
 import com.example.messenger.ui.theme.MessengerTheme
 import com.example.messenger.user_sing_in_and_up_activities.EnterCode
 import com.example.messenger.utilsFilies.MainFieldStyle
-import com.example.messenger.dataBase.USER
+import com.example.messenger.dataBase.firebaseFuns.USER
 import com.example.messenger.utilsFilies.goTo
 
 class ChangeNumber : ComponentActivity() {

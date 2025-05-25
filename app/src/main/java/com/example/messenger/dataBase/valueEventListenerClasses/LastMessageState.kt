@@ -1,7 +1,6 @@
 package com.example.messenger.dataBase.valueEventListenerClasses
 
-import com.example.messenger.dataBase.UID
-import com.example.messenger.modals.ChatModal
+import com.example.messenger.dataBase.firebaseFuns.UID
 import com.example.messenger.utilsFilies.mainActivityContext
 import com.example.messenger.utilsFilies.makeToast
 import com.google.firebase.Firebase

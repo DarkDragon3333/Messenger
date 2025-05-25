@@ -1,7 +1,9 @@
-package com.example.messenger.utilsFilies
+package com.example.messenger.utilsFilies.voiceFiles
 
 import android.media.MediaPlayer
-import com.example.messenger.dataBase.getFile
+import com.example.messenger.dataBase.firebaseFuns.getFile
+import com.example.messenger.utilsFilies.mainActivityContext
+import com.example.messenger.utilsFilies.makeToast
 import java.io.File
 import java.io.IOException
 
@@ -17,8 +19,8 @@ class AppVoicePlayer {
             }
         } else {
             mAudioFile.createNewFile()
-            getFile(mAudioFile, fileUrl){
-                play{
+            getFile(mAudioFile, fileUrl) {
+                play {
                     function()
                 }
             }

@@ -26,9 +26,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.example.messenger.dataBase.REF_STORAGE_ROOT
-import com.example.messenger.dataBase.UID
-import com.example.messenger.dataBase.choseChangeInformation
+import com.example.messenger.dataBase.firebaseFuns.REF_STORAGE_ROOT
+import com.example.messenger.dataBase.firebaseFuns.UID
+import com.example.messenger.dataBase.firebaseFuns.choseChangeInformation
 import com.example.messenger.utilsFilies.Constants.CHILD_PHOTO_URL
 import com.example.messenger.utilsFilies.Constants.FOLDER_PHOTOS
 import com.example.messenger.utilsFilies.mainActivityContext

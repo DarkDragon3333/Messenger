@@ -7,12 +7,10 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import com.example.messenger.screens.NavDrawer
 import com.example.messenger.ui.theme.MessengerTheme
-import com.example.messenger.dataBase.AppStatus
+import com.example.messenger.dataBase.valueEventListenerClasses.AppStatus
 import com.example.messenger.utilsFilies.READ_CONTACTS
 import com.example.messenger.utilsFilies.get_out_from_auth
-import com.example.messenger.dataBase.getContactsFromSmartphone
-import com.example.messenger.screens.chatScreens.appVoiceRecorder
-import com.example.messenger.utilsFilies.AppVoiceRecorder
+import com.example.messenger.utilsFilies.getContactsFromSmartphone
 import com.example.messenger.utilsFilies.mainActivityContext
 import com.example.messenger.utilsFilies.makeToast
 import com.example.messenger.utilsFilies.sign_out

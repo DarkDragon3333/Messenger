@@ -29,8 +29,7 @@ import com.example.messenger.ui.theme.textMes
 fun FileMsg(
     pair: Pair<MessageModal, Any>
 ) {
-    val fileName = remember { mutableStateOf("") }
-    val fileUri = remember { mutableStateOf("") }
+    var (fileName, fileUri) = parseInfo(pair.first.info)
 
     Box(contentAlignment = Alignment.BottomEnd) {
         Row(
@@ -46,8 +45,8 @@ fun FileMsg(
                     .border(1.dp, Color.Black, CircleShape)
                     .background(Color.White),
                 onClick = {
-                    fileUri.value = parseInfo(pair.first.info).second
-                    downloadFileToSmartphone(fileUri.value)
+                    fileUri = parseInfo(pair.first.info).second
+                    downloadFileToSmartphone(fileUri)
                 }
             ) {
                 Icon(
@@ -56,7 +55,7 @@ fun FileMsg(
                 )
             }
             Text(
-                text = fileName.value,
+                text = fileName,
                 fontSize = 16.sp,
                 color = Color.Black,
                 modifier = Modifier.padding(end = 60.dp)
@@ -74,7 +73,7 @@ fun FileMsg(
     }
 
     DisposableEffect(Unit) {
-        fileName.value = parseInfo(pair.first.info).first
+        //fileName = parseInfo(pair.first.info).first
 
         onDispose {
 

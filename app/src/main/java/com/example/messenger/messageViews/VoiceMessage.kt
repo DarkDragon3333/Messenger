@@ -26,12 +26,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.messenger.R
-import com.example.messenger.dataBase.getMessageKey
-import com.example.messenger.dataBase.uploadFileToStorage
+import com.example.messenger.dataBase.firebaseFuns.getMessageKey
+import com.example.messenger.dataBase.firebaseFuns.uploadFileToStorage
 import com.example.messenger.modals.MessageModal
 import com.example.messenger.screens.chatScreens.appVoiceRecorder
 import com.example.messenger.ui.theme.textMes
-import com.example.messenger.utilsFilies.AppVoicePlayer
+import com.example.messenger.utilsFilies.voiceFiles.AppVoicePlayer
 import com.example.messenger.utilsFilies.Constants.TYPE_VOICE
 import com.example.messenger.utilsFilies.mainActivityContext
 import com.example.messenger.utilsFilies.makeToast
@@ -41,7 +41,7 @@ fun VoiceMsg(
     pair: Pair<MessageModal, Any>
 ) {
     val clickOnButton = remember { mutableIntStateOf(0) }
-    var appVoicePlayer: AppVoicePlayer
+    var appVoicePlayer: AppVoicePlayer = remember { AppVoicePlayer().apply { initMediaPlayer() } }
 
     Box(contentAlignment = Alignment.BottomEnd) {
         Row(
@@ -59,7 +59,6 @@ fun VoiceMsg(
                 onClick = {
                     //makeToast("Идёт запись", mainActivityContext)
                     clickOnButton.intValue += 1
-                    appVoicePlayer = AppVoicePlayer().apply { initMediaPlayer() }
                     controlVoiceButton(clickOnButton, appVoicePlayer, pair)
                 }
             ) {

@@ -21,10 +21,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.messenger.MainActivity
 import com.example.messenger.R
-import com.example.messenger.dataBase.AUTH
-import com.example.messenger.dataBase.REF_DATABASE_ROOT
-import com.example.messenger.dataBase.REF_STORAGE_ROOT
-import com.example.messenger.dataBase.USER
+import com.example.messenger.dataBase.firebaseFuns.AUTH
+import com.example.messenger.dataBase.firebaseFuns.REF_DATABASE_ROOT
+import com.example.messenger.dataBase.firebaseFuns.REF_STORAGE_ROOT
+import com.example.messenger.dataBase.firebaseFuns.USER
 import com.example.messenger.screens.changeInfoScreens.pathToPhoto
 import com.example.messenger.ui.theme.MessengerTheme
 import com.example.messenger.utilsFilies.Constants.CHILD_BIO

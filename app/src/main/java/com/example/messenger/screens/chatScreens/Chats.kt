@@ -20,9 +20,9 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.example.messenger.dataBase.UID
-import com.example.messenger.dataBase.initChatsList
-import com.example.messenger.dataBase.listeningUpdateChatsList
+import com.example.messenger.dataBase.firebaseFuns.UID
+import com.example.messenger.dataBase.firebaseFuns.initChatsList
+import com.example.messenger.dataBase.firebaseFuns.listeningUpdateChatsList
 import com.example.messenger.modals.ChatModal
 import com.example.messenger.screens.componentOfScreens.ElementOfChatsList
 import com.google.firebase.Firebase

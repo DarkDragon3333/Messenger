@@ -1,6 +1,8 @@
-package com.example.messenger.utilsFilies
+package com.example.messenger.utilsFilies.voiceFiles
 
 import android.media.MediaRecorder
+import com.example.messenger.utilsFilies.mainActivityContext
+import com.example.messenger.utilsFilies.makeToast
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -64,6 +66,5 @@ class AppVoiceRecorder {
             prepare() //Подготовливаемся к записи аудио
             start() //Запускаем запись аудио
         }
-
     }
 }

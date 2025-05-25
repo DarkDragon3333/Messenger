@@ -1,7 +1,7 @@
 package com.example.messenger.modals
 
 import androidx.compose.runtime.Stable
-import com.example.messenger.dataBase.USER
+import com.example.messenger.dataBase.firebaseFuns.USER
 import com.example.messenger.utilsFilies.Constants.CHILD_BIO
 import com.example.messenger.utilsFilies.Constants.CHILD_FULLNAME
 import com.example.messenger.utilsFilies.Constants.CHILD_PASSWORD

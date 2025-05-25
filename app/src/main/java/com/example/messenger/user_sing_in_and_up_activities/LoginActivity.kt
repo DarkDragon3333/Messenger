@@ -21,12 +21,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.messenger.MainActivity
-import com.example.messenger.dataBase.AUTH
-import com.example.messenger.dataBase.REF_DATABASE_ROOT
-import com.example.messenger.dataBase.UID
-import com.example.messenger.dataBase.USER
-import com.example.messenger.dataBase.authUser
-import com.example.messenger.dataBase.initFirebase
+import com.example.messenger.dataBase.firebaseFuns.AUTH
+import com.example.messenger.dataBase.firebaseFuns.REF_DATABASE_ROOT
+import com.example.messenger.dataBase.firebaseFuns.UID
+import com.example.messenger.dataBase.firebaseFuns.USER
+import com.example.messenger.dataBase.firebaseFuns.authUser
+import com.example.messenger.dataBase.firebaseFuns.initFirebase
 import com.example.messenger.modals.User
 import com.example.messenger.ui.theme.MessengerTheme
 import com.example.messenger.utilsFilies.Constants.NODE_PHONES
@@ -60,8 +60,9 @@ class LoginActivity : ComponentActivity() {
         initFirebase() //Инициализируем БД
 
     }
+
     @Composable
-    private fun InitUserLoginActivity(){
+    private fun InitUserLoginActivity() {
         REF_DATABASE_ROOT
             .child(NODE_USERS)
             .child(UID)
@@ -70,15 +71,17 @@ class LoginActivity : ComponentActivity() {
                     override fun onDataChange(snapshot: DataSnapshot) {
                         USER = snapshot.getValue(User::class.java)
                             ?: User() //Получаем данные через переменную snapshot. Если будет null поле, то вы инициализируем пустым пользователем
-                        if (AUTH.currentUser != null) { //Если пользователь уже есть
-                            goTo(MainActivity::class.java, context)
-                        }
-                        else {
-                            setContent{
-                                MessengerTheme {
-                                    Scaffold(modifier = Modifier.fillMaxSize()) {
-                                        it
-                                        GreetingInLoginActivity()
+
+                        when (AUTH.currentUser != null) { //Если пользователь уже есть
+                            true -> goTo(MainActivity::class.java, context)
+
+                            false -> {
+                                setContent {
+                                    MessengerTheme {
+                                        Scaffold(modifier = Modifier.fillMaxSize()) {
+                                            it
+                                            GreetingInLoginActivity()
+                                        }
                                     }
                                 }
                             }
@@ -120,7 +123,8 @@ class LoginActivity : ComponentActivity() {
                     onClick = {
                         var pattern = Regex("[^\\d+]")
                         var formattedPhone = phone.replace(pattern, "")
-                        formattedPhone = if (!formattedPhone.startsWith("+")) "+$formattedPhone" else formattedPhone
+                        formattedPhone =
+                            if (!formattedPhone.startsWith("+")) "+$formattedPhone" else formattedPhone
                         pattern = Regex("(\\+\\d+)(\\d{3})(\\d{3})(\\d{4})")
 
                         formattedPhone = pattern.replace(formattedPhone) { match ->
@@ -171,20 +175,25 @@ class LoginActivity : ComponentActivity() {
         }
     }
 
-    private fun checkPhone(phone: String, password: String){
+    private fun checkPhone(phone: String, password: String) {
         REF_DATABASE_ROOT.child(NODE_PHONES).addListenerForSingleValueEvent(object :
             ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                run breaking@ {
+                run breaking@{
                     snapshot.children.forEach { snapshotPhone -> //Перебираем все номера телефонов
                         if (snapshotPhone.key == phone) { //Если номер телефона совпадает с введённым
-                            downloadInfoOfUser(snapshotPhone, phone, password) //Получаем информацию о пользователе
+                            downloadInfoOfUser(
+                                snapshotPhone,
+                                phone,
+                                password
+                            ) //Получаем информацию о пользователе
                             return@breaking
                         }
                     }
                 }
 
             }
+
             override fun onCancelled(error: DatabaseError) {
                 makeToast(error.message, context)
             }
