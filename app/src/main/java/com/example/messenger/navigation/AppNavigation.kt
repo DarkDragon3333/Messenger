@@ -8,10 +8,10 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.example.messenger.screens.ContactsScreen
-import com.example.messenger.screens.SearchScreen
-import com.example.messenger.screens.SettingsScreen
-import com.example.messenger.screens.YourProfile
+import com.example.messenger.screens.navMenu.ContactsScreen
+import com.example.messenger.screens.navMenu.SearchScreen
+import com.example.messenger.screens.navMenu.SettingsScreen
+import com.example.messenger.screens.navMenu.YourProfile
 import com.example.messenger.screens.changeInfoScreens.ChangeBIO
 import com.example.messenger.screens.changeInfoScreens.ChangeName
 import com.example.messenger.screens.changeInfoScreens.ChangePhotoUrl

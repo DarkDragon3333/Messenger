@@ -1,4 +1,4 @@
-package com.example.messenger.screens
+package com.example.messenger.screens.navMenu
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -30,30 +30,18 @@ fun YourProfile() {
         HorizontalDivider(thickness = 1.dp, modifier = Modifier.padding(bottom = 10.dp)) //Линия
         Spacer(modifier = Modifier.padding(10.dp)) //Отступ
         Column(horizontalAlignment = Alignment.Start) {
-            Row {
-                Extracted("Ваше ФИО: ", USER.fullname)
-            }
+            Row { Extracted("Ваше ФИО: ", USER.fullname) }
             HorizontalDivider(thickness = 1.dp, modifier = Modifier.padding(bottom = 10.dp)) //Линия
 
-            Row {
-                Extracted("Ваш номер телефона: ", USER.phone)
-            }
+            Row { Extracted("Ваш номер телефона: ", USER.phone) }
             HorizontalDivider(thickness = 1.dp, modifier = Modifier.padding(bottom = 10.dp)) //Линия
 
-            Row {
-                Extracted("Ваш никнейм: ", USER.username)
-            }
+            Row { Extracted("Ваш никнейм: ", USER.username) }
             HorizontalDivider(thickness = 1.dp, modifier = Modifier.padding(bottom = 10.dp)) //Линия
 
-            Row {
-                Extracted("Цитата: ", USER.bio)
-            }
+            Row { Extracted("Цитата: ", USER.bio) }
             HorizontalDivider(thickness = 1.dp, modifier = Modifier.padding(bottom = 10.dp)) //Линия
-
-
         }
-
-
     }
 }
 

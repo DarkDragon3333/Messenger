@@ -32,12 +32,12 @@
         <profileable android:shell="true" />
 
         <activity
-            android:name=".user_sing_in_and_up_activities.AddInfo"
+            android:name=".screens.loginAndSignUp.AddInfo"
             android:exported="false"
             android:label="@string/title_activity_add_name"
             android:theme="@style/Theme.Messenger" />
         <activity
-            android:name=".user_sing_in_and_up_activities.EnterCode"
+            android:name=".screens.loginAndSignUp.EnterCode"
             android:exported="false"
             android:label="@string/title_activity_send_message"
             android:theme="@style/Theme.Messenger"
@@ -49,7 +49,7 @@
             android:theme="@style/Theme.Messenger"
             android:windowSoftInputMode="stateVisible|adjustResize" />
         <activity
-            android:name=".user_sing_in_and_up_activities.SingUpActivity"
+            android:name=".screens.loginAndSignUp.SingUpActivity"
             android:exported="false"
             android:label="@string/title_activity_sing_up"
             android:theme="@style/Theme.Messenger" />
@@ -61,7 +61,7 @@
             android:windowSoftInputMode="stateVisible|adjustResize"
             android:theme="@style/Theme.Messenger" />
         <activity
-            android:name=".user_sing_in_and_up_activities.LoginActivity"
+            android:name=".screens.loginAndSignUp.LoginActivity"
             android:exported="true"
             android:theme="@style/Theme.Messenger">
             <intent-filter>

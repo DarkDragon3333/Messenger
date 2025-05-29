@@ -31,7 +31,7 @@ import com.example.messenger.dataBase.firebaseFuns.uploadFileToStorage
 import com.example.messenger.modals.MessageModal
 import com.example.messenger.screens.chatScreens.appVoiceRecorder
 import com.example.messenger.ui.theme.textMes
-import com.example.messenger.utilsFilies.voiceFiles.AppVoicePlayer
+import com.example.messenger.utilsFilies.voice.AppVoicePlayer
 import com.example.messenger.utilsFilies.Constants.TYPE_VOICE
 import com.example.messenger.utilsFilies.mainActivityContext
 import com.example.messenger.utilsFilies.makeToast
@@ -57,7 +57,6 @@ fun VoiceMsg(
                     .border(1.dp, Color.Black, CircleShape)
                     .background(Color.White),
                 onClick = {
-                    //makeToast("Идёт запись", mainActivityContext)
                     clickOnButton.intValue += 1
                     controlVoiceButton(clickOnButton, appVoicePlayer, pair)
                 }
@@ -108,29 +107,41 @@ private fun controlVoiceButton(
 ) {
     when (clickOnButton.intValue) {
         1 -> {
-            play(appVoicePlayer, pair.first) {
+            playVoiceMsg(appVoicePlayer, pair.first) {
                 release(clickOnButton, appVoicePlayer)
             }
         }
 
         2 -> {
-            stop(appVoicePlayer, clickOnButton) {
+            stopVoiceMsg(appVoicePlayer, clickOnButton) {
                 release(clickOnButton, appVoicePlayer)
             }
         }
     }
 }
 
-
-private fun release(
-    clickOnButton: MutableIntState,
-    appVoicePlayer: AppVoicePlayer
+private fun playVoiceMsg(
+    appVoicePlayer: AppVoicePlayer,
+    messageModal: MessageModal,
+    function: () -> Unit
 ) {
-    clickOnButton.intValue = 0
-    appVoicePlayer.releaseMediaPlayer()
+    appVoicePlayer.preparePlaying(messageModal.id, messageModal.info) {
+        function()
+    }
 }
 
-fun startRecord(
+private fun stopVoiceMsg(
+    appVoicePlayer: AppVoicePlayer,
+    clickOnButton: MutableIntState,
+    function: () -> Unit
+) {
+    appVoicePlayer.stopPlay {
+        clickOnButton.intValue = 0
+        function()
+    }
+}
+
+fun startRecordVoiceMsg(
     changeColor: MutableState<Color>,
     receivingUserID: String,
     recordVoiceFlag: MutableState<Boolean>
@@ -146,28 +157,7 @@ fun startRecord(
 
 }
 
-private fun play(
-    appVoicePlayer: AppVoicePlayer,
-    messageModal: MessageModal,
-    function: () -> Unit
-) {
-    appVoicePlayer.startPlaying(messageModal.id, messageModal.info) {
-        function()
-    }
-}
-
-private fun stop(
-    appVoicePlayer: AppVoicePlayer,
-    clickOnButton: MutableIntState,
-    function: () -> Unit
-) {
-    appVoicePlayer.stopPlaying {
-        clickOnButton.intValue = 0
-        function()
-    }
-}
-
-fun stopRecord(
+fun stopRecordVoiceMsg(
     receivingUserID: String,
     changeColor: MutableState<Color>,
     recordVoiceFlag: MutableState<Boolean>
@@ -184,14 +174,20 @@ fun stopRecord(
                     TYPE_VOICE
                 )
             } else file.delete()
-            changeColor.value = Color.Red
-            recordVoiceFlag.value = false
         }
     } catch (e: Exception) {
         makeToast(e.message.toString() + " ошибка остановки", mainActivityContext)
+
+    } finally {
         changeColor.value = Color.Red
         recordVoiceFlag.value = false
     }
-
 }
 
+private fun release(
+    clickOnButton: MutableIntState,
+    appVoicePlayer: AppVoicePlayer
+) {
+    clickOnButton.intValue = 0
+    appVoicePlayer.releaseMediaPlayer()
+}

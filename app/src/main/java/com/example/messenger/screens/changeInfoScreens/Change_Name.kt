@@ -9,6 +9,10 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -22,15 +26,11 @@ import com.example.messenger.utilsFilies.makeToast
 
 @Composable
 fun ChangeName(navController: NavHostController) {
-    val fullname = USER.fullname.split(" ")
+    val fullname by remember { mutableStateOf(USER.fullname.split(" ")) }
+    val name by remember { mutableStateOf(fullname[0]) }
+    var surname by remember { mutableStateOf("") }
 
-    val name = fullname[0]
-
-    var surname = ""
-
-    if (fullname.size == 2) {
-        surname = fullname[1]
-    }
+    if (fullname.size == 2) surname = fullname[1]
 
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Spacer(modifier = Modifier.padding(0.dp, 40.dp))
@@ -55,17 +55,16 @@ fun ChangeName(navController: NavHostController) {
         Spacer(modifier = Modifier.padding(0.dp, 40.dp))
         Button(
             onClick = {
-                if (nameField == "") {
-                    makeToast("Введите имя", mainActivityContext)
-                } else {
-                    choseChangeInformation(
-                        "$nameField $surnameField",
-                        CHILD_FULLNAME,
-                        mainActivityContext,
-                        navController
-                    )
+                when (nameField == "") {
+                    true -> makeToast("Введите имя", mainActivityContext)
+                    else ->
+                        choseChangeInformation(
+                            "$nameField $surnameField",
+                            CHILD_FULLNAME,
+                            mainActivityContext,
+                            navController
+                        )
                 }
-
             }
         )
         {

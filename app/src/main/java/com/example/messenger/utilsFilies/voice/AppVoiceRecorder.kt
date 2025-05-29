@@ -1,4 +1,4 @@
-package com.example.messenger.utilsFilies.voiceFiles
+package com.example.messenger.utilsFilies.voice
 
 import android.media.MediaRecorder
 import com.example.messenger.utilsFilies.mainActivityContext

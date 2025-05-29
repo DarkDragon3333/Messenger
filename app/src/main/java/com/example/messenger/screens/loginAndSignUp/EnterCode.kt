@@ -1,4 +1,4 @@
-package com.example.messenger.user_sing_in_and_up_activities
+package com.example.messenger.screens.loginAndSignUp
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity

@@ -18,7 +18,7 @@ import com.example.messenger.modals.CommonModal
 import com.example.messenger.modals.ContactModal
 import com.example.messenger.modals.MessageModal
 import com.example.messenger.navigation.Screens
-import com.example.messenger.user_sing_in_and_up_activities.AddInfo
+import com.example.messenger.screens.loginAndSignUp.AddInfo
 import com.google.firebase.auth.PhoneAuthProvider
 import com.google.firebase.database.DataSnapshot
 import kotlinx.coroutines.CoroutineScope
@@ -225,5 +225,26 @@ fun getContactsFromSmartphone() {
         cursor?.close()
 
         updateContactsForFirebase(contactList)
+    }
+}
+
+fun parseInfo(string: String): Pair<String, String> {
+    val parts = string.split("__", limit = 2)
+    val info = parts.getOrNull(0) ?: ""
+    val fileName = parts.getOrNull(1) ?: ""
+    return fileName to info
+}
+
+fun whenSelect(bool: Boolean, funTrue: Unit, funFalse: Unit) {
+    when (bool){
+        true -> funTrue
+        false -> funFalse
+    }
+}
+
+fun whenSelect(bool: Boolean, funTrue: () -> Unit, funFalse: () -> Unit) {
+    when (bool){
+        true -> funTrue
+        false -> funFalse
     }
 }

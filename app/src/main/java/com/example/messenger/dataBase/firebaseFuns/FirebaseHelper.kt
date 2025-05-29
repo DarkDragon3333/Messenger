@@ -3,9 +3,11 @@ package com.example.messenger.dataBase.firebaseFuns
 import android.content.Context
 import android.net.Uri
 import androidx.navigation.NavHostController
+import com.example.messenger.dataBase.valueEventListenerClasses.AppStatus
 import com.example.messenger.modals.ContactModal
 import com.example.messenger.modals.User
 import com.example.messenger.modals.setLocalDataForUser
+import com.example.messenger.screens.loginAndSignUp.LoginActivity
 import com.example.messenger.utilsFilies.Constants.CHILD_FROM
 import com.example.messenger.utilsFilies.Constants.CHILD_ID
 import com.example.messenger.utilsFilies.Constants.CHILD_INFO
@@ -23,9 +25,12 @@ import com.example.messenger.utilsFilies.Constants.NODE_USERS
 import com.example.messenger.utilsFilies.Constants.TYPE_FILE
 import com.example.messenger.utilsFilies.contactsListUSER
 import com.example.messenger.utilsFilies.getFileName
+import com.example.messenger.utilsFilies.get_out_from_auth
+import com.example.messenger.utilsFilies.goTo
 import com.example.messenger.utilsFilies.mainActivityContext
 import com.example.messenger.utilsFilies.makeToast
 import com.example.messenger.utilsFilies.mapContacts
+import com.example.messenger.utilsFilies.sign_in
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.ChildEventListener
@@ -291,3 +296,10 @@ fun getFile(mAudioFile: File, fileUrl: String, function: () -> Unit) {
         }
 }
 
+fun singOutFromApp(){
+    AppStatus.Companion.updateStates(AppStatus.OFFLINE, mainActivityContext)
+    get_out_from_auth = true
+    sign_in = true
+    AUTH.signOut()
+    goTo(LoginActivity::class.java, mainActivityContext)
+}

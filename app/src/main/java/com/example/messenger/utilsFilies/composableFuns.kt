@@ -1,6 +1,5 @@
 package com.example.messenger.utilsFilies
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
@@ -23,17 +22,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.imageResource
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.example.messenger.R
-import com.example.messenger.screens.navButtonBack
+import com.example.messenger.screens.navBackButton
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -174,7 +174,7 @@ fun NavIconButton(
     IconButton(
         onClick = {
             coroutineScope.launch {
-                navButtonBack(navController)
+                navBackButton(navController)
             }
         }
     ) {
@@ -204,30 +204,40 @@ fun UriImage(
     )
 }
 
-@Composable
-fun MainImage(
-    dp: Dp,
-    action: () -> Unit,
-) {
-    Image(
-        bitmap = ImageBitmap.imageResource(R.drawable.tank),
-        contentDescription = " ",
-        contentScale = ContentScale.Crop,
-        modifier = Modifier
-            .clip(CircleShape)
-            .size(dp)
-            .clickable {
-                action()
-            }
-    )
-}
+//@Composable
+//fun MainImage(
+//    dp: Dp,
+//    action: () -> Unit,
+//) {
+//    Image(
+//        bitmap = ImageBitmap.imageResource(R.drawable.tank),
+//        contentDescription = " ",
+//        contentScale = ContentScale.Crop,
+//        modifier = Modifier
+//            .clip(CircleShape)
+//            .size(dp)
+//            .clickable {
+//                action()
+//            }
+//    )
+//}
 
 @Composable
 fun MessageImage(
     uri: String
 ){
+    val context = LocalContext.current
+    val imageRequest = remember(uri) {
+        ImageRequest.Builder(context)
+            .data(uri)
+            .size(200)
+            .crossfade(true)
+            .build()
+    }
+
     AsyncImage(
-        model = uri,
+        model = imageRequest,
+        placeholder = painterResource(R.drawable.def_image_msg),
         contentDescription = "",
         contentScale = ContentScale.FillBounds,
         modifier = Modifier

@@ -22,10 +22,10 @@ import kotlinx.coroutines.launch
 class MainActivity : ComponentActivity() {
     private var requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()) { isGranted ->
-        if (isGranted) {
-            getContactsFromSmartphone()
-        } else {
-            makeToast("Нет разрешения", mainActivityContext)
+        when (isGranted) {
+            true -> getContactsFromSmartphone()
+
+            else -> makeToast("Нет разрешения", mainActivityContext)
         }
     }
 
@@ -46,38 +46,31 @@ class MainActivity : ComponentActivity() {
 
     private fun init() {
         mainActivityContext = this
-
         startLocationPermissionRequest()
     }
 
     override fun onStart() {
         super.onStart()
-        if (!sign_out) {
+        if (!sign_out)
             AppStatus.updateStates(AppStatus.ONLINE, mainActivityContext)
-        }
-
     }
 
     override fun onStop() {
         super.onStop()
-        if (!get_out_from_auth) {
+        if (!get_out_from_auth)
             AppStatus.updateStates(AppStatus.OFFLINE, mainActivityContext)
-        }
-
     }
 
     override fun onPause() {
         super.onPause()
-        if (!get_out_from_auth) {
+        if (!get_out_from_auth)
             AppStatus.updateStates(AppStatus.OFFLINE, mainActivityContext)
-        }
     }
 
     override fun onResume() {
         super.onResume()
-        if (!get_out_from_auth) {
+        if (!get_out_from_auth)
             AppStatus.updateStates(AppStatus.ONLINE, mainActivityContext)
-        }
     }
 
     private fun startLocationPermissionRequest() {

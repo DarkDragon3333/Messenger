@@ -1,4 +1,4 @@
-package com.example.messenger.user_sing_in_and_up_activities
+package com.example.messenger.screens.loginAndSignUp
 
 import android.net.Uri
 import android.os.Bundle
@@ -42,6 +42,7 @@ import com.example.messenger.utilsFilies.goTo
 import com.example.messenger.utilsFilies.mainFieldStyle
 import com.example.messenger.utilsFilies.makeToast
 import com.example.messenger.utilsFilies.sign_out
+import androidx.core.net.toUri
 
 class AddInfo : ComponentActivity() {
     private lateinit var bio: String
@@ -80,7 +81,7 @@ class AddInfo : ComponentActivity() {
         userName = ""
         codeFromField = ""
         uri =
-            Uri.parse("android.resource://$packageName/${R.drawable.default_image}") //Ссылка на фото по умолчанию
+            "android.resource://$packageName/${R.drawable.default_profile_image}".toUri() //Ссылка на фото по умолчанию
         dataForGetSignUpData = intent.extras ?: Bundle()
         verificationId =
             dataForGetSignUpData.getString("verificationId").toString() //Id пользователя
@@ -171,19 +172,23 @@ class AddInfo : ComponentActivity() {
     private fun takeDefaultPhoto(dataMap: MutableMap<String, Any>) {
         pathToPhoto = REF_STORAGE_ROOT.child(FOLDER_PHOTOS).child(dataMap[CHILD_ID].toString())
         pathToPhoto.putFile(uri).addOnCompleteListener { putTask ->
-            if (putTask.isSuccessful) {
-                pathToPhoto.downloadUrl.addOnCompleteListener { downloadTask -> //Получаем ссылку на загруженную фотку
-                    if (downloadTask.isSuccessful) {
-                        val photoURL = downloadTask.result.toString()
-                        USER.photoUrl = photoURL
-                        dataMap[CHILD_PHOTO_URL] = photoURL
-                        updateFun(dataMap)
-                    } else {
-                        makeToast(downloadTask.exception?.message.toString(), context)
+            when (putTask.isSuccessful) {
+                true -> {
+                    pathToPhoto.downloadUrl.addOnCompleteListener { downloadTask -> //Получаем ссылку на загруженную фотку
+                        when (downloadTask.isSuccessful) {
+                            true -> {
+                                val photoURL = downloadTask.result.toString()
+                                USER.photoUrl = photoURL
+                                dataMap[CHILD_PHOTO_URL] = photoURL
+                                updateFun(dataMap)
+                            }
+
+                            else -> makeToast(downloadTask.exception?.message.toString(), context)
+                        }
                     }
                 }
-            } else {
-                makeToast(putTask.exception?.message.toString(), context)
+
+                else -> makeToast(putTask.exception?.message.toString(), context)
             }
         }
     }
@@ -192,12 +197,14 @@ class AddInfo : ComponentActivity() {
         REF_DATABASE_ROOT.child(NODE_USERS).child(dataMap[CHILD_ID].toString())
             .updateChildren(dataMap) //Обращаемся по ссылке через бд к юзерам и сохраняем данные. Если юзеров нет, то firebase сам создаст каталог с юзерами, самого юзера по переданному Id и сохранит данные.
             .addOnCompleteListener {//Отправляем данные в базу данных файлом
-                if (it.isSuccessful) {
-                    makeToast("Добро пожаловать!", context)
-                    initUSER()
-                    goTo(MainActivity::class.java, context)
-                } else {
-                    makeToast(it.exception?.message.toString(), context)
+                when (it.isSuccessful) {
+                    true -> {
+                        makeToast("Добро пожаловать!", context)
+                        initUSER()
+                        goTo(MainActivity::class.java, context)
+                    }
+
+                    false -> makeToast(it.exception?.message.toString(), context)
                 }
             }
     }

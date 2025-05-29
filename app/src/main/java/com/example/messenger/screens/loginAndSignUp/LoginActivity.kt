@@ -1,4 +1,4 @@
-package com.example.messenger.user_sing_in_and_up_activities
+package com.example.messenger.screens.loginAndSignUp
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -34,6 +34,7 @@ import com.example.messenger.utilsFilies.Constants.NODE_USERS
 import com.example.messenger.utilsFilies.goTo
 import com.example.messenger.utilsFilies.mainFieldStyle
 import com.example.messenger.utilsFilies.makeToast
+import com.example.messenger.utilsFilies.whenSelect
 import com.google.firebase.FirebaseException
 import com.google.firebase.auth.PhoneAuthCredential
 import com.google.firebase.auth.PhoneAuthProvider
@@ -42,7 +43,6 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 
 class LoginActivity : ComponentActivity() {
-
     private lateinit var context: LoginActivity
     private lateinit var callBack: PhoneAuthProvider.OnVerificationStateChangedCallbacks
 
@@ -58,7 +58,6 @@ class LoginActivity : ComponentActivity() {
     private fun init() {
         context = this
         initFirebase() //Инициализируем БД
-
     }
 
     @Composable
@@ -205,13 +204,13 @@ class LoginActivity : ComponentActivity() {
         REF_DATABASE_ROOT.child(NODE_USERS).child(snapshotPhone.value.toString())
             .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshotUSER: DataSnapshot) {
-
                     USER = snapshotUSER.getValue(User::class.java) ?: User()
-                    if (password == USER.password) { //Если пароль верный
-                        initLoginCallBack(phone, password)  //Обработка запроса
-                        authUser(context, phone, callBack) //Аунтетифицируем пользователя
-                    } else {
-                        makeToast("Неверный пароль!", context)
+                    when (password == USER.password) {
+                        true -> {
+                            initLoginCallBack(phone, password)  //Обработка запроса
+                            authUser(context, phone, callBack) //Аунтетифицируем пользователя
+                        }
+                        else -> makeToast("Неверный пароль!", context)
                     }
                 }
 
@@ -228,11 +227,11 @@ class LoginActivity : ComponentActivity() {
 
             override fun onVerificationCompleted(credential: PhoneAuthCredential) {
                 AUTH.signInWithCredential(credential).addOnCompleteListener {
-                    if (it.isSuccessful) {
-                        makeToast("Добро пожаловать!", context)
-                    } else {
+                    whenSelect (
+                        it.isSuccessful,
+                        makeToast("Добро пожаловать!", context),
                         makeToast("Error!", context)
-                    }
+                    )
                 }
             }
 
@@ -255,6 +254,7 @@ class LoginActivity : ComponentActivity() {
             }
         }
     }
+
 
 }
 

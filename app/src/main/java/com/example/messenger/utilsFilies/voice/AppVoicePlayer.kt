@@ -1,4 +1,4 @@
-package com.example.messenger.utilsFilies.voiceFiles
+package com.example.messenger.utilsFilies.voice
 
 import android.media.MediaPlayer
 import com.example.messenger.dataBase.firebaseFuns.getFile
@@ -11,9 +11,11 @@ class AppVoicePlayer {
     private lateinit var mMediaPlayer: MediaPlayer
     private lateinit var mAudioFile: File
 
-    fun startPlaying(messageKey: String, fileUrl: String, function: () -> Unit) {
+    fun preparePlaying(messageKey: String, fileUrl: String, function: () -> Unit) {
         mAudioFile = File(mainActivityContext.filesDir, messageKey)
+        initMediaPlayer()
         if (mAudioFile.exists() && mAudioFile.length() > 0 && mAudioFile.isFile) {
+
             play{
                 function()
             }
@@ -34,7 +36,7 @@ class AppVoicePlayer {
                 prepare()
                 start()
                 setOnCompletionListener {
-                    stopPlaying{
+                    stopPlay{
                         function()
                     }
                 }
@@ -45,7 +47,7 @@ class AppVoicePlayer {
         }
     }
 
-    fun stopPlaying(function: () -> Unit) {
+    fun stopPlay(function: () -> Unit) {
         try {
             mMediaPlayer.apply {
                 stop()

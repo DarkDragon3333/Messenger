@@ -99,19 +99,18 @@ private fun choseNewPhoto(
     if (imageUri != null) { //Если картинка выбрана
         imageUri.let { it -> //Получаем ссылку на картинку
             pathToPhoto.putFile(it).addOnCompleteListener { //Загружаем картинку
-                if (it.isSuccessful) { //Если загрузка прошла успешно
-                    choseChangeInformation(
-                        "",
-                        CHILD_PHOTO_URL,
-                        mainActivityContext,
-                        navController
-                    )
-                } else {
-                    makeToast(it.exception?.message.toString(), mainActivityContext)
+                when (it.isSuccessful) { //Если загрузка прошла успешно
+                    true ->
+                        choseChangeInformation(
+                            "",
+                            CHILD_PHOTO_URL,
+                            mainActivityContext,
+                            navController
+                        )
+
+                    else -> makeToast(it.exception?.message.toString(), mainActivityContext)
                 }
             }
         }
-    } else { //Если картинка не выбрана
-        makeToast("Выберите изображение", mainActivityContext)
-    }
+    } else makeToast("Выберите изображение", mainActivityContext) //Если картинка не выбрана
 }

@@ -2,6 +2,7 @@ package com.example.messenger.dataBase.firebaseFuns
 
 import android.content.ContentValues
 import android.util.Log
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import com.example.messenger.modals.MessageModal
 import com.google.firebase.firestore.DocumentChange
@@ -9,7 +10,7 @@ import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.Query
 
 fun listeningUpdateChat(
-    chatScreenState: SnapshotStateList<MessageModal>,
+    messages: MutableState<List<MessageModal>>,
     messLink: Query,
 ): ListenerRegistration {
     val listing = messLink.addSnapshotListener { snapshots, e ->
@@ -22,8 +23,8 @@ fun listeningUpdateChat(
             when (document.type) {
                 DocumentChange.Type.ADDED -> {
                     val newMessage = document.document.toObject(MessageModal::class.java)
-                    if (chatScreenState.none { it.id == newMessage.id }) {
-                        chatScreenState.add(0, newMessage)
+                    if (messages.value.none { it.id == newMessage.id }) {
+                        messages.value = listOf(newMessage) + messages.value
                     }
                 }
 
@@ -45,17 +46,17 @@ fun listeningUpdateChat(
 }
 
 fun initChat(
-    chatScreenState: SnapshotStateList<MessageModal>,
+    messages: MutableState<List<MessageModal>>,
     messLink: Query,
     function: () -> Unit
 ) {
     messLink
         .get()
         .addOnSuccessListener { result ->
-            val cacheMessages =
-                result.documents.map { it.toObject(MessageModal::class.java)!! }.toMutableList()
-            chatScreenState.clear()
-            chatScreenState.addAll(cacheMessages.distinctBy { it.id })
+            val cacheMessages = result.documents
+                .mapNotNull { it.toObject(MessageModal::class.java) }
+                .distinctBy { it.id }
+            messages.value = cacheMessages
             function()
         }
         .addOnFailureListener { exception ->

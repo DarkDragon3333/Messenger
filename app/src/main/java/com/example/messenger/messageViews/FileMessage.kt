@@ -12,7 +12,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -24,13 +23,13 @@ import androidx.compose.ui.unit.sp
 import com.example.messenger.R
 import com.example.messenger.modals.MessageModal
 import com.example.messenger.ui.theme.textMes
+import com.example.messenger.utilsFilies.parseInfo
 
 @Composable
 fun FileMsg(
     pair: Pair<MessageModal, Any>
 ) {
-    var (fileName, fileUri) = parseInfo(pair.first.info)
-
+    var (fileName, fileUri) = remember { parseInfo(pair.first.info) }
     Box(contentAlignment = Alignment.BottomEnd) {
         Row(
             modifier = Modifier
@@ -79,13 +78,6 @@ fun FileMsg(
 
         }
     }
-}
-
-fun parseInfo(string: String): Pair<String, String> {
-    val parts = string.split("__", limit = 2)
-    val info = parts.getOrNull(0) ?: ""
-    val fileName = parts.getOrNull(1) ?: ""
-    return fileName to info
 }
 
 fun downloadFileToSmartphone(string: String) {

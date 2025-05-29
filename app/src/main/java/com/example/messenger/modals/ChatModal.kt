@@ -1,7 +1,8 @@
 package com.example.messenger.modals
 
+import androidx.compose.runtime.Stable
 import com.google.firebase.Timestamp
-
+@Stable
 data class ChatModal(
     var fullname: String = " ",
     var photoUrl: String = "",

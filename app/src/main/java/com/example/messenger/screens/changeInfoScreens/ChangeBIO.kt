@@ -40,11 +40,9 @@ fun ChangeBIO(navController: NavHostController) {
         Spacer(modifier = Modifier.padding(0.dp, 40.dp, 0.dp, 0.dp))
         Button(
             onClick = {
-                if (bio == "") {
-                    makeToast("Напишите о себе!", mainActivityContext)
-                } else {
-                    choseChangeInformation(bio, CHILD_BIO, mainActivityContext, navController)
-
+                when (bio == "") {
+                    true -> makeToast("Напишите о себе!", mainActivityContext)
+                    false -> choseChangeInformation(bio, CHILD_BIO, mainActivityContext, navController)
                 }
             }
         ) {
@@ -53,5 +51,4 @@ fun ChangeBIO(navController: NavHostController) {
             Text(text = "Подтвердить")
         }
     }
-
 }

@@ -45,20 +45,15 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.messenger.navigation.DrawerNavigation
 import com.example.messenger.navigation.Screens
-import com.example.messenger.user_sing_in_and_up_activities.LoginActivity
-import com.example.messenger.dataBase.firebaseFuns.AUTH
-import com.example.messenger.dataBase.valueEventListenerClasses.AppStatus
 import com.example.messenger.utilsFilies.UriImage
 import com.example.messenger.utilsFilies.NavIconButton
 import com.example.messenger.dataBase.firebaseFuns.USER
 import com.example.messenger.utilsFilies.flagDropMenuButtonOnSettingsScreen
 import com.example.messenger.utilsFilies.flagNavButtonOnChatScreen
 import com.example.messenger.utilsFilies.flagNavButtonOnChatsScreen
-import com.example.messenger.utilsFilies.get_out_from_auth
 import com.example.messenger.utilsFilies.goTo
-import com.example.messenger.utilsFilies.mainActivityContext
 import com.example.messenger.utilsFilies.on_settings_screen
-import com.example.messenger.utilsFilies.sign_in
+import com.example.messenger.dataBase.firebaseFuns.singOutFromApp
 import kotlinx.coroutines.CoroutineScope
 import java.net.URLDecoder
 
@@ -186,22 +181,17 @@ fun NavDrawer() {
                             checkButtonOnSettingsScreen(destination)
                             checkButtonOnChatScreen(destination)
                         }
-                        if (flagDropMenuButtonOnSettingsScreen == 1) {
+                        if (flagDropMenuButtonOnSettingsScreen == 1)
                             DropdownMenuItems(drawerState, coroutineScope, navController)
-                        }
                     },
                     navigationIcon = {
                         navController.addOnDestinationChangedListener { _, destination, _ ->
                             checkButtonOnChatsScreen(destination)
                         }
                         when (flagNavButtonOnChatsScreen == 1) {
-                            true -> {
-                                NavIconButton(coroutineScope, drawerState)
-                            }
+                            true -> NavIconButton(coroutineScope, drawerState)
 
-                            false -> {
-                                NavIconButton(coroutineScope, navController)
-                            }
+                            false -> NavIconButton(coroutineScope, navController)
                         }
                     },
                 )
@@ -216,37 +206,6 @@ fun NavDrawer() {
             }
         }
     }
-}
-
-private fun checkButtonOnSettingsScreen(destination: NavDestination) {
-    flagDropMenuButtonOnSettingsScreen =
-        if (destination.route == Screens.Settings.route) 1 else -1
-}
-
-
-private fun checkButtonOnChatsScreen(destination: NavDestination) {
-    flagNavButtonOnChatsScreen =
-        if (destination.route == Screens.Chats.route) 1 else -1
-}
-
-private fun checkButtonOnChatScreen(destination: NavDestination) {
-    flagNavButtonOnChatScreen =
-        if (destination.route == "chatScreen/{fullname}/{status}/{photoURL}/{id}") 1 else -1
-}
-
-
-fun navButtonBack(navController: NavHostController) {
-    navController.addOnDestinationChangedListener { _, destination, _ ->
-        on_settings_screen = destination.route == Screens.ChangeName.route ||
-                destination.route == Screens.ChangeUserName.route ||
-                destination.route == Screens.ChangeBIO.route
-    }
-
-    if (on_settings_screen)
-        goTo(navController, Screens.Settings)
-    else
-        goTo(navController, Screens.Chats)
-
 }
 
 @Composable
@@ -281,17 +240,42 @@ fun DropdownMenuItems(
             )
             HorizontalDivider()
             DropdownMenuItem(
-                onClick = {
-                    AppStatus.updateStates(AppStatus.OFFLINE, mainActivityContext)
-                    get_out_from_auth = true
-                    sign_in = true
-                    AUTH.signOut()
-                    goTo(LoginActivity::class.java, mainActivityContext)
-                },
+                onClick = { singOutFromApp() },
                 text = { Text("Выйти из аккаунта") }
             )
         }
     }
 }
 
+private fun checkButtonOnSettingsScreen(destination: NavDestination) {
+    flagDropMenuButtonOnSettingsScreen =
+        if (destination.route == Screens.Settings.route) 1 else -1
+}
+
+
+private fun checkButtonOnChatsScreen(destination: NavDestination) {
+    flagNavButtonOnChatsScreen =
+        if (destination.route == Screens.Chats.route) 1 else -1
+}
+
+private fun checkButtonOnChatScreen(destination: NavDestination) {
+    flagNavButtonOnChatScreen =
+        if (destination.route == "chatScreen/{fullname}/{status}/{photoURL}/{id}") 1 else -1
+}
+
+
+fun navBackButton(navController: NavHostController) {
+    navController.addOnDestinationChangedListener { _, destination, _ ->
+        on_settings_screen =
+            destination.route == Screens.ChangeName.route ||
+            destination.route == Screens.ChangeUserName.route ||
+            destination.route == Screens.ChangeBIO.route
+    }
+
+    when (on_settings_screen) {
+        true -> goTo(navController, Screens.Settings)
+
+        else -> goTo(navController, Screens.Chats)
+    }
+}
 

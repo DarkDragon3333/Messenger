@@ -22,6 +22,7 @@ import com.example.messenger.utilsFilies.Constants.CHILD_USER_NAME
 import com.example.messenger.utilsFilies.mainActivityContext
 import com.example.messenger.utilsFilies.mainFieldStyle
 import com.example.messenger.utilsFilies.makeToast
+import com.example.messenger.utilsFilies.whenSelect
 
 @Composable
 fun ChangeUserName(navController: NavHostController) {
@@ -46,16 +47,16 @@ fun ChangeUserName(navController: NavHostController) {
         Spacer(modifier = Modifier.padding(0.dp, 40.dp, 0.dp, 0.dp))
         Button(
             onClick = {
-                if (changeUserNameField == "") {
-                    makeToast("Введите никнейм!", mainActivityContext)
-                } else {
-                    choseChangeInformation(
+                whenSelect(
+                    bool = changeUserNameField == "",
+                    funTrue = makeToast("Введите никнейм!", mainActivityContext),
+                    funFalse = choseChangeInformation(
                         changeUserNameField,
                         CHILD_USER_NAME,
                         mainActivityContext,
                         navController
                     )
-                }
+                )
             }
         ) {
             Icon(Icons.Default.Check, contentDescription = "")
@@ -63,6 +64,5 @@ fun ChangeUserName(navController: NavHostController) {
             Text(text = "Подтвердить")
         }
     }
-
 }
 
