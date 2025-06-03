@@ -1,5 +1,6 @@
 package com.example.messenger.screens
 
+import android.os.Bundle
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -45,15 +46,16 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.messenger.navigation.DrawerNavigation
 import com.example.messenger.navigation.Screens
-import com.example.messenger.utilsFilies.UriImage
-import com.example.messenger.utilsFilies.NavIconButton
+import com.example.messenger.utils.UriImage
+import com.example.messenger.utils.NavIconButton
 import com.example.messenger.dataBase.firebaseFuns.USER
-import com.example.messenger.utilsFilies.flagDropMenuButtonOnSettingsScreen
-import com.example.messenger.utilsFilies.flagNavButtonOnChatScreen
-import com.example.messenger.utilsFilies.flagNavButtonOnChatsScreen
-import com.example.messenger.utilsFilies.goTo
-import com.example.messenger.utilsFilies.on_settings_screen
+import com.example.messenger.utils.flagDropMenuButtonOnSettingsScreen
+import com.example.messenger.utils.flagNavButtonOnChatScreen
+import com.example.messenger.utils.flagNavButtonOnChatsScreen
+import com.example.messenger.utils.goTo
+import com.example.messenger.utils.on_settings_screen
 import com.example.messenger.dataBase.firebaseFuns.singOutFromApp
+import com.example.messenger.utils.flagNavButtonOnGroupChatScreen
 import kotlinx.coroutines.CoroutineScope
 import java.net.URLDecoder
 
@@ -69,6 +71,7 @@ fun NavDrawer() {
     val screens = listOf( //Созданные экраны в виде объектов
         Screens.YourProfile,
         Screens.Chats,
+        Screens.SelectUsers,
         Screens.Contacts,
         Screens.Settings,
         Screens.ChangeName
@@ -96,13 +99,14 @@ fun NavDrawer() {
                     Spacer(modifier = Modifier.padding(5.dp))
                     Text(text = USER.phone)
                 }
+
                 Spacer(modifier = Modifier.padding(10.dp)) //Отступ
                 HorizontalDivider(
                     thickness = 1.dp,
                     modifier = Modifier.padding(bottom = 10.dp)
                 ) //Линия
 
-                screens.forEach { screen ->//Циклом генерируем элементы выдвигающегося меню
+                screens.forEach { screen -> //Циклом генерируем элементы выдвигающегося меню
                     if (screen != Screens.Chats) {
                         if (screen != Screens.ChangeName) {
                             NavigationDrawerItem(
@@ -116,15 +120,17 @@ fun NavDrawer() {
                                 selected = currentRoute == screen.route,
                                 modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
                                 onClick = {
-                                    goTo(navController, screen, coroutineScope, drawerState)
+                                    goTo(
+                                        navController,
+                                        screen,
+                                        coroutineScope,
+                                        drawerState
+                                    )
                                 }
                             )
                         }
-
                     }
-
                 }
-
             }
         }
     ) {
@@ -132,45 +138,7 @@ fun NavDrawer() {
             topBar = {
                 TopAppBar(
                     title = {
-                        when(flagNavButtonOnChatScreen == 1){
-                            true -> {
-                                var fullname = " "
-                                var statusUSER = " "
-                                var photoURL = " "
-                                //var id = " "
-                                navController.addOnDestinationChangedListener { _, destination, bundle ->
-                                    if ((bundle != null) && (destination.route == "chatScreen/{fullname}/{status}/{photoURL}/{id}")) {
-                                        fullname = URLDecoder.decode(
-                                            bundle.getString("fullname").toString(),
-                                            "UTF-8"
-                                        )
-                                        statusUSER = URLDecoder.decode(
-                                            bundle.getString("status").toString(),
-                                            "UTF-8"
-                                        )
-                                        photoURL = bundle.getString("photoURL").toString()
-                                        //id = URLDecoder.decode(bundle.getString("id").toString(), "UTF-8")
-                                    }
-                                }
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    UriImage(dp = 32.dp, photoURL) {}
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    Column {
-                                        Text(text = fullname, fontSize = 16.sp)
-                                        Text(text = statusUSER, fontSize = 14.sp)
-                                    }
-                                }
-                            }
-                            false -> {
-                                Text(
-                                    text = currentRoute
-                                        .toString()
-                                        .replaceFirstChar { it.uppercase() })
-                            }
-                        }
+                        Title(navController, currentRoute)
                     },
                     modifier = Modifier.fillMaxWidth(),
                     colors = TopAppBarDefaults.topAppBarColors(
@@ -204,6 +172,62 @@ fun NavDrawer() {
             ) {
                 DrawerNavigation(navController)
             }
+        }
+    }
+}
+
+@Composable
+fun Title(navController: NavHostController, currentRoute: Any) {
+    if (flagNavButtonOnChatScreen == 1)
+        TitleView(navController, "chatScreen/{fullname}/{status}/{photoURL}/{id}", "Chat")
+    else if (flagNavButtonOnGroupChatScreen == 1)
+        TitleView(
+            navController,
+            "groupChat/{groupChatName}/{photoUrlGroupChat}/{contactList}",
+            "GroupChat"
+        )
+    else
+        Text(
+            text = currentRoute
+                .toString()
+                .replaceFirstChar { it.uppercase() })
+
+}
+
+@Composable
+fun TitleView(navController: NavHostController, route: String, typeChat: String) {
+    var fullname = " "
+    var statusUSER = " "
+    var photoURL = " "
+    //var id = " "
+    navController.addOnDestinationChangedListener { _, destination, bundle ->
+        if ((bundle != null) && (destination.route == route)) {
+            when (typeChat) {
+                "Chat" -> {
+                    fullname = getBundle("fullname", bundle).toString()
+                    statusUSER = getBundle("status", bundle).toString()
+                    photoURL = bundle.getString("photoURL").toString()
+                    //id = URLDecoder.decode(bundle.getString("id").toString(), "UTF-8")
+                }
+
+                "GroupChat" -> {
+                    fullname = getBundle("fullname", bundle).toString()
+                    statusUSER = ""
+                    photoURL = bundle.getString("photoURL").toString()
+                }
+            }
+        }
+    }
+
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        UriImage(dp = 32.dp, photoURL) {}
+        Spacer(modifier = Modifier.width(8.dp))
+        Column {
+            Text(text = fullname, fontSize = 16.sp)
+            Text(text = statusUSER, fontSize = 14.sp)
         }
     }
 }
@@ -252,9 +276,13 @@ private fun checkButtonOnSettingsScreen(destination: NavDestination) {
         if (destination.route == Screens.Settings.route) 1 else -1
 }
 
-
 private fun checkButtonOnChatsScreen(destination: NavDestination) {
     flagNavButtonOnChatsScreen =
+        if (destination.route == Screens.Chats.route) 1 else -1
+}
+
+private fun checkButtonOnGroupChatScreen(destination: NavDestination) {
+    flagNavButtonOnGroupChatScreen =
         if (destination.route == Screens.Chats.route) 1 else -1
 }
 
@@ -263,13 +291,12 @@ private fun checkButtonOnChatScreen(destination: NavDestination) {
         if (destination.route == "chatScreen/{fullname}/{status}/{photoURL}/{id}") 1 else -1
 }
 
-
 fun navBackButton(navController: NavHostController) {
     navController.addOnDestinationChangedListener { _, destination, _ ->
         on_settings_screen =
             destination.route == Screens.ChangeName.route ||
-            destination.route == Screens.ChangeUserName.route ||
-            destination.route == Screens.ChangeBIO.route
+                    destination.route == Screens.ChangeUserName.route ||
+                    destination.route == Screens.ChangeBIO.route
     }
 
     when (on_settings_screen) {
@@ -277,5 +304,9 @@ fun navBackButton(navController: NavHostController) {
 
         else -> goTo(navController, Screens.Chats)
     }
+}
+
+fun getBundle(info: String, bundle: Bundle): String? {
+    return URLDecoder.decode(bundle.getString(info).toString(), "UTF-8")
 }
 

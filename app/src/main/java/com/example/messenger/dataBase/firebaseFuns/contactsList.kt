@@ -4,9 +4,9 @@ import android.content.ContentValues
 import android.util.Log
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import com.example.messenger.modals.ChatModal
-import com.example.messenger.utilsFilies.Constants
-import com.example.messenger.utilsFilies.mainActivityContext
-import com.example.messenger.utilsFilies.makeToast
+import com.example.messenger.utils.Constants
+import com.example.messenger.utils.mainActivityContext
+import com.example.messenger.utils.makeToast
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.ListenerRegistration

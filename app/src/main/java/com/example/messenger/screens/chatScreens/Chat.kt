@@ -57,8 +57,8 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.messenger.R
 import com.example.messenger.dataBase.firebaseFuns.UID
-import com.example.messenger.utilsFilies.attachFile
-import com.example.messenger.utilsFilies.attachImage
+import com.example.messenger.utils.attachFile
+import com.example.messenger.utils.attachImage
 import com.example.messenger.dataBase.firebaseFuns.createChatsListObj
 import com.example.messenger.dataBase.firebaseFuns.getMessageKey
 import com.example.messenger.dataBase.firebaseFuns.initChat
@@ -70,10 +70,10 @@ import com.example.messenger.messageViews.startRecordVoiceMsg
 import com.example.messenger.messageViews.stopRecordVoiceMsg
 import com.example.messenger.modals.MessageModal
 import com.example.messenger.screens.componentOfScreens.Message
-import com.example.messenger.utilsFilies.voice.AppVoiceRecorder
-import com.example.messenger.utilsFilies.Constants.TYPE_CHAT
-import com.example.messenger.utilsFilies.Constants.TYPE_FILE
-import com.example.messenger.utilsFilies.Constants.TYPE_IMAGE
+import com.example.messenger.utils.voice.AppVoiceRecorder
+import com.example.messenger.utils.Constants.TYPE_CHAT
+import com.example.messenger.utils.Constants.TYPE_FILE
+import com.example.messenger.utils.Constants.TYPE_IMAGE
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.Query
@@ -497,6 +497,7 @@ private fun SendMessageButton(
                                 coroutineScope.launch {
                                     listState.animateScrollToItem(0)
                                 }
+                            LastMessageState.updateLastMessage("Голосовое сообщение", receivingUserID)
                             createChatsListObj(infoArray)
                         }
 

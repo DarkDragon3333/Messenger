@@ -29,10 +29,10 @@ import androidx.navigation.NavHostController
 import com.example.messenger.dataBase.firebaseFuns.REF_STORAGE_ROOT
 import com.example.messenger.dataBase.firebaseFuns.UID
 import com.example.messenger.dataBase.firebaseFuns.choseChangeInformation
-import com.example.messenger.utilsFilies.Constants.CHILD_PHOTO_URL
-import com.example.messenger.utilsFilies.Constants.FOLDER_PHOTOS
-import com.example.messenger.utilsFilies.mainActivityContext
-import com.example.messenger.utilsFilies.makeToast
+import com.example.messenger.utils.Constants.CHILD_PHOTO_URL
+import com.example.messenger.utils.Constants.FOLDER_PHOTOS
+import com.example.messenger.utils.mainActivityContext
+import com.example.messenger.utils.makeToast
 import com.google.firebase.storage.StorageReference
 
 lateinit var pathToPhoto: StorageReference

@@ -1,4 +1,4 @@
-package com.example.messenger.utilsFilies
+package com.example.messenger.utils
 
 import com.google.firebase.Timestamp
 import java.time.LocalTime

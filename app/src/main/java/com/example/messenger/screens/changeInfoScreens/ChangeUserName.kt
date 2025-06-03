@@ -18,11 +18,11 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.messenger.dataBase.firebaseFuns.USER
 import com.example.messenger.dataBase.firebaseFuns.choseChangeInformation
-import com.example.messenger.utilsFilies.Constants.CHILD_USER_NAME
-import com.example.messenger.utilsFilies.mainActivityContext
-import com.example.messenger.utilsFilies.mainFieldStyle
-import com.example.messenger.utilsFilies.makeToast
-import com.example.messenger.utilsFilies.whenSelect
+import com.example.messenger.utils.Constants.CHILD_USER_NAME
+import com.example.messenger.utils.mainActivityContext
+import com.example.messenger.utils.mainFieldStyle
+import com.example.messenger.utils.makeToast
+import com.example.messenger.utils.whenSelect
 
 @Composable
 fun ChangeUserName(navController: NavHostController) {

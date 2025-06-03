@@ -2,13 +2,13 @@ package com.example.messenger.modals
 
 import androidx.compose.runtime.Stable
 import com.example.messenger.dataBase.firebaseFuns.USER
-import com.example.messenger.utilsFilies.Constants.CHILD_BIO
-import com.example.messenger.utilsFilies.Constants.CHILD_FULLNAME
-import com.example.messenger.utilsFilies.Constants.CHILD_PASSWORD
-import com.example.messenger.utilsFilies.Constants.CHILD_PHONE
-import com.example.messenger.utilsFilies.Constants.CHILD_PHOTO_URL
-import com.example.messenger.utilsFilies.Constants.CHILD_STATUS
-import com.example.messenger.utilsFilies.Constants.CHILD_USER_NAME
+import com.example.messenger.utils.Constants.CHILD_BIO
+import com.example.messenger.utils.Constants.CHILD_FULLNAME
+import com.example.messenger.utils.Constants.CHILD_PASSWORD
+import com.example.messenger.utils.Constants.CHILD_PHONE
+import com.example.messenger.utils.Constants.CHILD_PHOTO_URL
+import com.example.messenger.utils.Constants.CHILD_STATUS
+import com.example.messenger.utils.Constants.CHILD_USER_NAME
 
 @Stable
 data class User(
@@ -22,21 +22,20 @@ data class User(
     var password: String = ""
 )
 
-fun setLocalDataForUser(changeInfo: String, typeInfo: String) {
+fun setLocalDataForUser(newInfo: String, typeInfo: String) {
     when (typeInfo) {
-        CHILD_FULLNAME -> USER.fullname = changeInfo
+        CHILD_FULLNAME -> USER.fullname = newInfo
 
-        CHILD_USER_NAME -> USER.username = changeInfo
+        CHILD_USER_NAME -> USER.username = newInfo
 
-        CHILD_BIO -> USER.bio = changeInfo
+        CHILD_BIO -> USER.bio = newInfo
 
-        CHILD_PHONE -> USER.phone = changeInfo
+        CHILD_PHONE -> USER.phone = newInfo
 
-        CHILD_PASSWORD -> USER.password = changeInfo
+        CHILD_PASSWORD -> USER.password = newInfo
 
-        CHILD_STATUS -> USER.status = changeInfo
+        CHILD_STATUS -> USER.status = newInfo
 
-        CHILD_PHOTO_URL -> USER.photoUrl = changeInfo
-
+        CHILD_PHOTO_URL -> USER.photoUrl = newInfo
     }
 }

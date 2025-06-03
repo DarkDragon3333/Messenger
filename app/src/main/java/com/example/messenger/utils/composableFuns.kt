@@ -1,4 +1,4 @@
-package com.example.messenger.utilsFilies
+package com.example.messenger.utils
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxWidth

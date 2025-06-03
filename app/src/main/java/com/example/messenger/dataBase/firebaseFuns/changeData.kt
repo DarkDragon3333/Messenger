@@ -4,9 +4,9 @@ import android.content.Context
 import androidx.navigation.NavHostController
 import com.example.messenger.modals.setLocalDataForUser
 import com.example.messenger.navigation.Screens
-import com.example.messenger.utilsFilies.Constants
-import com.example.messenger.utilsFilies.goTo
-import com.example.messenger.utilsFilies.makeToast
+import com.example.messenger.utils.Constants
+import com.example.messenger.utils.goTo
+import com.example.messenger.utils.makeToast
 
 fun choseChangeInformation(
     changeInfo: String,

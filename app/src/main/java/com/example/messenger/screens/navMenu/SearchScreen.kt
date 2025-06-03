@@ -8,7 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.example.messenger.utilsFilies.mainFieldStyle
+import com.example.messenger.utils.mainFieldStyle
 
 @Composable
 fun SearchScreen(navController: NavHostController) {

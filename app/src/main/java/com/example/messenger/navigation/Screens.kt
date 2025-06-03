@@ -20,11 +20,6 @@ sealed class Screens(
         route = "чаты",
         icon = Icons.Default.Email
     )
-    data object Chat: Screens(
-        title = "Чат",
-        route = "чат",
-        icon = Icons.Default.Email
-    )
     data object Contacts: Screens(
         title = "Контакты",
         route = "контакты",
@@ -73,6 +68,21 @@ sealed class Screens(
     data object Search: Screens(
         title = "Поиск",
         route = "поиск",
+        icon = Icons.AutoMirrored.Filled.Send
+    )
+    data object SelectUsers: Screens(
+        title = "Создание группы",
+        route = "создание группы",
+        icon = Icons.AutoMirrored.Filled.Send
+    )
+    data object SelectDataForGroupChat: Screens(
+        title = "Добавление информации о чате",
+        route = "добавление информации о чате",
+        icon = Icons.AutoMirrored.Filled.Send
+    )
+    data object GroupChat: Screens(
+        title = "Групповой чат",
+        route = "групповой чат",
         icon = Icons.AutoMirrored.Filled.Send
     )
 }

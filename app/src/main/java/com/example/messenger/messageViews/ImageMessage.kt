@@ -9,7 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.messenger.modals.MessageModal
-import com.example.messenger.utilsFilies.MessageImage
+import com.example.messenger.utils.MessageImage
 
 @Composable
 fun ImageMsg(

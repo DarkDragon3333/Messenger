@@ -3,9 +3,9 @@ package com.example.messenger.dataBase.firebaseFuns
 import android.app.Activity
 import com.example.messenger.MainActivity
 import com.example.messenger.modals.User
-import com.example.messenger.utilsFilies.Constants
-import com.example.messenger.utilsFilies.goTo
-import com.example.messenger.utilsFilies.makeToast
+import com.example.messenger.utils.Constants
+import com.example.messenger.utils.goTo
+import com.example.messenger.utils.makeToast
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.PhoneAuthOptions
 import com.google.firebase.auth.PhoneAuthProvider

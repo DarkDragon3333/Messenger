@@ -20,11 +20,11 @@ import com.example.messenger.MainActivity
 import com.example.messenger.ui.theme.MessengerTheme
 import com.example.messenger.dataBase.firebaseFuns.AUTH
 import com.example.messenger.dataBase.firebaseFuns.authUser
-import com.example.messenger.utilsFilies.goTo
+import com.example.messenger.utils.goTo
 import com.example.messenger.dataBase.firebaseFuns.initFirebase
-import com.example.messenger.utilsFilies.mainFieldStyle
-import com.example.messenger.utilsFilies.makeToast
-import com.example.messenger.utilsFilies.sign_in
+import com.example.messenger.utils.mainFieldStyle
+import com.example.messenger.utils.makeToast
+import com.example.messenger.utils.sign_in
 import com.google.firebase.FirebaseException
 import com.google.firebase.auth.PhoneAuthCredential
 import com.google.firebase.auth.PhoneAuthProvider

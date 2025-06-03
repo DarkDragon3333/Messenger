@@ -2,11 +2,11 @@ package com.example.messenger.messageViews
 
 import androidx.compose.runtime.Composable
 import com.example.messenger.modals.MessageModal
-import com.example.messenger.utilsFilies.Constants.TYPE_FILE
-import com.example.messenger.utilsFilies.Constants.TYPE_IMAGE
-import com.example.messenger.utilsFilies.Constants.TYPE_TEXT
-import com.example.messenger.utilsFilies.Constants.TYPE_VOICE
-import com.example.messenger.utilsFilies.toFormattedLocalTime
+import com.example.messenger.utils.Constants.TYPE_FILE
+import com.example.messenger.utils.Constants.TYPE_IMAGE
+import com.example.messenger.utils.Constants.TYPE_TEXT
+import com.example.messenger.utils.Constants.TYPE_VOICE
+import com.example.messenger.utils.toFormattedLocalTime
 
 @Composable
 fun CreateMessageView(messageFromDB: MessageModal){

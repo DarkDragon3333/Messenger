@@ -14,7 +14,7 @@ import androidx.compose.ui.unit.sp
 import com.example.messenger.dataBase.firebaseFuns.sendMessage
 import com.example.messenger.modals.MessageModal
 import com.example.messenger.ui.theme.textMes
-import com.example.messenger.utilsFilies.Constants.TYPE_TEXT
+import com.example.messenger.utils.Constants.TYPE_TEXT
 
 @Composable
 fun TextMsg(message: Pair<MessageModal, Any>) {

@@ -33,9 +33,9 @@ import com.example.messenger.ui.theme.MessengerTheme
 import com.example.messenger.dataBase.firebaseFuns.AUTH
 import com.example.messenger.dataBase.firebaseFuns.UID
 import com.example.messenger.dataBase.firebaseFuns.USER
-import com.example.messenger.utilsFilies.goTo
-import com.example.messenger.utilsFilies.makeToast
-import com.example.messenger.utilsFilies.sign_in
+import com.example.messenger.utils.goTo
+import com.example.messenger.utils.makeToast
+import com.example.messenger.utils.sign_in
 import com.google.firebase.auth.PhoneAuthProvider
 
 

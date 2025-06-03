@@ -1,8 +1,8 @@
-package com.example.messenger.utilsFilies.voice
+package com.example.messenger.utils.voice
 
 import android.media.MediaRecorder
-import com.example.messenger.utilsFilies.mainActivityContext
-import com.example.messenger.utilsFilies.makeToast
+import com.example.messenger.utils.mainActivityContext
+import com.example.messenger.utils.makeToast
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

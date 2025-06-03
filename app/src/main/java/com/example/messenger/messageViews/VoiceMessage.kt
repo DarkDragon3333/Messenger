@@ -31,10 +31,10 @@ import com.example.messenger.dataBase.firebaseFuns.uploadFileToStorage
 import com.example.messenger.modals.MessageModal
 import com.example.messenger.screens.chatScreens.appVoiceRecorder
 import com.example.messenger.ui.theme.textMes
-import com.example.messenger.utilsFilies.voice.AppVoicePlayer
-import com.example.messenger.utilsFilies.Constants.TYPE_VOICE
-import com.example.messenger.utilsFilies.mainActivityContext
-import com.example.messenger.utilsFilies.makeToast
+import com.example.messenger.utils.voice.AppVoicePlayer
+import com.example.messenger.utils.Constants.TYPE_VOICE
+import com.example.messenger.utils.mainActivityContext
+import com.example.messenger.utils.makeToast
 
 @Composable
 fun VoiceMsg(

@@ -23,7 +23,7 @@ import androidx.compose.ui.unit.sp
 import com.example.messenger.R
 import com.example.messenger.modals.MessageModal
 import com.example.messenger.ui.theme.textMes
-import com.example.messenger.utilsFilies.parseInfo
+import com.example.messenger.utils.parseInfo
 
 @Composable
 fun FileMsg(

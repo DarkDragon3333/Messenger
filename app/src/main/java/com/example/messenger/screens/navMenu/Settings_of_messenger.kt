@@ -22,12 +22,12 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.messenger.navigation.Screens
 import com.example.messenger.screens.changeInfoScreens.ChangeNumber
-import com.example.messenger.utilsFilies.UriImage
+import com.example.messenger.utils.UriImage
 import com.example.messenger.dataBase.firebaseFuns.USER
-import com.example.messenger.utilsFilies.goTo
-import com.example.messenger.utilsFilies.mainActivityContext
-import com.example.messenger.utilsFilies.mainFieldStyle
-import com.example.messenger.utilsFilies.makeToast
+import com.example.messenger.utils.goTo
+import com.example.messenger.utils.mainActivityContext
+import com.example.messenger.utils.mainFieldStyle
+import com.example.messenger.utils.makeToast
 
 @Composable
 fun SettingsScreen(navController: NavHostController) {

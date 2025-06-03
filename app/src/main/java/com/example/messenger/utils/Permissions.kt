@@ -1,4 +1,4 @@
-package com.example.messenger.utilsFilies
+package com.example.messenger.utils
 
 import android.content.pm.PackageManager
 import androidx.core.app.ActivityCompat

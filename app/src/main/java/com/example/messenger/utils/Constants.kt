@@ -1,4 +1,4 @@
-package com.example.messenger.utilsFilies
+package com.example.messenger.utils
 
 object Constants {
     const val TYPE_TEXT = "text"

@@ -1,9 +1,9 @@
-package com.example.messenger.utilsFilies.voice
+package com.example.messenger.utils.voice
 
 import android.media.MediaPlayer
 import com.example.messenger.dataBase.firebaseFuns.getFile
-import com.example.messenger.utilsFilies.mainActivityContext
-import com.example.messenger.utilsFilies.makeToast
+import com.example.messenger.utils.mainActivityContext
+import com.example.messenger.utils.makeToast
 import java.io.File
 import java.io.IOException
 
@@ -15,7 +15,6 @@ class AppVoicePlayer {
         mAudioFile = File(mainActivityContext.filesDir, messageKey)
         initMediaPlayer()
         if (mAudioFile.exists() && mAudioFile.length() > 0 && mAudioFile.isFile) {
-
             play{
                 function()
             }

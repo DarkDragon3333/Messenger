@@ -27,21 +27,21 @@ import com.example.messenger.dataBase.firebaseFuns.REF_STORAGE_ROOT
 import com.example.messenger.dataBase.firebaseFuns.USER
 import com.example.messenger.screens.changeInfoScreens.pathToPhoto
 import com.example.messenger.ui.theme.MessengerTheme
-import com.example.messenger.utilsFilies.Constants.CHILD_BIO
-import com.example.messenger.utilsFilies.Constants.CHILD_FULLNAME
-import com.example.messenger.utilsFilies.Constants.CHILD_ID
-import com.example.messenger.utilsFilies.Constants.CHILD_PASSWORD
-import com.example.messenger.utilsFilies.Constants.CHILD_PHONE
-import com.example.messenger.utilsFilies.Constants.CHILD_PHOTO_URL
-import com.example.messenger.utilsFilies.Constants.CHILD_STATUS
-import com.example.messenger.utilsFilies.Constants.CHILD_USER_NAME
-import com.example.messenger.utilsFilies.Constants.FOLDER_PHOTOS
-import com.example.messenger.utilsFilies.Constants.NODE_PHONES
-import com.example.messenger.utilsFilies.Constants.NODE_USERS
-import com.example.messenger.utilsFilies.goTo
-import com.example.messenger.utilsFilies.mainFieldStyle
-import com.example.messenger.utilsFilies.makeToast
-import com.example.messenger.utilsFilies.sign_out
+import com.example.messenger.utils.Constants.CHILD_BIO
+import com.example.messenger.utils.Constants.CHILD_FULLNAME
+import com.example.messenger.utils.Constants.CHILD_ID
+import com.example.messenger.utils.Constants.CHILD_PASSWORD
+import com.example.messenger.utils.Constants.CHILD_PHONE
+import com.example.messenger.utils.Constants.CHILD_PHOTO_URL
+import com.example.messenger.utils.Constants.CHILD_STATUS
+import com.example.messenger.utils.Constants.CHILD_USER_NAME
+import com.example.messenger.utils.Constants.FOLDER_PHOTOS
+import com.example.messenger.utils.Constants.NODE_PHONES
+import com.example.messenger.utils.Constants.NODE_USERS
+import com.example.messenger.utils.goTo
+import com.example.messenger.utils.mainFieldStyle
+import com.example.messenger.utils.makeToast
+import com.example.messenger.utils.sign_out
 import androidx.core.net.toUri
 
 class AddInfo : ComponentActivity() {
