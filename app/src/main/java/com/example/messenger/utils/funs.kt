@@ -21,11 +21,9 @@ import com.example.messenger.navigation.Screens
 import com.example.messenger.screens.loginAndSignUp.AddInfo
 import com.google.firebase.auth.PhoneAuthProvider
 import com.google.firebase.database.DataSnapshot
-import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.net.URLEncoder
-import java.util.ArrayList
 
 /*
 Служебные функции приложения
@@ -120,50 +118,55 @@ fun goTo(navController: NavHostController, user: CommonModal) {
     }
 }
 
-fun goTo(navController: NavHostController, user: ContactModal) {
-    user.id
-    val fullname = URLEncoder.encode(user.fullname, "UTF-8")
-    val status = URLEncoder.encode(user.status, "UTF-8")
-    val uri = URLEncoder.encode(user.photoUrl, "UTF-8")
+fun goTo(navController: NavHostController, contact: ContactModal) {
+    val fullname = URLEncoder.encode(contact.fullname, "UTF-8")
+    val status = URLEncoder.encode(contact.status, "UTF-8")
+    val uri = URLEncoder.encode(contact.photoUrl, "UTF-8")
 
     //Используем navController для перемещения по экранам
-    navController.navigate("chatScreen/${fullname}/${status}/${uri}/{${user.id}}") {
+    navController.navigate("chatScreen/${fullname}/${status}/${uri}/{${contact.id}}") {
         launchSingleTop = true
     }
 }
 
 fun goTo(navController: NavHostController, user: ChatModal) {
-    user.id
-    val fullname = URLEncoder.encode(user.fullname, "UTF-8")
+    val fullName = URLEncoder.encode(user.fullname, "UTF-8")
     val status = URLEncoder.encode(user.status, "UTF-8")
     val uri = URLEncoder.encode(user.photoUrl, "UTF-8")
 
     //Используем navController для перемещения по экранам
-    navController.navigate("chatScreen/${fullname}/${status}/${uri}/{${user.id}}") {
+    navController.navigate("chatScreen/${fullName}/${status}/${uri}/{${user.id}}") {
         launchSingleTop = true
     }
 }
 
 fun goTo(
     navController: NavHostController,
-    contactsList: String?,
+    screen: Screens,
+    contactList: MutableList<ContactModal>
 ) {
-    navController.navigate("selectData/${contactsList}") {
+    navController.currentBackStackEntry?.savedStateHandle?.apply {
+        set("contactList", contactList)
+    }
+    navController.navigate(screen.route) {
         launchSingleTop = true
     }
 }
 
 fun goTo(
     navController: NavHostController,
-    contactsList: String?,
+    screen: Screens,
+    contactList: MutableList<ContactModal>?,
     name: String,
     photoUri: String
 ) {
-    val groupChatName = URLEncoder.encode(name, "UTF-8")
-    val photoUrlGroupChat = URLEncoder.encode(photoUri, "UTF-8")
+    navController.currentBackStackEntry?.savedStateHandle?.apply {
+        set("contactList", contactList)
+        set("groupChatName", name)
+        set("photoUrlGroupChat", photoUri)
+    }
 
-//    //Используем navController для перемещения по экранам
-    navController.navigate("groupChat/${groupChatName}/${photoUrlGroupChat}/${contactsList}}") {
+    navController.navigate(screen.route) {
         launchSingleTop = true
     }
 }

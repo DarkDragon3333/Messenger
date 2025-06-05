@@ -8,7 +8,8 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.example.messenger.screens.SelectDataForGroupChat
+import com.example.messenger.modals.ContactModal
+import com.example.messenger.screens.navMenu.createNewGroupChat.SelectDataForGroupChat
 import com.example.messenger.screens.navMenu.ContactsScreen
 import com.example.messenger.screens.navMenu.SearchScreen
 import com.example.messenger.screens.navMenu.SettingsScreen
@@ -20,7 +21,8 @@ import com.example.messenger.screens.changeInfoScreens.ChangeUserName
 import com.example.messenger.screens.chatScreens.ChatScreen
 import com.example.messenger.screens.chatScreens.ChatsScreen
 import com.example.messenger.screens.chatScreens.GroupChat
-import com.example.messenger.screens.navMenu.SelectUsers
+import com.example.messenger.screens.navMenu.createNewGroupChat.SelectUsers
+
 
 @Composable
 fun DrawerNavigation(navController: NavHostController) {
@@ -44,12 +46,12 @@ fun DrawerNavigation(navController: NavHostController) {
             )
         )
         { backStackEntry ->
-            val fullname = backStackEntry.arguments?.getString("fullname")
+            val fullName = backStackEntry.arguments?.getString("fullname")
             val status = backStackEntry.arguments?.getString("status")
             val photoURL = backStackEntry.arguments?.getString("photoURL")
             val id = backStackEntry.arguments?.getString("id").toString()
 
-            ChatScreen(fullname, status, photoURL, id, navController)
+            ChatScreen(fullName, status, photoURL, id, navController)
         }
         composable(Screens.Contacts.route) {
             ContactsScreen(navController)
@@ -82,16 +84,13 @@ fun DrawerNavigation(navController: NavHostController) {
             SelectUsers(navController)
         }
         composable(
-            "groupChat/{groupChatName}/{photoUrlGroupChat}/{contactList}",
-            arguments = listOf(
-                navArgument("groupChatName") { type = NavType.StringType},
-                navArgument("photoUrlGroupChat") { type = NavType.StringType},
-                navArgument("contactList") { type = NavType.StringArrayType }
-            )
-        ) { backStackEntry ->
-            val groupChatName = backStackEntry.arguments?.getString("groupChatName")
-            val photoUrlGroupChat = backStackEntry.arguments?.getString("photoUrlGroupChat")
-            val contactList = backStackEntry.arguments?.getString("contactList")
+            Screens.GroupChat.route
+        ) {
+            val savedStateHandle = navController.previousBackStackEntry?.savedStateHandle
+
+            val groupChatName = savedStateHandle?.get<String>("groupChatName")
+            val photoUrlGroupChat = savedStateHandle?.get<String>("photoUrlGroupChat")
+            val contactList = savedStateHandle?.get<MutableList<ContactModal>>("contactList")
 
             GroupChat(
                 navController,
@@ -102,13 +101,15 @@ fun DrawerNavigation(navController: NavHostController) {
         }
 
         composable(
-            "selectData/{contactList}"
-        ) { backStackEntry ->
-            val contactList = backStackEntry.arguments?.getString("contactList")
+            Screens.SelectDataForGroupChat.route
+        ) {
+            val savedStateHandle = navController.previousBackStackEntry?.savedStateHandle
+            val contactsList = savedStateHandle?.get<MutableList<ContactModal>>("contactList")
 
-            SelectDataForGroupChat(navController, contactList.toString())
+            if (contactsList != null) {
+                SelectDataForGroupChat(navController, contactsList)
+            }
         }
-
     }
 }
 

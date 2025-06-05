@@ -89,13 +89,13 @@ lateinit var appVoiceRecorder: AppVoiceRecorder
 @SuppressLint("ReturnFromAwaitPointerEventScope")
 @Composable
 fun ChatScreen(
-    fullnameContact: String?,
+    fullNameContact: String?,
     statusContact: String?,
     photoURLContact: String?,
     idContact: String,
     navController: NavHostController,
 ) {
-    val fullname = URLDecoder.decode(fullnameContact, "UTF-8").toString()
+    val fullName = URLDecoder.decode(fullNameContact, "UTF-8").toString()
     val statusUSER = URLDecoder.decode(statusContact, "UTF-8").toString()
     val photoURL = photoURLContact.toString()
 
@@ -103,7 +103,7 @@ fun ChatScreen(
     val receivingUserID = idContact.replace(regex, "")
 
     val infoArray = arrayOf(
-        fullname,
+        fullName,
         photoURL,
         receivingUserID,
         statusUSER,
@@ -111,18 +111,15 @@ fun ChatScreen(
         "lastMes_null",
         "timeStamp_null"
     )
-
-
     var listenerRegistration: ListenerRegistration
 
     val viewConfiguration = LocalViewConfiguration.current
 
     val db = Firebase.firestore
 
+    //Исправить отображение кнопки записывания голосового сообщения
     val recordVoiceFlag = remember { mutableStateOf(false) }
     val changeColor = remember { mutableStateOf(Color.Red) }
-
-    //val chatScreenState = remember { mutableStateListOf<MessageModal>() }
 
     val messages = remember { mutableStateOf(listOf<MessageModal>()) }
 
@@ -228,7 +225,7 @@ fun ChatScreen(
                         }.filterNot { msg ->
                             chatScreenState.any { it.id == msg.id }
                         }
-                        messages.value =  messages.value + newMessages
+                        messages.value += newMessages
                         //chatScreenState.addAll(newMessages)
 
                         isLoadingOldMessages = false
@@ -247,7 +244,6 @@ fun ChatScreen(
         onDispose {
             messages.value = emptyList()
             listenerRegistration.remove()
-
         }
     }
 
@@ -289,7 +285,6 @@ private fun PanelOfEnter(
     showBottomSheetState: MutableState<Boolean>,
     infoArray: Array<String>
 ) {
-
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -387,7 +382,6 @@ fun SheetContent(
     infoArray: Array<String>,
     receivingUserID: String
 ) {
-
     Row {
         Button(onClick = {
             attachImage(launcher)
@@ -406,7 +400,6 @@ fun SheetContent(
             coroutineScope.launch { sheetState.hide() }.invokeOnCompletion {
                 if (!sheetState.isVisible)
                     showBottomSheetState.value = false
-
             }
             createChatsListObj(infoArray)
             LastMessageState.updateLastMessage("Файл", receivingUserID)
@@ -423,7 +416,6 @@ fun SheetContent(
             Text("TO-DO")
         }
     }
-
 }
 
 @Composable
@@ -445,9 +437,7 @@ private fun SendMessageButton(
         modifier = Modifier
             .fillMaxHeight()
             .background(Color.Transparent),
-        onClick = {
-
-        }
+        onClick = {}
     ) {
         ControlIconOfVoiceButton(fieldText)
 
@@ -481,7 +471,10 @@ private fun SendMessageButton(
                                     listState.animateScrollToItem(0)
                                 }
                             createChatsListObj(infoArray)
-                            LastMessageState.updateLastMessage("Голосовое сообщение", receivingUserID)
+                            LastMessageState.updateLastMessage(
+                                "Голосовое сообщение",
+                                receivingUserID
+                            )
                         }
                     }
 
@@ -497,7 +490,10 @@ private fun SendMessageButton(
                                 coroutineScope.launch {
                                     listState.animateScrollToItem(0)
                                 }
-                            LastMessageState.updateLastMessage("Голосовое сообщение", receivingUserID)
+                            LastMessageState.updateLastMessage(
+                                "Голосовое сообщение",
+                                receivingUserID
+                            )
                             createChatsListObj(infoArray)
                         }
 
@@ -515,7 +511,6 @@ private fun SendMessageButton(
                                 LastMessageState.updateLastMessage(fieldText.value, receivingUserID)
                                 cleanText()
                             }
-
                         }
                     }
                 }
@@ -533,18 +528,16 @@ private fun SendMessageButton(
 @Composable
 private fun ControlIconOfVoiceButton(fieldText: MutableState<String>) {
     when (fieldText.value.isNotEmpty()) {
-        true -> {
+        true ->
             Icon(
                 Icons.AutoMirrored.Filled.Send,
                 contentDescription = ""
             )
-        }
 
-        false -> {
+        false ->
             Icon(
                 painter = painterResource(id = R.drawable.ic_microphone),
                 contentDescription = "",
             )
-        }
     }
 }

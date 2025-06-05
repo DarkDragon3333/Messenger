@@ -3,6 +3,7 @@ package com.example.messenger.screens.chatScreens
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -22,15 +23,11 @@ import com.google.gson.reflect.TypeToken
 @Composable
 fun GroupChat(
     navController: NavHostController,
-    contactsList: String?,
+    contactsList: MutableList<ContactModal>?,
     groupChatName: String,
     photoUrlGroupChat: String
 ){
-    val gson = Gson()
-    val type = object : TypeToken<List<ContactModal>>() {}.type
-    val contactList: List<ContactModal> = gson.fromJson(contactsList, type)
-
-    val messages = remember { mutableStateOf(listOf<String>(contactsList.toString())) }
+    val messages = remember { mutableStateOf(listOf(contactsList)) }
 
     val chatScreenState by remember {
         derivedStateOf { messages.value }
@@ -41,13 +38,13 @@ fun GroupChat(
     Column {
         Text(groupChatName)
         Text(photoUrlGroupChat)
-        LazyRow (
+        LazyColumn (
             modifier = Modifier,
             state = listState,
         )
         {
             items(chatScreenState) { message ->
-                Text(message)
+                Text(message.toString())
                 Spacer(modifier = Modifier.height(10.dp))
             }
         }

@@ -22,14 +22,14 @@ fun ContactCard(user: ContactModal?) {
         ) {
             Spacer(modifier = Modifier.padding(8.dp))
 
-            UriImage(dp = 64.dp, user.photoUrl) {}
+            UriImage(dp = 54.dp, user.photoUrl) {}
 
             Spacer(modifier = Modifier.padding(4.dp))
             Column {
                 Text(text = user.fullname)
                 Text(text = user.phone)
             }
-            Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center){
+            Box(modifier = Modifier.fillMaxWidth().padding(0.dp, 0.dp, 30.dp, 0.dp), contentAlignment = Alignment.CenterEnd){
                 Text(text = user.status)
             }
         }

@@ -1,4 +1,4 @@
-package com.example.messenger.screens.navMenu
+package com.example.messenger.screens.navMenu.createNewGroupChat
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -16,10 +16,8 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -31,12 +29,10 @@ import com.example.messenger.screens.componentOfScreens.ContactCard
 import com.example.messenger.utils.contactsListUSER
 import com.example.messenger.utils.goTo
 import com.example.messenger.utils.mapContacts
-import com.google.gson.Gson
-import java.net.URLEncoder
 
 @Composable
 fun SelectUsers(navController: NavHostController) {
-    var contactsList = remember { mutableListOf<ContactModal>() }
+    val contactsList = remember { mutableListOf<ContactModal>() }
 
     Box(contentAlignment = Alignment.BottomEnd) {
         LazyColumn(
@@ -50,31 +46,30 @@ fun SelectUsers(navController: NavHostController) {
                     modifier = Modifier
                         .fillMaxWidth()
                         .clickable {
-
                         }
                 ) {
                     Row(
-                        modifier = Modifier.fillMaxWidth().clickable{
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
 
-                        }
+                            }
                     ) {
                         Checkbox(
-                            modifier = Modifier.clickable{
-
-                            },
+                            modifier = Modifier,
                             checked = check.value,
                             onCheckedChange = {
                                 check.value = it
 
                                 when (check.value) {
                                     true -> {
-                                        if (contactsList.contains(mapContacts[contactsListUSER[contact]]) == false) {
+                                        if (!contactsList.contains(mapContacts[contactsListUSER[contact]])) {
                                             contactsList.add(mapContacts[contactsListUSER[contact]]!!)
                                         }
                                     }
 
                                     false -> {
-                                        if (contactsList.contains(mapContacts[contactsListUSER[contact]]) == true) {
+                                        if (contactsList.contains(mapContacts[contactsListUSER[contact]])) {
                                             contactsList.remove(mapContacts[contactsListUSER[contact]]!!)
                                         }
                                     }
@@ -93,10 +88,11 @@ fun SelectUsers(navController: NavHostController) {
                 .size(52.dp)
                 .clip(CircleShape),
             onClick = {
-                val gson = Gson()
-                val contactList = gson.toJson(contactsList)
-                val encoded = URLEncoder.encode(contactList, "UTF-8")
-                goTo(navController, encoded)
+                goTo(
+                    navController,
+                    Screens.SelectDataForGroupChat,
+                    contactsList
+                )
             }
         ) {
             Icon(
@@ -105,5 +101,4 @@ fun SelectUsers(navController: NavHostController) {
             )
         }
     }
-
 }

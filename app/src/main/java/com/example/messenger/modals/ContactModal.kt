@@ -1,6 +1,7 @@
 package com.example.messenger.modals
 
 import androidx.compose.runtime.Stable
+import java.io.Serializable
 
 @Stable
 data class ContactModal (
@@ -12,4 +13,4 @@ data class ContactModal (
     var username: String = "",
     var bio: String = "",
     var password: String = ""
-)
+) : Serializable

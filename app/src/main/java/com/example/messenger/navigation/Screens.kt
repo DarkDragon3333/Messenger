@@ -5,6 +5,7 @@ import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Warning
@@ -73,16 +74,16 @@ sealed class Screens(
     data object SelectUsers: Screens(
         title = "Создание группы",
         route = "создание группы",
-        icon = Icons.AutoMirrored.Filled.Send
+        icon = Icons.Default.Face
     )
     data object SelectDataForGroupChat: Screens(
         title = "Добавление информации о чате",
         route = "добавление информации о чате",
-        icon = Icons.AutoMirrored.Filled.Send
+        icon = Icons.Default.Face
     )
     data object GroupChat: Screens(
         title = "Групповой чат",
         route = "групповой чат",
-        icon = Icons.AutoMirrored.Filled.Send
+        icon = Icons.Default.Face
     )
 }

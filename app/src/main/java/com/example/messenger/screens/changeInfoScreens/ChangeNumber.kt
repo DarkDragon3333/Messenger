@@ -53,14 +53,18 @@ class ChangeNumber : ComponentActivity() {
     fun GreetingChangeNumber(m: Modifier = Modifier) {
         val context = LocalContext.current
 
-        Column(modifier = Modifier
-            .fillMaxSize()
-            .padding(0.dp, 100.dp, 0.dp, 0.dp)
-            .imePadding(),
-            horizontalAlignment = Alignment.CenterHorizontally)
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(0.dp, 100.dp, 0.dp, 0.dp)
+                .imePadding(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        )
         {
-            Column(modifier = Modifier.fillMaxHeight(0.85f),
-                horizontalAlignment = Alignment.CenterHorizontally)
+            Column(
+                modifier = Modifier.fillMaxHeight(0.85f),
+                horizontalAlignment = Alignment.CenterHorizontally
+            )
             {
                 Text(
                     text = stringResource(R.string.change_number_text),
@@ -76,10 +80,13 @@ class ChangeNumber : ComponentActivity() {
                     mText = USER.phone
                 ) {}
             }
-            Row(modifier = Modifier
-                .fillMaxWidth()
-                .imePadding() ){
-                Row(horizontalArrangement = Arrangement.Start,
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .imePadding()
+            ) {
+                Row(
+                    horizontalArrangement = Arrangement.Start,
                     modifier = Modifier.fillMaxWidth(0.5f)
                 )
                 {
@@ -102,9 +109,6 @@ class ChangeNumber : ComponentActivity() {
                 }
 
             }
-
         }
     }
-
-
 }

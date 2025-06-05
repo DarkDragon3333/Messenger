@@ -10,7 +10,7 @@ import com.example.messenger.utils.makeToast
 
 enum class AppStatus(val state: String) {
     ONLINE("В сети"),
-    OFFLINE("Был недавно");
+    OFFLINE("Не в сети");
     //TYPING("Печатает");
 
     companion object {
