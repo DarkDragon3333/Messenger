@@ -4,6 +4,7 @@ import android.content.ContentValues
 import android.util.Log
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import com.example.messenger.modals.ChatModal
+import com.example.messenger.utils.ChatItem
 import com.example.messenger.utils.Constants
 import com.example.messenger.utils.mainActivityContext
 import com.example.messenger.utils.makeToast
@@ -14,7 +15,7 @@ import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.firestore
 
 fun listeningUpdateChatsList(
-    chatsScreenState: SnapshotStateList<ChatModal>,
+    chatsScreenState: SnapshotStateList<ChatItem>,
     messLink: Query
 ): ListenerRegistration {
     val listing = messLink.addSnapshotListener { snapshots, e ->
@@ -50,7 +51,7 @@ fun listeningUpdateChatsList(
 }
 
 fun initChatsList(
-    chatsScreenState: SnapshotStateList<ChatModal>,
+    chatsScreenState: SnapshotStateList<ChatItem>,
     messLink: Query,
     function: () -> Unit
 ) {
@@ -69,20 +70,22 @@ fun initChatsList(
         }
 }
 
-fun createChatsListObj(infoArray: Array<String>) {
+fun addChatToChatsList(infoArray: Array<String>) {
     try {
         val db = Firebase.firestore
 
         val userChats =
             infoArray[2].let {
                 db
-                    .collection("users_talkers").document(UID).collection("talkers").document(it)
+                    .collection("users_talkers").document(UID)
+                    .collection("talkers").document(it)
             }
 
         val receivingUserChats =
             infoArray[2].let {
                 db
-                    .collection("users_talkers").document(it).collection("talkers").document(UID)
+                    .collection("users_talkers").document(it)
+                    .collection("talkers").document(UID)
             }
 
         val mapChat = hashMapOf<String, Any>()

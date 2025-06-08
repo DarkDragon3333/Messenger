@@ -16,45 +16,102 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.messenger.modals.ChatModal
+import com.example.messenger.modals.GroupChatModal
+import com.example.messenger.navigation.Screens
+import com.example.messenger.utils.ChatItem
 import com.example.messenger.utils.UriImage
 import com.example.messenger.utils.goTo
 
 @Composable
-fun ElementOfChatsList(chatModal: ChatModal, navController: NavHostController) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(60.dp)
-            .clickable {
-                goTo(navController, chatModal)
-            },
-        shape = RoundedCornerShape(
-            topStart = 0.dp,
-            topEnd = 0.dp,
-            bottomEnd = 0.dp,
-            bottomStart = 0.dp,
-        ),
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Spacer(modifier = Modifier.padding(4.dp))
+fun ElementOfChatsList(chatModal: ChatItem, navController: NavHostController) {
+    when(chatModal) {
+        is ChatModal -> {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(60.dp)
+                    .clickable {
+                        goTo(navController, chatModal)
+                    },
+                shape = RoundedCornerShape(
+                    topStart = 0.dp,
+                    topEnd = 0.dp,
+                    bottomEnd = 0.dp,
+                    bottomStart = 0.dp,
+                ),
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Spacer(modifier = Modifier.padding(4.dp))
 
-            UriImage(64.dp, chatModal.photoUrl) {}
+                    UriImage(64.dp, chatModal.photoUrl) {}
 
-            Spacer(modifier = Modifier.padding(8.dp))
+                    Spacer(modifier = Modifier.padding(8.dp))
 
-            Column {
-                Text(text = chatModal.fullname)
-                chatModal.lastMessage?.let { Text(text = it) }
+                    Column {
+                        Text(text = chatModal.fullname)
+                        chatModal.lastMessage?.let { Text(text = it) }
+                    }
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(0.dp, 0.dp, 30.dp, 0.dp),
+                        contentAlignment = Alignment.CenterEnd
+                    ) {
+                        Text(text = chatModal.status, fontSize = 13.sp)
+                    }
+                }
             }
-            Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center){
-                Text(text = chatModal.status)
+            HorizontalDivider()
+        }
+
+        is GroupChatModal -> {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(60.dp)
+                    .clickable {
+                        goTo(navController, chatModal, Screens.GroupChat)
+                    },
+                shape = RoundedCornerShape(
+                    topStart = 0.dp,
+                    topEnd = 0.dp,
+                    bottomEnd = 0.dp,
+                    bottomStart = 0.dp,
+                ),
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Spacer(modifier = Modifier.padding(4.dp))
+
+                    UriImage(64.dp, chatModal.photoUrl) {}
+
+                    Spacer(modifier = Modifier.padding(8.dp))
+
+                    Column {
+                        Text(text = chatModal.groupChatName)
+                        chatModal.lastMessage?.let { Text(text = it) }
+                    }
+//                    Box(
+//                        modifier = Modifier
+//                            .fillMaxWidth()
+//                            .padding(0.dp, 0.dp, 30.dp, 0.dp),
+//                        contentAlignment = Alignment.CenterEnd
+//                    ) {
+//                        Text(text = chatModal.status, fontSize = 13.sp)
+//                    }
+                }
             }
+            HorizontalDivider()
         }
     }
-    HorizontalDivider()
+
+
 }

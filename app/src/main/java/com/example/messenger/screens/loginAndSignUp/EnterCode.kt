@@ -92,11 +92,13 @@ class EnterCode : ComponentActivity() {
                             code = it
                         else if (it.length == maxCount) {
                             code = it
-                            if (code == testSTR) {
-                                codeFromField = code
-                                enterCode()
-                            } else {
-                                makeToast("Проверьте введёый код!", context)
+
+                            when (code == testSTR) {
+                                true -> {
+                                    codeFromField = code
+                                    enterCode()
+                                }
+                                false -> makeToast("Проверьте введёый код!", context)
                             }
                         }
                     },
@@ -126,7 +128,6 @@ class EnterCode : ComponentActivity() {
                 )
             }
         }
-
     }
 
     private fun init() {
@@ -162,9 +163,7 @@ class EnterCode : ComponentActivity() {
                     )
                 }
 
-            } else {
-                makeToast("Error!", context)
-            }
+            } else makeToast("Error!", context)
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.example.messenger.utils
 
+import android.net.Uri
 import com.example.messenger.MainActivity
 import com.example.messenger.modals.ContactModal
 
@@ -13,11 +14,12 @@ var sign_out = false
 var sign_in = true
 
 
+
 val contactsListUSER: MutableList<String> = mutableListOf()
 val mapContacts: MutableMap<String, ContactModal> = mutableMapOf()
 
 //var cacheMessages: MutableList<CommonModal> = mutableStateListOf()
 
 lateinit var mainActivityContext: MainActivity
-
+lateinit var defaultImageUri: Uri
 

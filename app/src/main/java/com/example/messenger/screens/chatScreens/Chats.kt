@@ -25,6 +25,7 @@ import com.example.messenger.dataBase.firebaseFuns.initChatsList
 import com.example.messenger.dataBase.firebaseFuns.listeningUpdateChatsList
 import com.example.messenger.modals.ChatModal
 import com.example.messenger.screens.componentOfScreens.ElementOfChatsList
+import com.example.messenger.utils.ChatItem
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.Query
@@ -35,15 +36,13 @@ fun ChatsScreen(navController: NavHostController) {
     var listenerRegistration: ListenerRegistration
 
     val listState = rememberLazyListState()
-    val chatsScreenState = remember { mutableStateListOf<ChatModal>() }
+    val chatsScreenState = remember { mutableStateListOf<ChatItem>() }
 
     val isLoadingFirstChats = remember { mutableStateOf(false) }
     var isLoadingOldChats by remember { mutableStateOf(false) }
 
-    val db = Firebase.firestore
-
     val messLink =
-        db
+        Firebase.firestore
             .collection("users_talkers").document(UID)
             .collection("talkers")
 
@@ -94,7 +93,7 @@ fun ChatsScreen(navController: NavHostController) {
 
 @Composable
 private fun ChatsList(
-    chatsScreenState: SnapshotStateList<ChatModal>,
+    chatsScreenState: SnapshotStateList<ChatItem>,
     listState: LazyListState,
     messLink: Query,
     navController: NavHostController

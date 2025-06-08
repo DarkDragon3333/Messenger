@@ -59,7 +59,7 @@ import com.example.messenger.R
 import com.example.messenger.dataBase.firebaseFuns.UID
 import com.example.messenger.utils.attachFile
 import com.example.messenger.utils.attachImage
-import com.example.messenger.dataBase.firebaseFuns.createChatsListObj
+import com.example.messenger.dataBase.firebaseFuns.addChatToChatsList
 import com.example.messenger.dataBase.firebaseFuns.getMessageKey
 import com.example.messenger.dataBase.firebaseFuns.initChat
 import com.example.messenger.dataBase.firebaseFuns.listeningUpdateChat
@@ -145,7 +145,6 @@ fun ChatScreen(
             .collection("TheirMessages")
             .orderBy("timeStamp", Query.Direction.DESCENDING) //Делает обратный порядок
             .limit(30)
-
 
     val imageLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickMultipleVisualMedia(5)
@@ -265,7 +264,6 @@ private fun Chat(
                 Spacer(modifier = Modifier.height(10.dp))
             }
         }
-
     }
 }
 
@@ -389,7 +387,7 @@ fun SheetContent(
                 if (!sheetState.isVisible)
                     showBottomSheetState.value = false
             }
-            createChatsListObj(infoArray)
+            addChatToChatsList(infoArray)
             LastMessageState.updateLastMessage("Изображение", receivingUserID)
         }) {
             Text("Image")
@@ -401,7 +399,7 @@ fun SheetContent(
                 if (!sheetState.isVisible)
                     showBottomSheetState.value = false
             }
-            createChatsListObj(infoArray)
+            addChatToChatsList(infoArray)
             LastMessageState.updateLastMessage("Файл", receivingUserID)
         }) {
             Text("File")
@@ -470,7 +468,7 @@ private fun SendMessageButton(
                                 coroutineScope.launch {
                                     listState.animateScrollToItem(0)
                                 }
-                            createChatsListObj(infoArray)
+                            addChatToChatsList(infoArray)
                             LastMessageState.updateLastMessage(
                                 "Голосовое сообщение",
                                 receivingUserID
@@ -494,7 +492,7 @@ private fun SendMessageButton(
                                 "Голосовое сообщение",
                                 receivingUserID
                             )
-                            createChatsListObj(infoArray)
+                            addChatToChatsList(infoArray)
                         }
 
                         if (isLongClick.not()) {
@@ -507,7 +505,7 @@ private fun SendMessageButton(
                                     coroutineScope.launch {
                                         listState.animateScrollToItem(0)
                                     }
-                                createChatsListObj(infoArray)
+                                addChatToChatsList(infoArray)
                                 LastMessageState.updateLastMessage(fieldText.value, receivingUserID)
                                 cleanText()
                             }

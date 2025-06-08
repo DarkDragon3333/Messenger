@@ -131,22 +131,32 @@ class AddInfo : ComponentActivity() {
             ) {}
 
             Spacer(modifier = Modifier.padding(0.dp, 40.dp, 0.dp, 0.dp))
-            Button(onClick = {
-                if (nameField == "") {
-                    makeToast("Введите имя в поле", context)
-                } else if (userNameField == "") {
-                    makeToast("Введите никнейм в поле", context)
-                } else {
-                    fullname = "$nameField $surnameField"
-                    userName = userNameField
-                    bio = bioField
-                    workWithDataForDataBase()
-
-                }
-            }) {
+            Button(
+                onClick = {
+                    checkFields(nameField, userNameField, surnameField, bioField)
+                }) {
                 Icon(Icons.Default.Check, contentDescription = "")
                 Text(text = "Подтвердить")
             }
+        }
+    }
+
+
+    private fun checkFields(
+        nameField: String,
+        userNameField: String,
+        surnameField: String,
+        bioField: String
+    ) {
+        if (nameField == "") {
+            makeToast("Введите имя в поле", context)
+        } else if (userNameField == "") {
+            makeToast("Введите никнейм в поле", context)
+        } else {
+            fullname = "$nameField $surnameField"
+            userName = userNameField
+            bio = bioField
+            workWithDataForDataBase()
         }
     }
 
@@ -166,10 +176,10 @@ class AddInfo : ComponentActivity() {
         REF_DATABASE_ROOT.child(NODE_PHONES).child(phoneNumber).setValue(uId)
             .addOnFailureListener { makeToast(it.message.toString(), context) }
 
-        takeDefaultPhoto(dataMap)
+        takeDefaultPhotoForUser(dataMap)
     }
 
-    private fun takeDefaultPhoto(dataMap: MutableMap<String, Any>) {
+    private fun takeDefaultPhotoForUser(dataMap: MutableMap<String, Any>) {
         pathToPhoto = REF_STORAGE_ROOT.child(FOLDER_PHOTOS).child(dataMap[CHILD_ID].toString())
         pathToPhoto.putFile(uri).addOnCompleteListener { putTask ->
             when (putTask.isSuccessful) {
@@ -218,7 +228,6 @@ class AddInfo : ComponentActivity() {
         USER.phone = phoneNumber
         USER.password = passwordFromSignUpActivity
     }
-
 }
 
 

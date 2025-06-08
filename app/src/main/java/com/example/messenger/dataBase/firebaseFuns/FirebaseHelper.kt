@@ -239,7 +239,6 @@ fun sendMessage(
     } catch (e: Exception) {
         makeToast(e.message.toString() + " ошибка отправки", mainActivityContext)
     }
-
 }
 
 
@@ -271,9 +270,7 @@ fun uploadFileToStorage(
                         ) {}
                     }
 
-                    else ->
-                        sendMessage(downloadUrl, receivingUserID, typeMessage, messageKey) {}
-
+                    else -> sendMessage(downloadUrl, receivingUserID, typeMessage, messageKey) {}
                 }
 
             } catch (e: Exception) {
@@ -296,7 +293,7 @@ fun getFile(mAudioFile: File, fileUrl: String, function: () -> Unit) {
 }
 
 fun singOutFromApp(){
-    AppStatus.Companion.updateStates(AppStatus.OFFLINE, mainActivityContext)
+    AppStatus.updateStates(AppStatus.OFFLINE, mainActivityContext)
     get_out_from_auth = true
     sign_in = true
     AUTH.signOut()

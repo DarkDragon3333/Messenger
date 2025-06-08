@@ -30,6 +30,9 @@ object Constants {
     const val CHILD_PHOTO_URL: String = "photoUrl"
     const val CHILD_LAST_MESSAGE: String = "lastMessage"
 
+    const val CHILD_GROUP_CHAT_NAME = "groupChatName"
+    const val CHILD_CONTACT_LIST = "contactList"
+
     const val CHILD_FILE_URL: String = "fileUrl"
     const val CHILD_TEXT: String = "text"
     const val CHILD_INFO: String = "info"

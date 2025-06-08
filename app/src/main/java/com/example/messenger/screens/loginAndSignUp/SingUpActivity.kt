@@ -121,11 +121,12 @@ class SingUpActivity : ComponentActivity() {
             //Выполнение
             override fun onVerificationCompleted(credential: PhoneAuthCredential) {
                 AUTH.signInWithCredential(credential).addOnCompleteListener {
-                    if (it.isSuccessful) {
-                        makeToast("Добро пожаловать!", context)
-                        goTo(MainActivity::class.java, context)
-                    } else {
-                        makeToast("Error!", context)
+                    when (it.isSuccessful) {
+                        true -> {
+                            makeToast("Добро пожаловать!", context)
+                            goTo(MainActivity::class.java, context)
+                        }
+                        false -> makeToast("Error!", context)
                     }
                 }
             }

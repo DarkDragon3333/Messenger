@@ -183,7 +183,7 @@ fun Title(navController: NavHostController, currentRoute: Any) {
     else if (flagNavButtonOnGroupChatScreen == 1)
         TitleView(
             navController,
-            "groupChat/{groupChatName}/{photoUrlGroupChat}/{contactList}",
+            "groupChat",
             "GroupChat"
         )
     else
@@ -211,9 +211,9 @@ fun TitleView(navController: NavHostController, route: String, typeChat: String)
                 }
 
                 "GroupChat" -> {
-                    fullname = getBundle("fullname", bundle).toString()
+                    fullname = getBundle("groupChatName", bundle).toString()
                     statusUSER = ""
-                    photoURL = bundle.getString("photoURL").toString()
+                    photoURL = bundle.getString("photoUrlGroupChat").toString()
                 }
             }
         }

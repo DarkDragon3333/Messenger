@@ -16,6 +16,7 @@ import com.example.messenger.dataBase.firebaseFuns.updateContactsForFirebase
 import com.example.messenger.modals.ChatModal
 import com.example.messenger.modals.CommonModal
 import com.example.messenger.modals.ContactModal
+import com.example.messenger.modals.GroupChatModal
 import com.example.messenger.modals.MessageModal
 import com.example.messenger.navigation.Screens
 import com.example.messenger.screens.loginAndSignUp.AddInfo
@@ -119,12 +120,12 @@ fun goTo(navController: NavHostController, user: CommonModal) {
 }
 
 fun goTo(navController: NavHostController, contact: ContactModal) {
-    val fullname = URLEncoder.encode(contact.fullname, "UTF-8")
+    val fullName = URLEncoder.encode(contact.fullname, "UTF-8")
     val status = URLEncoder.encode(contact.status, "UTF-8")
     val uri = URLEncoder.encode(contact.photoUrl, "UTF-8")
 
     //Используем navController для перемещения по экранам
-    navController.navigate("chatScreen/${fullname}/${status}/${uri}/{${contact.id}}") {
+    navController.navigate("chatScreen/${fullName}/${status}/${uri}/{${contact.id}}") {
         launchSingleTop = true
     }
 }
@@ -136,6 +137,18 @@ fun goTo(navController: NavHostController, user: ChatModal) {
 
     //Используем navController для перемещения по экранам
     navController.navigate("chatScreen/${fullName}/${status}/${uri}/{${user.id}}") {
+        launchSingleTop = true
+    }
+}
+
+fun goTo(navController: NavHostController, chatModal: GroupChatModal, screen: Screens) {
+    navController.currentBackStackEntry?.savedStateHandle?.apply {
+        set("groupChatName", chatModal.groupChatName)
+        set("photoUrl", chatModal.photoUrl)
+    }
+
+    //Используем navController для перемещения по экранам
+    navController.navigate(screen.route) {
         launchSingleTop = true
     }
 }
@@ -185,9 +198,7 @@ fun attachImage(launcher: ManagedActivityResultLauncher<PickVisualMediaRequest, 
     )
 }
 
-fun attachFile(
-    launcherFile: ManagedActivityResultLauncher<String, List<@JvmSuppressWildcards Uri>>,
-) {
+fun attachFile(launcherFile: ManagedActivityResultLauncher<String, List<@JvmSuppressWildcards Uri>>, ) {
     launcherFile.launch("*/*")
 }
 

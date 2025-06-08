@@ -5,10 +5,12 @@ import android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.net.toUri
 import com.example.messenger.screens.NavDrawer
 import com.example.messenger.ui.theme.MessengerTheme
 import com.example.messenger.dataBase.valueEventListenerClasses.AppStatus
 import com.example.messenger.utils.READ_CONTACTS
+import com.example.messenger.utils.defaultImageUri
 import com.example.messenger.utils.get_out_from_auth
 import com.example.messenger.utils.getContactsFromSmartphone
 import com.example.messenger.utils.mainActivityContext
@@ -47,6 +49,7 @@ class MainActivity : ComponentActivity() {
     private fun init() {
         mainActivityContext = this
         startLocationPermissionRequest()
+        defaultImageUri = "android.resource://$packageName/${R.drawable.default_profile_image}".toUri()
     }
 
     override fun onStart() {
