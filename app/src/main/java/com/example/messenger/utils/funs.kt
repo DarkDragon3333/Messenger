@@ -142,6 +142,7 @@ fun goTo(navController: NavHostController, user: ChatModal) {
 }
 
 fun goTo(navController: NavHostController, chatModal: GroupChatModal, screen: Screens) {
+
     navController.currentBackStackEntry?.savedStateHandle?.apply {
         set("groupChatName", chatModal.groupChatName)
         set("photoUrl", chatModal.photoUrl)

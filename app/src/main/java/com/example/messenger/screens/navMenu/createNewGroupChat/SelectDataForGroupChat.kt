@@ -47,6 +47,7 @@ import com.example.messenger.dataBase.firebaseFuns.REF_STORAGE_ROOT
 import com.example.messenger.dataBase.firebaseFuns.UID
 import com.example.messenger.dataBase.firebaseFuns.USER
 import com.example.messenger.modals.ContactModal
+import com.example.messenger.modals.GroupChatModal
 import com.example.messenger.navigation.Screens
 import com.example.messenger.screens.changeInfoScreens.pathToPhoto
 import com.example.messenger.screens.componentOfScreens.ContactCard
@@ -66,6 +67,7 @@ import com.example.messenger.utils.mainFieldStyle
 import com.example.messenger.utils.makeToast
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.firestore
+import kotlin.collections.set
 
 @Composable
 fun SelectDataForGroupChat(
@@ -230,17 +232,31 @@ private fun createGroupChat(
     mapInfo[CHILD_TIME_STAMP] = "timeStamp_null"
 
     if (!selectImage.value)
-        takeDefaultPhotoForGroupChat(mapInfo, mapInfo[CHILD_ID].toString(), contactListId, navController, contactList)
+        takeDefaultPhotoForGroupChat(
+            mapInfo,
+            mapInfo[CHILD_ID].toString(),
+            contactListId,
+            navController,
+            contactList
+        )
     else {
         addGroupChatToChatsList(mapInfo, contactListId, context) {
             makeToast("Чат создан", context)
 
+            val groupChatModel = GroupChatModal(
+                mapInfo[CHILD_GROUP_CHAT_NAME].toString(),
+                mapInfo[CHILD_PHOTO_URL].toString(),
+                mapInfo[CHILD_ID].toString(),
+                mapInfo[CHILD_CONTACT_LIST] as MutableList<String>,
+                mapInfo[CHILD_TYPE].toString(),
+                mapInfo[CHILD_LAST_MESSAGE].toString(),
+                mapInfo[CHILD_TIME_STAMP].toString()
+            )
+
             goTo(
                 navController,
+                groupChatModel,
                 Screens.GroupChat,
-                contactList,
-                groupChatName,
-                imageUri.toString()
             )
         }
     }
@@ -248,7 +264,7 @@ private fun createGroupChat(
 
 fun createGroupChatId(): String {
 
-    return "565"
+    return "4565"
 }
 
 private fun selectYourImageForGroupChat(imageUri: Uri?, dataMap: MutableMap<String, Any>) {
@@ -300,12 +316,20 @@ fun takeDefaultPhotoForGroupChat(
                             addGroupChatToChatsList(dataMap, contactListId, mainActivityContext) {
                                 makeToast("Чат создан", mainActivityContext)
 
+                                val groupChatModel = GroupChatModal(
+                                    dataMap[CHILD_GROUP_CHAT_NAME].toString(),
+                                    dataMap[CHILD_PHOTO_URL].toString(),
+                                    dataMap[CHILD_ID].toString(),
+                                    dataMap[CHILD_CONTACT_LIST] as MutableList<String>,
+                                    dataMap[CHILD_TYPE].toString(),
+                                    dataMap[CHILD_LAST_MESSAGE].toString(),
+                                    dataMap[CHILD_TIME_STAMP].toString()
+                                )
+
                                 goTo(
                                     navController,
+                                    groupChatModel,
                                     Screens.GroupChat,
-                                    contactList,
-                                    dataMap[CHILD_GROUP_CHAT_NAME].toString(),
-                                    dataMap.toString()
                                 )
                             }
                         }

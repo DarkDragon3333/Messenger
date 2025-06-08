@@ -26,15 +26,15 @@ import com.example.messenger.utils.UriImage
 import com.example.messenger.utils.goTo
 
 @Composable
-fun ElementOfChatsList(chatModal: ChatItem, navController: NavHostController) {
-    when(chatModal) {
+fun ElementOfChatsList(chatType: ChatItem, navController: NavHostController) {
+    when(chatType) {
         is ChatModal -> {
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(60.dp)
                     .clickable {
-                        goTo(navController, chatModal)
+                        goTo(navController, chatType)
                     },
                 shape = RoundedCornerShape(
                     topStart = 0.dp,
@@ -49,13 +49,13 @@ fun ElementOfChatsList(chatModal: ChatItem, navController: NavHostController) {
                 ) {
                     Spacer(modifier = Modifier.padding(4.dp))
 
-                    UriImage(64.dp, chatModal.photoUrl) {}
+                    UriImage(64.dp, chatType.photoUrl) {}
 
                     Spacer(modifier = Modifier.padding(8.dp))
 
                     Column {
-                        Text(text = chatModal.fullname)
-                        chatModal.lastMessage?.let { Text(text = it) }
+                        Text(text = chatType.fullname)
+                        chatType.lastMessage?.let { Text(text = it) }
                     }
                     Box(
                         modifier = Modifier
@@ -63,7 +63,7 @@ fun ElementOfChatsList(chatModal: ChatItem, navController: NavHostController) {
                             .padding(0.dp, 0.dp, 30.dp, 0.dp),
                         contentAlignment = Alignment.CenterEnd
                     ) {
-                        Text(text = chatModal.status, fontSize = 13.sp)
+                        Text(text = chatType.status, fontSize = 13.sp)
                     }
                 }
             }
@@ -76,7 +76,11 @@ fun ElementOfChatsList(chatModal: ChatItem, navController: NavHostController) {
                     .fillMaxWidth()
                     .height(60.dp)
                     .clickable {
-                        goTo(navController, chatModal, Screens.GroupChat)
+                        goTo(
+                            navController,
+                            chatType,
+                            Screens.GroupChat
+                        )
                     },
                 shape = RoundedCornerShape(
                     topStart = 0.dp,
@@ -91,13 +95,13 @@ fun ElementOfChatsList(chatModal: ChatItem, navController: NavHostController) {
                 ) {
                     Spacer(modifier = Modifier.padding(4.dp))
 
-                    UriImage(64.dp, chatModal.photoUrl) {}
+                    UriImage(64.dp, chatType.photoUrl) {}
 
                     Spacer(modifier = Modifier.padding(8.dp))
 
                     Column {
-                        Text(text = chatModal.groupChatName)
-                        chatModal.lastMessage?.let { Text(text = it) }
+                        Text(text = chatType.groupChatName)
+                        chatType.lastMessage?.let { Text(text = it) }
                     }
 //                    Box(
 //                        modifier = Modifier

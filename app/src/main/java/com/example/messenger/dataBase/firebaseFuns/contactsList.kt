@@ -4,6 +4,7 @@ import android.content.ContentValues
 import android.util.Log
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import com.example.messenger.modals.ChatModal
+import com.example.messenger.modals.GroupChatModal
 import com.example.messenger.utils.ChatItem
 import com.example.messenger.utils.Constants
 import com.example.messenger.utils.mainActivityContext
@@ -59,7 +60,12 @@ fun initChatsList(
         .get()
         .addOnSuccessListener { result ->
             val cacheMessages =
-                result.documents.map { it.toObject(ChatModal::class.java)!! }.toMutableList()
+                result.documents.map {
+                    if (it.get("type") == "group")
+                        it.toObject(GroupChatModal::class.java)!!
+                    else
+                        it.toObject(ChatModal::class.java)!!
+                }.toMutableList()
             chatsScreenState.clear()
             chatsScreenState.addAll(cacheMessages.distinctBy { it.id })
             function()
