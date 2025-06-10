@@ -29,9 +29,13 @@ import com.example.messenger.screens.componentOfScreens.ContactCard
 import com.example.messenger.utils.contactsListUSER
 import com.example.messenger.utils.goTo
 import com.example.messenger.utils.mapContacts
+import com.example.messenger.viewModals.CurrentChatHolderViewModal
 
 @Composable
-fun SelectUsers(navController: NavHostController) {
+fun SelectUsers(
+    navController: NavHostController,
+    currentChatViewModel: CurrentChatHolderViewModal
+) {
     val contactsList = remember { mutableListOf<ContactModal>() }
 
     Box(contentAlignment = Alignment.BottomEnd) {

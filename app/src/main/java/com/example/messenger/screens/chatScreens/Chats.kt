@@ -19,20 +19,24 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.messenger.dataBase.firebaseFuns.UID
 import com.example.messenger.dataBase.firebaseFuns.initChatsList
 import com.example.messenger.dataBase.firebaseFuns.listeningUpdateChatsList
-import com.example.messenger.modals.ChatModal
 import com.example.messenger.screens.componentOfScreens.ElementOfChatsList
 import com.example.messenger.utils.ChatItem
+import com.example.messenger.viewModals.CurrentChatHolderViewModal
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.firestore
 
 @Composable
-fun ChatsScreen(navController: NavHostController) {
+fun ChatsScreen(
+    navController: NavHostController,
+    currentChatViewModel: CurrentChatHolderViewModal = viewModel()
+) {
     var listenerRegistration: ListenerRegistration
 
     val listState = rememberLazyListState()
@@ -48,7 +52,7 @@ fun ChatsScreen(navController: NavHostController) {
 
 
     if (isLoadingFirstChats.value)
-        ChatsList(chatsScreenState, listState, messLink, navController)
+        ChatsList(chatsScreenState, listState, messLink, navController, currentChatViewModel)
 
     LaunchedEffect(listState) {
         snapshotFlow {
@@ -96,7 +100,8 @@ private fun ChatsList(
     chatsScreenState: SnapshotStateList<ChatItem>,
     listState: LazyListState,
     messLink: Query,
-    navController: NavHostController
+    navController: NavHostController,
+    currentChatViewModel: CurrentChatHolderViewModal = viewModel()
 ) {
     if (chatsScreenState.isNotEmpty()) {
         Spacer(modifier = Modifier.height(10.dp))
@@ -105,7 +110,7 @@ private fun ChatsList(
             state = listState,
         ) {
             items(chatsScreenState, key = { it.id }) { chat ->
-                ElementOfChatsList(chat, navController)
+                ElementOfChatsList(chat, navController, currentChatViewModel)
                 Spacer(modifier = Modifier.height(10.dp))
             }
         }

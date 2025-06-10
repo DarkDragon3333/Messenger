@@ -65,11 +65,13 @@ import com.example.messenger.utils.mainActivityContext
 import com.example.messenger.utils.mainFieldStyle
 import com.example.messenger.utils.makeToast
 import com.example.messenger.utils.pathToSelectPhoto
+import com.example.messenger.viewModals.CurrentChatHolderViewModal
 
 @Composable
 fun SelectDataForGroupChat(
     navController: NavHostController,
-    contactList: MutableList<ContactModal>
+    contactList: MutableList<ContactModal>,
+    currentChatViewModel: CurrentChatHolderViewModal,
 ) {
     val mapInfo = remember { hashMapOf<String, Any>() }
 
@@ -156,7 +158,8 @@ fun SelectDataForGroupChat(
                         groupChatName,
                         imageUri,
                         context,
-                        navController
+                        navController,
+                        currentChatViewModel
                     )
                 }
             ) {
@@ -216,7 +219,8 @@ private fun createGroupChat(
     groupChatName: String,
     imageUri: Uri?,
     context: Context,
-    navController: NavHostController
+    navController: NavHostController,
+    currentChatViewModel: CurrentChatHolderViewModal
 ) {
     val contactListId = mutableListOf<String>()
 
@@ -235,7 +239,7 @@ private fun createGroupChat(
             mapInfo[CHILD_ID].toString(),
             contactListId,
             navController,
-            contactList
+            currentChatViewModel
         )
     else {
         addGroupChatToChatsList(mapInfo, contactListId, context) {
@@ -250,12 +254,8 @@ private fun createGroupChat(
                 mapInfo[CHILD_LAST_MESSAGE].toString(),
                 mapInfo[CHILD_TIME_STAMP].toString()
             )
-
-            goTo(
-                navController,
-                groupChatModel,
-                Screens.GroupChat,
-            )
+            currentChatViewModel.setGroupChat(groupChatModel)
+            goTo(navController, Screens.GroupChat,)
         }
     }
 }
@@ -299,7 +299,7 @@ fun takeDefaultPhotoForGroupChat(
     groupChatId: String,
     contactListId: MutableList<String>,
     navController: NavHostController,
-    contactList: MutableList<ContactModal>
+    currentChatViewModel: CurrentChatHolderViewModal
 ) {
     pathToSelectPhoto = REF_STORAGE_ROOT.child(FOLDER_PHOTOS).child(groupChatId)
     pathToSelectPhoto.putFile(defaultImageUri).addOnCompleteListener { putTask ->
@@ -324,11 +324,8 @@ fun takeDefaultPhotoForGroupChat(
                                     mapInfo[CHILD_TIME_STAMP].toString()
                                 )
 
-                                goTo(
-                                    navController,
-                                    groupChatModel,
-                                    Screens.GroupChat,
-                                )
+                                currentChatViewModel.setGroupChat(groupChatModel)
+                                goTo(navController, Screens.GroupChat)
                             }
                         }
 

@@ -54,6 +54,7 @@ import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.messenger.R
 import com.example.messenger.dataBase.firebaseFuns.UID
@@ -73,6 +74,7 @@ import com.example.messenger.utils.Constants.TYPE_IMAGE
 import com.example.messenger.utils.attachFile
 import com.example.messenger.utils.attachImage
 import com.example.messenger.utils.voice.AppVoiceRecorder
+import com.example.messenger.viewModals.CurrentChatHolderViewModal
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.Query
@@ -88,18 +90,18 @@ private lateinit var contactsList: MutableList<String>
 @Composable
 fun GroupChat(
     navController: NavHostController,
-    groupChatModal: GroupChatModal?,
+    currentChatViewModel: CurrentChatHolderViewModal = viewModel()
 ) {
     val regex = Regex("[{}]")
-    val groupChatId = groupChatModal?.id?.replace(regex, "").toString()
+    val groupChatId = currentChatViewModel.currentGroupChat?.id?.replace(regex, "").toString()
 
     contactsList = mutableListOf()
-    if (groupChatModal != null)
-        contactsList.addAll(groupChatModal.contactList)
+    if (currentChatViewModel.currentGroupChat?.contactList != null)
+        contactsList.addAll(currentChatViewModel.currentGroupChat!!.contactList)
 
     val infoArray = arrayOf(
-        groupChatModal?.groupChatName ?: "",
-        groupChatModal?.photoUrl ?: "",
+        currentChatViewModel.currentGroupChat?.groupChatName ?: "",
+        currentChatViewModel.currentGroupChat?.photoUrl ?: "",
         groupChatId,
         TYPE_GROUP,
         "lastMes_null",

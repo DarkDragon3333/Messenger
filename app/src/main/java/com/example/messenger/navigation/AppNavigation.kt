@@ -4,12 +4,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.navArgument
 import com.example.messenger.modals.ContactModal
-import com.example.messenger.modals.GroupChatModal
 import com.example.messenger.screens.navMenu.createNewGroupChat.SelectDataForGroupChat
 import com.example.messenger.screens.navMenu.ContactsScreen
 import com.example.messenger.screens.navMenu.SearchScreen
@@ -23,10 +20,15 @@ import com.example.messenger.screens.chatScreens.ChatScreen
 import com.example.messenger.screens.chatScreens.ChatsScreen
 import com.example.messenger.screens.chatScreens.GroupChat
 import com.example.messenger.screens.navMenu.createNewGroupChat.SelectUsers
+import com.example.messenger.viewModals.CurrentChatHolderViewModal
 
 
 @Composable
-fun DrawerNavigation(navController: NavHostController) {
+fun DrawerNavigation(
+    navController: NavHostController,
+    currentChatViewModel: CurrentChatHolderViewModal
+) {
+
     NavHost(
         navController = navController,
         startDestination = Screens.Chats.route
@@ -35,27 +37,16 @@ fun DrawerNavigation(navController: NavHostController) {
             YourProfile()
         }
         composable(Screens.Chats.route) {
-            ChatsScreen(navController)
+            ChatsScreen(navController, currentChatViewModel)
         }
-        composable(
-            "chatScreen/{fullname}/{status}/{photoURL}/{id}",
-            arguments = listOf(
-                navArgument("fullname") { type = NavType.StringType},
-                navArgument("status") { type = NavType.StringType},
-                navArgument("photoURL") { type = NavType.StringType},
-                navArgument("id") { type = NavType.StringType}
-            )
-        )
-        { backStackEntry ->
-            val fullName = backStackEntry.arguments?.getString("fullname")
-            val status = backStackEntry.arguments?.getString("status")
-            val photoURL = backStackEntry.arguments?.getString("photoURL")
-            val id = backStackEntry.arguments?.getString("id").toString()
-
-            ChatScreen(fullName, status, photoURL, id, navController)
+        composable(Screens.Chat.route) {
+            ChatScreen(navController, currentChatViewModel)
+        }
+        composable(Screens.GroupChat.route) {
+            GroupChat(navController, currentChatViewModel)
         }
         composable(Screens.Contacts.route) {
-            ContactsScreen(navController)
+            ContactsScreen(navController, currentChatViewModel)
         }
         composable(Screens.Starred.route) {
             StarredScreen()
@@ -82,27 +73,15 @@ fun DrawerNavigation(navController: NavHostController) {
             SearchScreen(navController)
         }
         composable(Screens.SelectUsers.route) {
-            SelectUsers(navController)
+            SelectUsers(navController, currentChatViewModel)
         }
-        composable(
-            Screens.GroupChat.route
-        ) {
-            val savedStateHandle = navController.previousBackStackEntry?.savedStateHandle
-            val groupChatModal = savedStateHandle?.get<GroupChatModal>("groupChatModel")
 
-            GroupChat(
-                navController,
-                groupChatModal
-            )
-        }
-        composable(
-            Screens.SelectDataForGroupChat.route
-        ) {
+        composable(Screens.SelectDataForGroupChat.route) {
             val savedStateHandle = navController.previousBackStackEntry?.savedStateHandle
             val contactsList = savedStateHandle?.get<MutableList<ContactModal>>("contactList")
 
             if (contactsList != null) {
-                SelectDataForGroupChat(navController, contactsList)
+                SelectDataForGroupChat(navController, contactsList, currentChatViewModel)
             }
         }
     }

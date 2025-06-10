@@ -16,6 +16,7 @@ import com.example.messenger.utils.getContactsFromSmartphone
 import com.example.messenger.utils.mainActivityContext
 import com.example.messenger.utils.makeToast
 import com.example.messenger.utils.sign_out
+import com.example.messenger.viewModals.CurrentChatHolderViewModal
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -36,8 +37,9 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         window.setSoftInputMode(SOFT_INPUT_ADJUST_RESIZE);
         setContent {
+            val currentChatHolderViewModal = CurrentChatHolderViewModal()
             MessengerTheme {
-                NavDrawer()
+                NavDrawer(currentChatHolderViewModal)
             }
         }
 

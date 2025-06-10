@@ -130,13 +130,16 @@ fun goTo(navController: NavHostController, contact: ContactModal) {
     }
 }
 
-fun goTo(navController: NavHostController, user: ChatModal) {
-    val fullName = URLEncoder.encode(user.fullname, "UTF-8")
-    val status = URLEncoder.encode(user.status, "UTF-8")
-    val uri = URLEncoder.encode(user.photoUrl, "UTF-8")
+fun goTo(navController: NavHostController, user: ChatModal, screen: Screens) {
 
-    //Используем navController для перемещения по экранам
-    navController.navigate("chatScreen/${fullName}/${status}/${uri}/{${user.id}}") {
+    navController.currentBackStackEntry?.savedStateHandle?.apply {
+        set("fullName", user.fullname)
+        set("status", user.status)
+        set("uri", user.photoUrl)
+        set("user.id", user.id)
+    }
+
+    navController.navigate(screen.route) {
         launchSingleTop = true
     }
 }
@@ -144,7 +147,7 @@ fun goTo(navController: NavHostController, user: ChatModal) {
 fun goTo(navController: NavHostController, chatModal: GroupChatModal, screen: Screens) {
 
     navController.currentBackStackEntry?.savedStateHandle?.apply {
-        set("groupChatModel", chatModal)
+        set("groupChatModal", chatModal)
     }
 
     //Используем navController для перемещения по экранам
@@ -165,27 +168,6 @@ fun goTo(
         launchSingleTop = true
     }
 }
-
-fun goTo(
-    navController: NavHostController,
-    screen: Screens,
-    contactList: MutableList<ContactModal>?,
-    name: String,
-    photoUri: String
-) {
-    navController.currentBackStackEntry?.savedStateHandle?.apply {
-        set("contactList", contactList)
-        set("groupChatName", name)
-        set("photoUrlGroupChat", photoUri)
-    }
-
-    navController.navigate(screen.route) {
-        launchSingleTop = true
-    }
-}
-
-//fun DataSnapshot.getCommonModel(): CommonModal =
-//    this.getValue(CommonModal::class.java) ?: CommonModal()
 
 fun DataSnapshot.getMessageModel(): MessageModal =
     this.getValue(MessageModal::class.java) ?: MessageModal()

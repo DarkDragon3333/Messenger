@@ -86,4 +86,9 @@ sealed class Screens(
         route = "групповой чат",
         icon = Icons.Default.Face
     )
+    data object Chat: Screens(
+        title = "Чат",
+        route = "чат",
+        icon = Icons.Default.Face
+    )
 }

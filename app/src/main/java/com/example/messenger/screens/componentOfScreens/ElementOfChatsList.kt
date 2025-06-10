@@ -19,6 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.messenger.modals.ChatModal
 import com.example.messenger.modals.GroupChatModal
@@ -26,10 +27,16 @@ import com.example.messenger.navigation.Screens
 import com.example.messenger.utils.ChatItem
 import com.example.messenger.utils.UriImage
 import com.example.messenger.utils.goTo
+import com.example.messenger.viewModals.CurrentChatHolderViewModal
 
 @Composable
-fun ElementOfChatsList(chatType: ChatItem, navController: NavHostController) {
-    when(chatType.type) {
+fun ElementOfChatsList(
+    chatType: ChatItem,
+    navController: NavHostController,
+    currentChatHolderViewModal: CurrentChatHolderViewModal = viewModel()
+) {
+
+    when (chatType.type) {
         "group" -> {
             val chatModal = remember { mutableStateOf(chatType as GroupChatModal) }
             Card(
@@ -37,11 +44,8 @@ fun ElementOfChatsList(chatType: ChatItem, navController: NavHostController) {
                     .fillMaxWidth()
                     .height(60.dp)
                     .clickable {
-                        goTo(
-                            navController,
-                            chatModal.value,
-                            Screens.GroupChat
-                        )
+                        currentChatHolderViewModal.setGroupChat(chatModal.value)
+                        goTo(navController, Screens.GroupChat)
                     },
                 shape = RoundedCornerShape(
                     topStart = 0.dp,
@@ -84,7 +88,8 @@ fun ElementOfChatsList(chatType: ChatItem, navController: NavHostController) {
                     .fillMaxWidth()
                     .height(60.dp)
                     .clickable {
-                        goTo(navController, chatModal.value)
+                        currentChatHolderViewModal.setChat(chatModal.value)
+                        goTo(navController, Screens.Chat)
                     },
                 shape = RoundedCornerShape(
                     topStart = 0.dp,
@@ -119,9 +124,5 @@ fun ElementOfChatsList(chatType: ChatItem, navController: NavHostController) {
             }
             HorizontalDivider()
         }
-
-
     }
-
-
 }

@@ -54,6 +54,7 @@ import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.messenger.R
 import com.example.messenger.dataBase.firebaseFuns.UID
@@ -75,6 +76,7 @@ import com.example.messenger.utils.Constants.TYPE_CHAT
 import com.example.messenger.utils.Constants.TYPE_FILE
 import com.example.messenger.utils.Constants.TYPE_GROUP
 import com.example.messenger.utils.Constants.TYPE_IMAGE
+import com.example.messenger.viewModals.CurrentChatHolderViewModal
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.Query
@@ -90,24 +92,17 @@ lateinit var appVoiceRecorder: AppVoiceRecorder
 @SuppressLint("ReturnFromAwaitPointerEventScope")
 @Composable
 fun ChatScreen(
-    fullNameContact: String?,
-    statusContact: String?,
-    photoURLContact: String?,
-    idContact: String,
     navController: NavHostController,
+    currentChatViewModel: CurrentChatHolderViewModal
 ) {
-    val fullName = URLDecoder.decode(fullNameContact, "UTF-8").toString()
-    val statusUSER = URLDecoder.decode(statusContact, "UTF-8").toString()
-    val photoURL = photoURLContact.toString()
-
     val regex = Regex("[{}]")
-    val receivingUserID = idContact.replace(regex, "")
+    val receivingUserID = currentChatViewModel.currentChat?.id?.replace(regex, "").toString()
 
     val infoArray = arrayOf(
-        fullName,
-        photoURL,
+        currentChatViewModel.currentChat?.fullname.toString(),
+        currentChatViewModel.currentChat?.photoUrl.toString(),
         receivingUserID,
-        statusUSER,
+        currentChatViewModel.currentChat?.status.toString(),
         TYPE_CHAT,
         "lastMes_null",
         "timeStamp_null"
@@ -236,7 +231,6 @@ fun ChatScreen(
                             chatScreenState.any { it.id == msg.id }
                         }
                         messages.value += newMessages
-                        //chatScreenState.addAll(newMessages)
 
                         isLoadingOldMessages = false
                     }
