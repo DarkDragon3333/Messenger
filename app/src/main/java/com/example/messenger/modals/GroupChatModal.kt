@@ -2,6 +2,7 @@ package com.example.messenger.modals
 
 import androidx.compose.runtime.Stable
 import com.example.messenger.utils.ChatItem
+import java.io.Serializable
 
 @Stable
 data class GroupChatModal(
@@ -9,7 +10,7 @@ data class GroupChatModal(
     var photoUrl: String = "",
     override var id: String = " ",
     var contactList: MutableList<String> = mutableListOf(),
-    var type: String = " ",
+    override var type: String = " ",
     var lastMessage: String? = "empty",
     val timeStamp: String? = null,
-) : ChatItem
+) : ChatItem, Serializable

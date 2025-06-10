@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.Uri
 import androidx.navigation.NavHostController
 import com.example.messenger.dataBase.valueEventListenerClasses.AppStatus
+import com.example.messenger.messageViews.sendTextToGroupChat
 import com.example.messenger.modals.ContactModal
 import com.example.messenger.modals.User
 import com.example.messenger.modals.setLocalDataForUser
@@ -241,6 +242,41 @@ fun sendMessage(
     }
 }
 
+fun sendMessageToGroupChat(
+    info: String,
+    groupChatId: String,
+    contactListId: MutableList<String>,
+    typeMessage: String,
+    key: String,
+    callback: () -> Unit
+) {
+    val db = Firebase.firestore
+
+    val messageKey = key.ifEmpty {
+        db.collection(groupChatId).document().id
+    }
+
+    val mapMessage = hashMapOf<String, Any>()
+    mapMessage[CHILD_ID] = messageKey
+    mapMessage[CHILD_FROM] = UID
+    mapMessage[CHILD_INFO] = info
+    mapMessage[CHILD_TYPE] = typeMessage
+    mapMessage[CHILD_TIME_STAMP] = FieldValue.serverTimestamp()
+
+    try {
+        contactListId.forEach { contactId ->
+            val userLink = db.collection("users_messages").document(contactId).collection("messages").document(groupChatId)
+
+            userLink.collection("TheirMessages").document(messageKey).set(mapMessage)
+        }
+
+        callback()
+
+    } catch (e: Exception) {
+        makeToast(" ошибка отправки", mainActivityContext)
+    }
+}
+
 
 fun getMessageKey(receivingUserID: String) = REF_DATABASE_ROOT.child(NODE_MESSAGES)
     .child(UID)
@@ -250,7 +286,9 @@ fun getMessageKey(receivingUserID: String) = REF_DATABASE_ROOT.child(NODE_MESSAG
 fun uploadFileToStorage(
     filesToUpload: List<Pair<String, @JvmSuppressWildcards Uri>>,
     receivingUserID: String,
-    typeMessage: String
+    typeMessage: String,
+    typeChat: String,
+    contactList: MutableList<String> = mutableListOf<String>()
 ) {
     CoroutineScope(Dispatchers.IO).launch {
         filesToUpload.forEach { (messageKey, fileUri) ->
@@ -262,15 +300,50 @@ fun uploadFileToStorage(
                 when (typeMessage) {
                     TYPE_FILE -> {
                         val fileName = getFileName(mainActivityContext, fileUri)
-                        sendMessage(
-                            downloadUrl + "__" + fileName,
-                            receivingUserID,
-                            typeMessage,
-                            messageKey
-                        ) {}
+                        when (typeChat) {
+                            "group" -> sendMessageToGroupChat(
+                                downloadUrl + "__" + fileName,
+                                receivingUserID,
+                                contactList,
+                                typeMessage,
+                                messageKey
+                            ) {  }
+
+                            else -> {
+                                sendMessage(
+                                    downloadUrl + "__" + fileName,
+                                    receivingUserID,
+                                    typeMessage,
+                                    messageKey
+                                ) {}
+                            }
+                        }
+
                     }
 
-                    else -> sendMessage(downloadUrl, receivingUserID, typeMessage, messageKey) {}
+                    else -> {
+                        when (typeChat) {
+                            "group" ->
+                                sendMessageToGroupChat(
+                                    downloadUrl,
+                                    receivingUserID,
+                                    contactList,
+                                    typeMessage,
+                                    messageKey
+                                ) {  }
+
+
+                            else -> {
+                                sendMessage(
+                                    downloadUrl,
+                                    receivingUserID,
+                                    typeMessage,
+                                    messageKey
+                                ) {}
+                            }
+                        }
+                    }
+
                 }
 
             } catch (e: Exception) {
@@ -292,7 +365,7 @@ fun getFile(mAudioFile: File, fileUrl: String, function: () -> Unit) {
         }
 }
 
-fun singOutFromApp(){
+fun singOutFromApp() {
     AppStatus.updateStates(AppStatus.OFFLINE, mainActivityContext)
     get_out_from_auth = true
     sign_in = true

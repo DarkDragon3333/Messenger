@@ -9,7 +9,7 @@ data class ChatModal(
     var photoUrl: String = "",
     override var id: String = " ",
     var status: String = "",
-    var type: String = " ",
+    override var type: String = " ",
     var lastMessage: String? = "empty",
     val timeStamp: String? = null,
 ) : ChatItem

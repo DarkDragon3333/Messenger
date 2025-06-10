@@ -13,6 +13,8 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -27,50 +29,9 @@ import com.example.messenger.utils.goTo
 
 @Composable
 fun ElementOfChatsList(chatType: ChatItem, navController: NavHostController) {
-    when(chatType) {
-        is ChatModal -> {
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(60.dp)
-                    .clickable {
-                        goTo(navController, chatType)
-                    },
-                shape = RoundedCornerShape(
-                    topStart = 0.dp,
-                    topEnd = 0.dp,
-                    bottomEnd = 0.dp,
-                    bottomStart = 0.dp,
-                ),
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Spacer(modifier = Modifier.padding(4.dp))
-
-                    UriImage(64.dp, chatType.photoUrl) {}
-
-                    Spacer(modifier = Modifier.padding(8.dp))
-
-                    Column {
-                        Text(text = chatType.fullname)
-                        chatType.lastMessage?.let { Text(text = it) }
-                    }
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(0.dp, 0.dp, 30.dp, 0.dp),
-                        contentAlignment = Alignment.CenterEnd
-                    ) {
-                        Text(text = chatType.status, fontSize = 13.sp)
-                    }
-                }
-            }
-            HorizontalDivider()
-        }
-
-        is GroupChatModal -> {
+    when(chatType.type) {
+        "group" -> {
+            val chatModal = remember { mutableStateOf(chatType as GroupChatModal) }
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -78,7 +39,7 @@ fun ElementOfChatsList(chatType: ChatItem, navController: NavHostController) {
                     .clickable {
                         goTo(
                             navController,
-                            chatType,
+                            chatModal.value,
                             Screens.GroupChat
                         )
                     },
@@ -95,13 +56,13 @@ fun ElementOfChatsList(chatType: ChatItem, navController: NavHostController) {
                 ) {
                     Spacer(modifier = Modifier.padding(4.dp))
 
-                    UriImage(64.dp, chatType.photoUrl) {}
+                    UriImage(64.dp, chatModal.value.photoUrl) {}
 
                     Spacer(modifier = Modifier.padding(8.dp))
 
                     Column {
-                        Text(text = chatType.groupChatName)
-                        chatType.lastMessage?.let { Text(text = it) }
+                        Text(text = chatModal.value.groupChatName)
+                        chatModal.value.lastMessage?.let { Text(text = it) }
                     }
 //                    Box(
 //                        modifier = Modifier
@@ -115,6 +76,51 @@ fun ElementOfChatsList(chatType: ChatItem, navController: NavHostController) {
             }
             HorizontalDivider()
         }
+
+        "chat" -> {
+            val chatModal = remember { mutableStateOf(chatType as ChatModal) }
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(60.dp)
+                    .clickable {
+                        goTo(navController, chatModal.value)
+                    },
+                shape = RoundedCornerShape(
+                    topStart = 0.dp,
+                    topEnd = 0.dp,
+                    bottomEnd = 0.dp,
+                    bottomStart = 0.dp,
+                ),
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Spacer(modifier = Modifier.padding(4.dp))
+
+                    UriImage(64.dp, chatModal.value.photoUrl) {}
+
+                    Spacer(modifier = Modifier.padding(8.dp))
+
+                    Column {
+                        Text(text = chatModal.value.fullname)
+                        chatModal.value.lastMessage?.let { Text(text = it) }
+                    }
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(0.dp, 0.dp, 30.dp, 0.dp),
+                        contentAlignment = Alignment.CenterEnd
+                    ) {
+                        Text(text = chatModal.value.status, fontSize = 13.sp)
+                    }
+                }
+            }
+            HorizontalDivider()
+        }
+
+
     }
 
 

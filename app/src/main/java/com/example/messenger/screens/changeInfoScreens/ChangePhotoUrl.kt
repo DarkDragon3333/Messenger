@@ -33,9 +33,10 @@ import com.example.messenger.utils.Constants.CHILD_PHOTO_URL
 import com.example.messenger.utils.Constants.FOLDER_PHOTOS
 import com.example.messenger.utils.mainActivityContext
 import com.example.messenger.utils.makeToast
+import com.example.messenger.utils.pathToPhoto
 import com.google.firebase.storage.StorageReference
 
-lateinit var pathToPhoto: StorageReference
+
 
 @Composable
 fun ChangePhotoUrl(navController: NavHostController) {

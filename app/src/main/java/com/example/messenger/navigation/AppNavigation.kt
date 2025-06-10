@@ -9,6 +9,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.example.messenger.modals.ContactModal
+import com.example.messenger.modals.GroupChatModal
 import com.example.messenger.screens.navMenu.createNewGroupChat.SelectDataForGroupChat
 import com.example.messenger.screens.navMenu.ContactsScreen
 import com.example.messenger.screens.navMenu.SearchScreen
@@ -87,19 +88,13 @@ fun DrawerNavigation(navController: NavHostController) {
             Screens.GroupChat.route
         ) {
             val savedStateHandle = navController.previousBackStackEntry?.savedStateHandle
-
-            val groupChatName = savedStateHandle?.get<String>("groupChatName")
-            val photoUrlGroupChat = savedStateHandle?.get<String>("photoUrlGroupChat")
-            val contactList = savedStateHandle?.get<MutableList<ContactModal>>("contactList")
+            val groupChatModal = savedStateHandle?.get<GroupChatModal>("groupChatModel")
 
             GroupChat(
                 navController,
-                contactList,
-                groupChatName.toString(),
-                photoUrlGroupChat.toString()
+                groupChatModal
             )
         }
-
         composable(
             Screens.SelectDataForGroupChat.route
         ) {

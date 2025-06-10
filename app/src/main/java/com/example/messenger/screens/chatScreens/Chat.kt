@@ -73,6 +73,7 @@ import com.example.messenger.screens.componentOfScreens.Message
 import com.example.messenger.utils.voice.AppVoiceRecorder
 import com.example.messenger.utils.Constants.TYPE_CHAT
 import com.example.messenger.utils.Constants.TYPE_FILE
+import com.example.messenger.utils.Constants.TYPE_GROUP
 import com.example.messenger.utils.Constants.TYPE_IMAGE
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.ListenerRegistration
@@ -157,7 +158,12 @@ fun ChatScreen(
             messageKey to item
         }
 
-        uploadFileToStorage(filesToUpload, receivingUserID, TYPE_IMAGE)
+        uploadFileToStorage(
+            filesToUpload = filesToUpload,
+            receivingUserID = receivingUserID,
+            typeMessage = TYPE_IMAGE,
+            typeChat = TYPE_CHAT
+        )
     }
 
     val fileLauncher = rememberLauncherForActivityResult(
@@ -171,7 +177,12 @@ fun ChatScreen(
             messageKey to item
         }
 
-        uploadFileToStorage(filesToUpload, receivingUserID, TYPE_FILE)
+        uploadFileToStorage(
+            filesToUpload = filesToUpload,
+            receivingUserID = receivingUserID,
+            typeMessage = TYPE_FILE,
+            typeChat = TYPE_CHAT
+        )
     }
 
     Column(
@@ -333,7 +344,7 @@ private fun PanelOfEnter(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AttachFileButton(
+private fun AttachFileButton(
     launcher: ManagedActivityResultLauncher<PickVisualMediaRequest, List<@JvmSuppressWildcards Uri>>,
     launcherFile: ManagedActivityResultLauncher<String, List<@JvmSuppressWildcards Uri>>,
     showBottomSheetState: MutableState<Boolean>,
@@ -371,7 +382,7 @@ fun AttachFileButton(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SheetContent(
+private fun SheetContent(
     launcher: ManagedActivityResultLauncher<PickVisualMediaRequest, List<@JvmSuppressWildcards Uri>>,
     launcherFile: ManagedActivityResultLauncher<String, List<@JvmSuppressWildcards Uri>>,
     coroutineScope: CoroutineScope,
@@ -461,7 +472,8 @@ private fun SendMessageButton(
                             stopRecordVoiceMsg(
                                 receivingUserID,
                                 changeColor,
-                                recordVoiceFlag
+                                recordVoiceFlag,
+                                TYPE_CHAT
                             )
                             appVoiceRecorder.releaseRecordedVoice()
                             if (chatScreenState.isNotEmpty())
@@ -481,7 +493,8 @@ private fun SendMessageButton(
                             stopRecordVoiceMsg(
                                 receivingUserID,
                                 changeColor,
-                                recordVoiceFlag
+                                recordVoiceFlag,
+                                TYPE_CHAT
                             )
                             appVoiceRecorder.releaseRecordedVoice()
                             if (chatScreenState.isNotEmpty())

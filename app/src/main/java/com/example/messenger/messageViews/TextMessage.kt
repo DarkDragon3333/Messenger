@@ -12,9 +12,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.messenger.dataBase.firebaseFuns.sendMessage
+import com.example.messenger.dataBase.firebaseFuns.sendMessageToGroupChat
 import com.example.messenger.modals.MessageModal
 import com.example.messenger.ui.theme.textMes
 import com.example.messenger.utils.Constants.TYPE_TEXT
+import kotlin.collections.mutableListOf
 
 @Composable
 fun TextMsg(message: Pair<MessageModal, Any>) {
@@ -52,6 +54,25 @@ fun sendText(
     sendMessage(
         info = tempText.trim(),
         receivingUserID = receivingUserID,
+        typeMessage = TYPE_TEXT,
+        key = ""
+    ) {
+        tempText = ""
+    }
+
+    return tempText
+}
+
+fun sendTextToGroupChat(
+    text: String,
+    groupChatId: String,
+    contactListId: MutableList<String>,
+): String {
+    var tempText = text
+    sendMessageToGroupChat (
+        info = tempText.trim(),
+        groupChatId = groupChatId,
+        contactListId = contactListId,
         typeMessage = TYPE_TEXT,
         key = ""
     ) {

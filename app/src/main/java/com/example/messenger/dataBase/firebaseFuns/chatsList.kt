@@ -1,6 +1,7 @@
 package com.example.messenger.dataBase.firebaseFuns
 
 import android.content.ContentValues
+import android.content.Context
 import android.util.Log
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import com.example.messenger.modals.ChatModal
@@ -131,4 +132,27 @@ fun addChatToChatsList(infoArray: Array<String>) {
         makeToast(e.message.toString(), mainActivityContext)
     }
 
+}
+
+fun addGroupChatToChatsList(
+    mapInfo: HashMap<String, Any>,
+    contactListId: MutableList<String>,
+    context: Context,
+    callBack: () -> Unit
+) {
+    try {
+        contactListId.forEach { contactId ->
+            val userLink =
+                Firebase.firestore
+                    .collection("users_talkers").document(contactId)
+                    .collection("talkers").document(mapInfo[Constants.CHILD_ID].toString())
+
+            userLink.set(mapInfo)
+        }
+
+        callBack()
+    } catch (e: Exception) {
+        Log.e("KotltalkApp", e.message.toString())
+        makeToast(e.message.toString(), context)
+    }
 }

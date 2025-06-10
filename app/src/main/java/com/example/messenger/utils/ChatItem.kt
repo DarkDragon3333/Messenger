@@ -1,5 +1,6 @@
 package com.example.messenger.utils
 
 interface ChatItem {
-    abstract val id: Any
+    val id: Any
+    val type: String
 }

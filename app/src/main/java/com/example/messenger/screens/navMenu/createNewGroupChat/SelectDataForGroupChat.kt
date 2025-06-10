@@ -4,7 +4,6 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.ImageDecoder
 import android.net.Uri
-import android.util.Log
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -46,10 +45,10 @@ import com.example.messenger.R
 import com.example.messenger.dataBase.firebaseFuns.REF_STORAGE_ROOT
 import com.example.messenger.dataBase.firebaseFuns.UID
 import com.example.messenger.dataBase.firebaseFuns.USER
+import com.example.messenger.dataBase.firebaseFuns.addGroupChatToChatsList
 import com.example.messenger.modals.ContactModal
 import com.example.messenger.modals.GroupChatModal
 import com.example.messenger.navigation.Screens
-import com.example.messenger.screens.changeInfoScreens.pathToPhoto
 import com.example.messenger.screens.componentOfScreens.ContactCard
 import com.example.messenger.utils.Constants.CHILD_CONTACT_LIST
 import com.example.messenger.utils.Constants.CHILD_GROUP_CHAT_NAME
@@ -65,16 +64,14 @@ import com.example.messenger.utils.goTo
 import com.example.messenger.utils.mainActivityContext
 import com.example.messenger.utils.mainFieldStyle
 import com.example.messenger.utils.makeToast
-import com.google.firebase.Firebase
-import com.google.firebase.firestore.firestore
-import kotlin.collections.set
+import com.example.messenger.utils.pathToSelectPhoto
 
 @Composable
 fun SelectDataForGroupChat(
     navController: NavHostController,
     contactList: MutableList<ContactModal>
 ) {
-    val mapInfo = hashMapOf<String, Any>()
+    val mapInfo = remember { hashMapOf<String, Any>() }
 
     val context = LocalContext.current
 
@@ -205,8 +202,9 @@ private fun selectImageForGroupChat(
     launcher: ManagedActivityResultLauncher<String, Uri?>,
     selectImage: MutableState<Boolean>
 ) {
-    pathToPhoto = REF_STORAGE_ROOT.child(FOLDER_PHOTOS)
-        .child(UID) //Получаем ссылку на корневую директори в БД
+    pathToSelectPhoto =
+        REF_STORAGE_ROOT.child(FOLDER_PHOTOS)
+            .child(UID) //Получаем ссылку на корневую директори в БД
     launcher.launch("image/*") //Открываем проводник для выбора картинки
     selectImage.value = true
 }
@@ -245,7 +243,7 @@ private fun createGroupChat(
 
             val groupChatModel = GroupChatModal(
                 mapInfo[CHILD_GROUP_CHAT_NAME].toString(),
-                mapInfo[CHILD_PHOTO_URL].toString(),
+                imageUri.toString(),
                 mapInfo[CHILD_ID].toString(),
                 mapInfo[CHILD_CONTACT_LIST] as MutableList<String>,
                 mapInfo[CHILD_TYPE].toString(),
@@ -267,17 +265,17 @@ fun createGroupChatId(): String {
     return "4565"
 }
 
-private fun selectYourImageForGroupChat(imageUri: Uri?, dataMap: MutableMap<String, Any>) {
+fun selectYourImageForGroupChat(imageUri: Uri?, mapInfo: MutableMap<String, Any>) {
     imageUri.let { it -> //Получаем ссылку на картинку
         if (it != null) {
-            pathToPhoto.putFile(it).addOnCompleteListener { //Загружаем картинку
+            pathToSelectPhoto.putFile(it).addOnCompleteListener { //Загружаем картинку
                 when (it.isSuccessful) { //Если загрузка прошла успешно
                     true -> {
-                        pathToPhoto.downloadUrl.addOnCompleteListener { downloadTask -> //Получаем ссылку на загруженную фотку
+                        pathToSelectPhoto.downloadUrl.addOnCompleteListener { downloadTask -> //Получаем ссылку на загруженную фотку
                             when (downloadTask.isSuccessful) {
                                 true -> {
                                     val photoURL = downloadTask.result.toString()
-                                    dataMap[CHILD_PHOTO_URL] = photoURL
+                                    mapInfo[CHILD_PHOTO_URL] = photoURL
                                 }
 
                                 else -> makeToast(
@@ -297,33 +295,33 @@ private fun selectYourImageForGroupChat(imageUri: Uri?, dataMap: MutableMap<Stri
 }
 
 fun takeDefaultPhotoForGroupChat(
-    dataMap: HashMap<String, Any>,
+    mapInfo: HashMap<String, Any>,
     groupChatId: String,
     contactListId: MutableList<String>,
     navController: NavHostController,
     contactList: MutableList<ContactModal>
 ) {
-    pathToPhoto = REF_STORAGE_ROOT.child(FOLDER_PHOTOS).child(groupChatId)
-    pathToPhoto.putFile(defaultImageUri).addOnCompleteListener { putTask ->
+    pathToSelectPhoto = REF_STORAGE_ROOT.child(FOLDER_PHOTOS).child(groupChatId)
+    pathToSelectPhoto.putFile(defaultImageUri).addOnCompleteListener { putTask ->
         when (putTask.isSuccessful) {
             true -> {
-                pathToPhoto.downloadUrl.addOnCompleteListener { downloadTask -> //Получаем ссылку на загруженную фотку
+                pathToSelectPhoto.downloadUrl.addOnCompleteListener { downloadTask -> //Получаем ссылку на загруженную фотку
                     when (downloadTask.isSuccessful) {
                         true -> {
                             val photoURL = downloadTask.result.toString()
-                            dataMap[CHILD_PHOTO_URL] = photoURL
+                            mapInfo[CHILD_PHOTO_URL] = photoURL
 
-                            addGroupChatToChatsList(dataMap, contactListId, mainActivityContext) {
+                            addGroupChatToChatsList(mapInfo, contactListId, mainActivityContext) {
                                 makeToast("Чат создан", mainActivityContext)
 
                                 val groupChatModel = GroupChatModal(
-                                    dataMap[CHILD_GROUP_CHAT_NAME].toString(),
-                                    dataMap[CHILD_PHOTO_URL].toString(),
-                                    dataMap[CHILD_ID].toString(),
-                                    dataMap[CHILD_CONTACT_LIST] as MutableList<String>,
-                                    dataMap[CHILD_TYPE].toString(),
-                                    dataMap[CHILD_LAST_MESSAGE].toString(),
-                                    dataMap[CHILD_TIME_STAMP].toString()
+                                    mapInfo[CHILD_GROUP_CHAT_NAME].toString(),
+                                    mapInfo[CHILD_PHOTO_URL].toString(),
+                                    mapInfo[CHILD_ID].toString(),
+                                    mapInfo[CHILD_CONTACT_LIST] as MutableList<String>,
+                                    mapInfo[CHILD_TYPE].toString(),
+                                    mapInfo[CHILD_LAST_MESSAGE].toString(),
+                                    mapInfo[CHILD_TIME_STAMP].toString()
                                 )
 
                                 goTo(
@@ -347,25 +345,3 @@ fun takeDefaultPhotoForGroupChat(
     }
 }
 
-fun addGroupChatToChatsList(
-    mapInfo: HashMap<String, Any>,
-    contactListId: MutableList<String>,
-    context: Context,
-    callBack: () -> Unit
-) {
-    try {
-        contactListId.forEach { contactId ->
-            val userLink =
-                Firebase.firestore
-                    .collection("users_talkers").document(contactId)
-                    .collection("talkers").document(mapInfo[CHILD_ID].toString())
-
-            userLink.set(mapInfo)
-        }
-
-        callBack()
-    } catch (e: Exception) {
-        Log.e("KotltalkApp", e.message.toString())
-        makeToast(e.message.toString(), context)
-    }
-}

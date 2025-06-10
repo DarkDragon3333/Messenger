@@ -25,7 +25,7 @@ import com.example.messenger.dataBase.firebaseFuns.AUTH
 import com.example.messenger.dataBase.firebaseFuns.REF_DATABASE_ROOT
 import com.example.messenger.dataBase.firebaseFuns.REF_STORAGE_ROOT
 import com.example.messenger.dataBase.firebaseFuns.USER
-import com.example.messenger.screens.changeInfoScreens.pathToPhoto
+
 import com.example.messenger.ui.theme.MessengerTheme
 import com.example.messenger.utils.Constants.CHILD_BIO
 import com.example.messenger.utils.Constants.CHILD_FULLNAME
@@ -43,6 +43,7 @@ import com.example.messenger.utils.mainFieldStyle
 import com.example.messenger.utils.makeToast
 import com.example.messenger.utils.sign_out
 import androidx.core.net.toUri
+import com.example.messenger.utils.pathToPhoto
 
 class AddInfo : ComponentActivity() {
     private lateinit var bio: String

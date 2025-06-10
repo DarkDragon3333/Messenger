@@ -160,7 +160,9 @@ fun startRecordVoiceMsg(
 fun stopRecordVoiceMsg(
     receivingUserID: String,
     changeColor: MutableState<Color>,
-    recordVoiceFlag: MutableState<Boolean>
+    recordVoiceFlag: MutableState<Boolean>,
+    typeChat: String,
+    contactList: MutableList<String> = mutableListOf<String>(""),
 ) {
     try {
         appVoiceRecorder.stopRecording { file, messageKey ->
@@ -171,7 +173,9 @@ fun stopRecordVoiceMsg(
                 uploadFileToStorage(
                     list,
                     receivingUserID,
-                    TYPE_VOICE
+                    TYPE_VOICE,
+                    typeChat,
+                    contactList
                 )
             } else file.delete()
         }

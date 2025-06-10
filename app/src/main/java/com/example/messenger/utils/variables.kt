@@ -3,6 +3,10 @@ package com.example.messenger.utils
 import android.net.Uri
 import com.example.messenger.MainActivity
 import com.example.messenger.modals.ContactModal
+import com.google.firebase.storage.StorageReference
+
+lateinit var pathToPhoto: StorageReference
+lateinit var pathToSelectPhoto: StorageReference
 
 var on_settings_screen = false
 var flagDropMenuButtonOnSettingsScreen = -1
