@@ -1,37 +1,42 @@
 package com.example.messenger.viewModals
 
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import com.example.messenger.modals.ChatModal
+import com.example.messenger.dataBase.firebaseFuns.REF_STORAGE_ROOT
+import com.example.messenger.utils.Constants.FOLDER_PHOTOS
+import com.example.messenger.utils.mainActivityContext
+import com.example.messenger.utils.makeToast
+import com.example.messenger.utils.pathToSelectPhoto
 
 class GroupChatViewModal : ViewModel() {
-    // Внутренняя изменяемая карта (реактивная)
     private val _mapContactIdToPhotoUrl = mutableStateMapOf<String, Any>()
-    private val _lastMessageId = mutableStateOf<String>("")
 
-    // Публичный геттер — доступ только на чтение
-    val mapContactIdToPhotoUrl: Map<String, Any>
-        get() = _mapContactIdToPhotoUrl
-
-    fun getLastMessageId(): String{
-        return _lastMessageId.value.toString()
-    }
-
-    fun setLastMessageId(newMessageId: String){
-        _lastMessageId.value = newMessageId
-    }
-
-    // Установка или обновление URL по ID контакта
     fun setPhotoUrl(contactId: String, photoUrl: Any) {
         _mapContactIdToPhotoUrl[contactId] = photoUrl
     }
 
-    // Получение URL по ID (если нужно отдельно)
     fun getPhotoUrl(contactId: String): Any? {
         return _mapContactIdToPhotoUrl[contactId]
+    }
+
+    fun downloadContactsImages(contactsListId: MutableList<String>){
+        contactsListId.forEach { contactId ->
+            pathToSelectPhoto = REF_STORAGE_ROOT.child(FOLDER_PHOTOS).child(contactId)
+
+            pathToSelectPhoto.downloadUrl.addOnCompleteListener { downloadTask ->
+                when (downloadTask.isSuccessful) {
+                    true -> {
+                        val photoURL = downloadTask.result.toString()
+                        _mapContactIdToPhotoUrl[contactId] = photoURL
+                    }
+
+                    else -> makeToast(
+                        downloadTask.exception?.message.toString(),
+                        mainActivityContext
+                    )
+                }
+            }
+        }
     }
 
 }

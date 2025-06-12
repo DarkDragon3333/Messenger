@@ -18,10 +18,8 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
@@ -39,15 +37,11 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.DisposableEffectScope
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -60,35 +54,23 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.messenger.R
-import com.example.messenger.dataBase.firebaseFuns.REF_STORAGE_ROOT
-import com.example.messenger.dataBase.firebaseFuns.UID
-import com.example.messenger.dataBase.firebaseFuns.USER
 import com.example.messenger.dataBase.firebaseFuns.getMessageKey
-import com.example.messenger.dataBase.firebaseFuns.initChat
-import com.example.messenger.dataBase.firebaseFuns.listeningUpdateChat
 import com.example.messenger.dataBase.firebaseFuns.uploadFileToStorage
 import com.example.messenger.messageViews.sendTextToGroupChat
 import com.example.messenger.messageViews.startRecordVoiceMsg
 import com.example.messenger.messageViews.stopRecordVoiceMsg
 import com.example.messenger.modals.MessageModal
+import com.example.messenger.screens.chatScreens.SendMessageButton
 import com.example.messenger.screens.componentOfScreens.Message
-import com.example.messenger.utils.Constants.FOLDER_PHOTOS
 import com.example.messenger.utils.Constants.TYPE_FILE
 import com.example.messenger.utils.Constants.TYPE_GROUP
 import com.example.messenger.utils.Constants.TYPE_IMAGE
-import com.example.messenger.utils.UriImage
 import com.example.messenger.utils.attachFile
 import com.example.messenger.utils.attachImage
-import com.example.messenger.utils.mainActivityContext
-import com.example.messenger.utils.makeToast
-import com.example.messenger.utils.pathToSelectPhoto
 import com.example.messenger.utils.voice.AppVoiceRecorder
 import com.example.messenger.viewModals.CurrentChatHolderViewModal
 import com.example.messenger.viewModals.GroupChatViewModal
-import com.google.firebase.Firebase
-import com.google.firebase.firestore.ListenerRegistration
-import com.google.firebase.firestore.Query
-import com.google.firebase.firestore.firestore
+import com.example.messenger.viewModals.MessagesListViewModal
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
@@ -103,6 +85,7 @@ fun GroupChat(
     currentChatViewModel: CurrentChatHolderViewModal = viewModel()
 ) {
     val groupChatViewModal: GroupChatViewModal = viewModel()
+    val messagesListViewModal: MessagesListViewModal = viewModel()
     val groupChatId = currentChatViewModel.currentGroupChat?.id?.replace(Regex("[{}]"), "").toString()
 
     val infoArray = arrayOf(
@@ -113,40 +96,20 @@ fun GroupChat(
         "lastMes_null",
         "timeStamp_null",
     )
-    var listenerRegistration: ListenerRegistration
-
-    val viewConfiguration = LocalViewConfiguration.current
-
-    val db = Firebase.firestore
 
     //Исправить отображение кнопки записывания голосового сообщения
     val recordVoiceFlag = remember { mutableStateOf(false) }
     val changeColor = remember { mutableStateOf(Color.Red) }
 
-    val messages = remember { mutableStateOf(listOf<MessageModal>()) }
-
-    val chatScreenState by remember {
-        derivedStateOf { messages.value }
-    }
+    val chatScreenState = messagesListViewModal.getMessageList()
 
     val text = remember { mutableStateOf("") }
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
 
-    val isLoadingFirstMessages = remember { mutableStateOf(false) }
-    var isLoadingOldMessages by remember { mutableStateOf(false) }
-
     val interactionSource = remember { MutableInteractionSource() } //Кнопка голосового сообщения
 
     val showBottomSheetState = remember { mutableStateOf(false) }
-
-    val messLink =
-        db
-            .collection("users_messages").document(UID)
-            .collection("messages").document(groupChatId)
-            .collection("TheirMessages")
-            .orderBy("timeStamp", Query.Direction.DESCENDING) //Делает обратный порядок
-            .limit(30)
 
     val imageLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickMultipleVisualMedia(5)
@@ -164,7 +127,7 @@ fun GroupChat(
             receivingUserID = groupChatId,
             typeMessage = TYPE_IMAGE,
             typeChat = TYPE_GROUP,
-            contactList = contactsList
+            contactList = currentChatViewModel.currentGroupChat!!.contactList
         )
     }
 
@@ -184,7 +147,7 @@ fun GroupChat(
             receivingUserID = groupChatId,
             typeMessage = TYPE_FILE,
             typeChat = TYPE_GROUP,
-            contactList = contactsList
+            contactList = currentChatViewModel.currentGroupChat!!.contactList
         )
     }
 
@@ -194,7 +157,7 @@ fun GroupChat(
         Box(
             modifier = Modifier.weight(1f)
         ) {
-            if (isLoadingFirstMessages.value)
+            if (messagesListViewModal.getFlagDownloadOldMessages())
                 Chat(listState, chatScreenState, groupChatViewModal)
         }
 
@@ -204,14 +167,15 @@ fun GroupChat(
             changeColor,
             groupChatId,
             recordVoiceFlag,
-            viewConfiguration,
+            LocalViewConfiguration.current,
             imageLauncher,
             fileLauncher,
             chatScreenState,
             coroutineScope,
             listState,
             showBottomSheetState,
-            infoArray
+            infoArray,
+            currentChatViewModel
         )
     }
 
@@ -219,75 +183,27 @@ fun GroupChat(
         snapshotFlow {
             listState.layoutInfo.visibleItemsInfo.any { it.index == chatScreenState.lastIndex - 10 }
         }.collect { isVisible ->
-            if (isVisible && !isLoadingOldMessages && chatScreenState.isNotEmpty()) {
-                isLoadingOldMessages = true
-
-                val lastTimestamp = chatScreenState[chatScreenState.lastIndex].timeStamp
-                db.collection("users_messages")
-                    .document(UID)
-                    .collection("messages")
-                    .document(groupChatId)
-                    .collection("TheirMessages")
-                    .orderBy("timeStamp", Query.Direction.DESCENDING)
-                    .startAfter(lastTimestamp)
-                    .limit(30)
-                    .get()
-                    .addOnSuccessListener { result ->
-                        val newMessages = result.documents.mapNotNull {
-                            it.toObject(MessageModal::class.java)
-                        }.filterNot { msg ->
-                            chatScreenState.any { it.id == msg.id }
-                        }
-                        messages.value += newMessages
-                        //chatScreenState.addAll(newMessages)
-
-                        isLoadingOldMessages = false
-                    }
-                    .addOnFailureListener {
-                        isLoadingOldMessages = false
-                    }
-            }
+            if (isVisible) messagesListViewModal.downloadOldMessages(groupChatId)
         }
     }
 
     DisposableEffect(Unit) {
-        initChat(messages, messLink) { isLoadingFirstMessages.value = true }
-        listenerRegistration = listeningUpdateChat(messages, messLink)
-
-        contactsList = mutableListOf()
+        messagesListViewModal.initMessagesList(groupChatId) {
+            messagesListViewModal.setFlagDownloadOldMessages(
+                true
+            )
+        }
+        messagesListViewModal.startListingMessageList(groupChatId)
 
         if (currentChatViewModel.currentGroupChat?.contactList != null)
-            contactsList.addAll(currentChatViewModel.currentGroupChat!!.contactList)
-
-        downloadImages(groupChatViewModal)
+            groupChatViewModal.downloadContactsImages(currentChatViewModel.currentGroupChat!!.contactList)
 
         onDispose {
-            messages.value = emptyList()
-            listenerRegistration.remove()
+            messagesListViewModal.removeListener()
             currentChatViewModel.clearChat()
         }
     }
 
-}
-
-fun DisposableEffectScope.downloadImages(groupChatViewModal: GroupChatViewModal) {
-    contactsList.forEach { contactId ->
-        pathToSelectPhoto = REF_STORAGE_ROOT.child(FOLDER_PHOTOS).child(contactId)
-
-        pathToSelectPhoto.downloadUrl.addOnCompleteListener { downloadTask ->
-            when (downloadTask.isSuccessful) {
-                true -> {
-                    val photoURL = downloadTask.result.toString()
-                    groupChatViewModal.setPhotoUrl(contactId, photoURL)
-                }
-
-                else -> makeToast(
-                    downloadTask.exception?.message.toString(),
-                    mainActivityContext
-                )
-            }
-        }
-    }
 }
 
 @Composable
@@ -304,21 +220,17 @@ private fun Chat(
         ) {
             itemsIndexed(chatScreenState, key = { _, msg -> msg.id }) { index, message ->
                 val nextMessage = chatScreenState.getOrNull(index + 1)
-                val isFirstInGroup = nextMessage?.from != message.from
+                val isFirstInChat = nextMessage?.from != message.from
 
                 Message(
                     messageModal = message,
                     typeChat = TYPE_GROUP,
-                    showAvatar = isFirstInGroup,
+                    showAvatar = isFirstInChat,
                     avatarUrl = groupChatViewModal.getPhotoUrl(message.from).toString()
                 )
 
                 Spacer(modifier = Modifier.height(10.dp))
             }
-//            items(chatScreenState, key = { it.id }) { message ->
-//                Message(messageModal = message, TYPE_GROUP, USER, groupChatViewModal)
-//                Spacer(modifier = Modifier.height(10.dp))
-//            }
         }
     }
 }
@@ -337,7 +249,8 @@ private fun PanelOfEnter(
     coroutineScope: CoroutineScope,
     listState: LazyListState,
     showBottomSheetState: MutableState<Boolean>,
-    infoArray: Array<String>
+    infoArray: Array<String>,
+    currentChatViewModel: CurrentChatHolderViewModal
 ) {
     Row(
         modifier = Modifier
@@ -371,6 +284,7 @@ private fun PanelOfEnter(
         )
 
         SendMessageButton(
+            currentChatViewModel,
             interactionSource,
             fieldText = text,
             changeColor,
@@ -380,7 +294,7 @@ private fun PanelOfEnter(
             chatScreenState,
             coroutineScope,
             listState,
-            infoArray
+            infoArray,
         ) {
             text.value = ""
         }
@@ -472,6 +386,7 @@ private fun SheetContent(
 
 @Composable
 private fun SendMessageButton(
+    currentChatViewModel: CurrentChatHolderViewModal,
     interactionSource: MutableInteractionSource,
     fieldText: MutableState<String>,
     changeColor: MutableState<Color>,
@@ -482,7 +397,7 @@ private fun SendMessageButton(
     coroutineScope: CoroutineScope,
     listState: LazyListState,
     infoArray: Array<String>,
-    cleanText: () -> Unit
+    cleanText: () -> Unit,
 ) {
     IconButton(
         interactionSource = interactionSource,
@@ -556,7 +471,7 @@ private fun SendMessageButton(
                                 sendTextToGroupChat(
                                     fieldText.value,
                                     infoArray[2].toString(),
-                                    contactsList
+                                    currentChatViewModel.currentGroupChat!!.contactList
                                 )
                                 if (chatScreenState.isNotEmpty())
                                     coroutineScope.launch {
@@ -569,12 +484,6 @@ private fun SendMessageButton(
                         }
                     }
                 }
-            }
-        }
-
-        DisposableEffect(Unit) {
-            onDispose {
-
             }
         }
     }
@@ -596,3 +505,57 @@ private fun ControlIconOfVoiceButton(fieldText: MutableState<String>) {
             )
     }
 }
+
+//@Composable
+//fun rememberMediaLauncher(
+//    groupChatId: String,
+//    typeMessage: String,
+//    typeChat: String,
+//    contactList: MutableList<String>,
+//    maxItems: Int = 1,
+//    isImage: Boolean = true,
+//    currentChatViewModel: CurrentChatHolderViewModal
+//): ManagedActivityResultLauncher<*, *> {
+//    val contract = if (isImage) {
+//        ActivityResultContracts.PickMultipleVisualMedia(maxItems)
+//    } else {
+//        ActivityResultContracts.GetMultipleContents()
+//    }
+//
+//    return rememberLauncherForActivityResult(contract = contract) { uris: List<Uri> ->
+//        if (uris.isEmpty()) return@rememberLauncherForActivityResult
+//
+//        val filesToUpload = uris.map { uri ->
+//            val messageKey = getMessageKey(groupChatId)
+//            messageKey to uri
+//        }
+//
+//        uploadFileToStorage(
+//            filesToUpload = filesToUpload,
+//            receivingUserID = groupChatId,
+//            typeMessage = typeMessage,
+//            typeChat = typeChat,
+//            contactList = contactList
+//        )
+//    }
+//}
+
+//    val i = rememberMediaLauncher(
+//        groupChatId,
+//        TYPE_IMAGE,
+//        TYPE_GROUP,
+//        currentChatViewModel.currentGroupChat!!.contactList,
+//        5,
+//        true,
+//        currentChatViewModel
+//    )
+//
+//    val f = rememberMediaLauncher(
+//        groupChatId,
+//        TYPE_FILE,
+//        TYPE_GROUP,
+//        currentChatViewModel.currentGroupChat!!.contactList,
+//        1,
+//        false,
+//        currentChatViewModel
+//    )

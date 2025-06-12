@@ -54,6 +54,7 @@ fun Message(
             )
             {
                 OutlinedCardMessage(messageModal, Arrangement.End)
+                Spacer(modifier = Modifier.width(10.dp))
                 Spacer(modifier = Modifier.height(10.dp))
             }
         }
