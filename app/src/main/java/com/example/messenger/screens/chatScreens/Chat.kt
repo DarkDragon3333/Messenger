@@ -54,7 +54,6 @@ import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.messenger.R
 import com.example.messenger.dataBase.firebaseFuns.UID
@@ -74,7 +73,6 @@ import com.example.messenger.screens.componentOfScreens.Message
 import com.example.messenger.utils.voice.AppVoiceRecorder
 import com.example.messenger.utils.Constants.TYPE_CHAT
 import com.example.messenger.utils.Constants.TYPE_FILE
-import com.example.messenger.utils.Constants.TYPE_GROUP
 import com.example.messenger.utils.Constants.TYPE_IMAGE
 import com.example.messenger.viewModals.CurrentChatHolderViewModal
 import com.google.firebase.Firebase
@@ -85,7 +83,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import java.net.URLDecoder
 
 lateinit var appVoiceRecorder: AppVoiceRecorder
 

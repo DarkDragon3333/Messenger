@@ -2,6 +2,7 @@ package com.example.messenger.dataBase.firebaseFuns
 
 import android.content.Context
 import android.net.Uri
+import android.util.Log
 import androidx.navigation.NavHostController
 import com.example.messenger.dataBase.valueEventListenerClasses.AppStatus
 import com.example.messenger.messageViews.sendTextToGroupChat
@@ -250,30 +251,45 @@ fun sendMessageToGroupChat(
     key: String,
     callback: () -> Unit
 ) {
-    val db = Firebase.firestore
-
-    val messageKey = key.ifEmpty {
-        db.collection(groupChatId).document().id
-    }
-
-    val mapMessage = hashMapOf<String, Any>()
-    mapMessage[CHILD_ID] = messageKey
-    mapMessage[CHILD_FROM] = UID
-    mapMessage[CHILD_INFO] = info
-    mapMessage[CHILD_TYPE] = typeMessage
-    mapMessage[CHILD_TIME_STAMP] = FieldValue.serverTimestamp()
-
     try {
-        contactListId.forEach { contactId ->
-            val userLink = db.collection("users_messages").document(contactId).collection("messages").document(groupChatId)
+        val db = Firebase.firestore
 
-            userLink.collection("TheirMessages").document(messageKey).set(mapMessage)
+        val messageKey = key.ifEmpty {
+            db.collection(groupChatId).document().id
         }
 
-        callback()
+        val mapMessage = hashMapOf<String, Any>()
+        mapMessage[CHILD_ID] = messageKey
+        mapMessage[CHILD_FROM] = UID
+        mapMessage[CHILD_INFO] = info
+        mapMessage[CHILD_TYPE] = typeMessage
+        mapMessage[CHILD_TIME_STAMP] = FieldValue.serverTimestamp()
+
+
+        contactListId.forEach { contactId ->
+            val userLink =
+                db.collection("users_messages").document(contactId).collection("messages")
+                    .document(groupChatId)
+
+            userLink.collection("TheirMessages").document(messageKey).set(mapMessage)
+                .addOnCompleteListener { task ->
+                    when (task.isSuccessful) {
+                        true -> {
+                            callback()
+                            Log.d("SendMessage", "Все сообщения успешно отправлены.")
+                        }
+
+                        false -> {
+                            Log.e("SendMessage", "Ошибка отправки в Firestore: ")
+                        }
+                    }
+
+                }
+        }
+
 
     } catch (e: Exception) {
-        makeToast(" ошибка отправки", mainActivityContext)
+        makeToast("Ошибка отправки: " + e.message.toString(), mainActivityContext)
     }
 }
 
@@ -307,7 +323,7 @@ fun uploadFileToStorage(
                                 contactList,
                                 typeMessage,
                                 messageKey
-                            ) {  }
+                            ) { }
 
                             else -> {
                                 sendMessage(
@@ -330,7 +346,7 @@ fun uploadFileToStorage(
                                     contactList,
                                     typeMessage,
                                     messageKey
-                                ) {  }
+                                ) { }
 
 
                             else -> {

@@ -191,9 +191,18 @@ fun UriImage(
     uri: String,
     action: () -> Unit,
 ) {
+    val context = LocalContext.current
+    val imageRequest = remember(uri) {
+        ImageRequest.Builder(context)
+            .data(uri)
+            .crossfade(true)
+            .build()
+    }
+
     AsyncImage(
-        model = uri,
+        model = imageRequest,
         contentDescription = "",
+        placeholder = painterResource(R.drawable.def_image_msg),
         contentScale = ContentScale.Crop,
         modifier = Modifier
             .clip(CircleShape)
