@@ -20,6 +20,7 @@ import com.example.messenger.modals.GroupChatModal
 import com.example.messenger.modals.MessageModal
 import com.example.messenger.navigation.Screens
 import com.example.messenger.screens.loginAndSignUp.AddInfo
+import com.example.messenger.viewModals.ContactsViewModal
 import com.google.firebase.auth.PhoneAuthProvider
 import com.google.firebase.database.DataSnapshot
 import kotlinx.coroutines.CoroutineScope
@@ -131,7 +132,6 @@ fun goTo(navController: NavHostController, contact: ContactModal) {
 }
 
 fun goTo(navController: NavHostController, user: ChatModal, screen: Screens) {
-
     navController.currentBackStackEntry?.savedStateHandle?.apply {
         set("fullName", user.fullname)
         set("status", user.status)
@@ -196,7 +196,7 @@ fun getFileName(context: Context, uri: Uri): String? {
     return null
 }
 
-fun getContactsFromSmartphone() {
+fun getContactsFromSmartphone(contactsViewModal: ContactsViewModal) {
     if (myCheckPermission(READ_CONTACTS)) {
         val contactList = mutableListOf<ContactModal>()
         val cursor = mainActivityContext.contentResolver.query(
@@ -245,6 +245,7 @@ fun getContactsFromSmartphone() {
         }
         cursor?.close()
 
+        contactsViewModal.downloadContactsInfo(contactList)
         updateContactsForFirebase(contactList)
     }
 }

@@ -16,17 +16,20 @@ import com.example.messenger.utils.getContactsFromSmartphone
 import com.example.messenger.utils.mainActivityContext
 import com.example.messenger.utils.makeToast
 import com.example.messenger.utils.sign_out
+import com.example.messenger.viewModals.ContactsViewModal
 import com.example.messenger.viewModals.CurrentChatHolderViewModal
+import com.example.messenger.viewModals.NavDrawerViewModal
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 
 class MainActivity : ComponentActivity() {
+    lateinit var contactsViewModal: ContactsViewModal
     private var requestPermissionLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestPermission()) { isGranted ->
+        ActivityResultContracts.RequestPermission()) { isGranted,  ->
         when (isGranted) {
-            true -> getContactsFromSmartphone()
+            true -> getContactsFromSmartphone(contactsViewModal)
 
             else -> makeToast("Нет разрешения", mainActivityContext)
         }
@@ -35,11 +38,16 @@ class MainActivity : ComponentActivity() {
     @Suppress("DEPRECATION")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        mainActivityContext = this
+
+
         window.setSoftInputMode(SOFT_INPUT_ADJUST_RESIZE);
         setContent {
             val currentChatHolderViewModal = CurrentChatHolderViewModal()
+            val navDrawerViewModal = NavDrawerViewModal()
+
             MessengerTheme {
-                NavDrawer(currentChatHolderViewModal)
+                NavDrawer(currentChatHolderViewModal, navDrawerViewModal, contactsViewModal)
             }
         }
 
@@ -49,7 +57,7 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun init() {
-        mainActivityContext = this
+        contactsViewModal = ContactsViewModal()
         startLocationPermissionRequest()
         defaultImageUri = "android.resource://$packageName/${R.drawable.default_profile_image}".toUri()
     }
@@ -78,13 +86,13 @@ class MainActivity : ComponentActivity() {
             AppStatus.updateStates(AppStatus.ONLINE, mainActivityContext)
     }
 
-    private fun startLocationPermissionRequest() {
-        requestPermissionLauncher.launch(READ_CONTACTS)
-    }
-
     override fun onDestroy() {
         AppStatus.updateStates(AppStatus.OFFLINE, mainActivityContext)
         super.onDestroy()
+    }
+
+    private fun startLocationPermissionRequest() {
+        requestPermissionLauncher.launch(READ_CONTACTS)
     }
 }
 

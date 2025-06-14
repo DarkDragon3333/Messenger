@@ -66,13 +66,10 @@ private fun ChatsList(
         ) {
             items(
                 chatsScreenState,
-                key =
-                    {
-                        it.id.toString() +
-                                "_" + (it.lastMessage ?: "") +
-                                "_" + (it.timeStamp ?: "") +
-                                "_" + it.status
-                    }) { chat ->
+                key = {
+                    it.id.toString() + "_" + (it.lastMessage ?: "") + "_" + (it.timeStamp
+                        ?: "") + "_" + it.status
+                }) { chat ->
                 ElementOfChatsList(chat, navController, currentChatViewModel)
                 Spacer(modifier = Modifier.height(10.dp))
             }

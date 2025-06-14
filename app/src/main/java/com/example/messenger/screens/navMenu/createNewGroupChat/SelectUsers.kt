@@ -29,12 +29,14 @@ import com.example.messenger.screens.componentOfScreens.ContactCard
 import com.example.messenger.utils.contactsListUSER
 import com.example.messenger.utils.goTo
 import com.example.messenger.utils.mapContacts
+import com.example.messenger.viewModals.ContactsViewModal
 import com.example.messenger.viewModals.CurrentChatHolderViewModal
 
 @Composable
 fun SelectUsers(
     navController: NavHostController,
-    currentChatViewModel: CurrentChatHolderViewModal
+    currentChatViewModel: CurrentChatHolderViewModal,
+    contactsViewModal: ContactsViewModal
 ) {
     val contactsList = remember { mutableListOf<ContactModal>() }
 
@@ -42,7 +44,7 @@ fun SelectUsers(
         LazyColumn(
             modifier = Modifier.fillMaxSize()
         ) {
-            items(mapContacts.size) { contact ->
+            items(contactsViewModal.getListContacts().size) { contact ->
                 val check = remember { mutableStateOf(false) }
 
                 Spacer(modifier = Modifier.height(10.dp))
@@ -67,20 +69,20 @@ fun SelectUsers(
 
                                 when (check.value) {
                                     true -> {
-                                        if (!contactsList.contains(mapContacts[contactsListUSER[contact]])) {
-                                            contactsList.add(mapContacts[contactsListUSER[contact]]!!)
+                                        if (!contactsList.contains(contactsViewModal.getListContacts()[contact])) {
+                                            contactsList.add(contactsViewModal.getListContacts()[contact])
                                         }
                                     }
 
                                     false -> {
-                                        if (contactsList.contains(mapContacts[contactsListUSER[contact]])) {
-                                            contactsList.remove(mapContacts[contactsListUSER[contact]]!!)
+                                        if (contactsList.contains(contactsViewModal.getListContacts()[contact])) {
+                                            contactsList.remove(contactsViewModal.getListContacts()[contact])
                                         }
                                     }
                                 }
                             }
                         )
-                        ContactCard(mapContacts[contactsListUSER[contact]])
+                        ContactCard(contactsViewModal.getListContacts()[contact])
                     }
                 }
 

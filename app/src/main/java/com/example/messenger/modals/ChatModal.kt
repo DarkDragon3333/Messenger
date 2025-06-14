@@ -6,9 +6,9 @@ import com.google.firebase.Timestamp
 @Stable
 data class ChatModal(
     var fullname: String = " ",
-    var photoUrl: String = "",
+    var photoUrl: String = " ",
     override var id: String = " ",
-    override var status: String = "",
+    override var status: String = " ",
     override var type: String = " ",
     override var lastMessage: String? = "empty",
     override val timeStamp: String? = null,

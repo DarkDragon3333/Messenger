@@ -1,6 +1,5 @@
 package com.example.messenger.screens
 
-import android.os.Bundle
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -31,6 +30,8 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,49 +42,35 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.messenger.dataBase.firebaseFuns.USER
+import com.example.messenger.dataBase.firebaseFuns.singOutFromApp
 import com.example.messenger.navigation.DrawerNavigation
 import com.example.messenger.navigation.Screens
-import com.example.messenger.utils.UriImage
 import com.example.messenger.utils.NavIconButton
-import com.example.messenger.dataBase.firebaseFuns.USER
-import com.example.messenger.utils.flagDropMenuButtonOnSettingsScreen
-import com.example.messenger.utils.flagNavButtonOnChatScreen
-import com.example.messenger.utils.flagNavButtonOnChatsScreen
+import com.example.messenger.utils.UriImage
 import com.example.messenger.utils.goTo
 import com.example.messenger.utils.on_settings_screen
-import com.example.messenger.dataBase.firebaseFuns.singOutFromApp
-import com.example.messenger.utils.Constants.TYPE_CHAT
-import com.example.messenger.utils.Constants.TYPE_GROUP
-import com.example.messenger.utils.flagNavButtonOnGroupChatScreen
+import com.example.messenger.viewModals.ContactsViewModal
 import com.example.messenger.viewModals.CurrentChatHolderViewModal
+import com.example.messenger.viewModals.NavDrawerViewModal
 import kotlinx.coroutines.CoroutineScope
-import java.net.URLDecoder
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NavDrawer(
-    currentChatHolderViewModal: CurrentChatHolderViewModal = viewModel()
+    currentChatHolderViewModal: CurrentChatHolderViewModal = viewModel(),
+    navDrawerViewModal: NavDrawerViewModal = viewModel(),
+    contactsViewModal: ContactsViewModal
 ) {
     val navController = rememberNavController()
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
-
     val currentRoute = currentBackStackEntry?.destination?.route ?: Screens.Chats
 
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val coroutineScope = rememberCoroutineScope()
-
-    val screens = listOf( //Созданные экраны в виде объектов
-        Screens.YourProfile,
-        Screens.Chats,
-        Screens.SelectUsers,
-        Screens.Contacts,
-        Screens.Settings,
-        Screens.ChangeName
-    )
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -114,31 +101,28 @@ fun NavDrawer(
                     modifier = Modifier.padding(bottom = 10.dp)
                 ) //Линия
 
-                screens.forEach { screen -> //Циклом генерируем элементы выдвигающегося меню
-                    if (screen != Screens.Chats) {
-                        if (screen != Screens.ChangeName) {
-                            NavigationDrawerItem(
-                                label = { Text(text = screen.title) },
-                                icon = {
-                                    Icon(
-                                        imageVector = screen.icon,
-                                        contentDescription = "${screen.title} icon"
-                                    )
-                                },
-                                selected = currentRoute == screen.route,
-                                modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
-                                onClick = {
-                                    goTo(
-                                        navController,
-                                        screen,
-                                        coroutineScope,
-                                        drawerState
-                                    )
-                                }
-                            )
-                        }
+                navDrawerViewModal.getVisibleScreens()
+                    .forEach { screen -> //Циклом генерируем элементы выдвигающегося меню
+                        NavigationDrawerItem(
+                            label = { Text(text = screen.title) },
+                            icon = {
+                                Icon(
+                                    imageVector = screen.icon,
+                                    contentDescription = "${screen.title} icon"
+                                )
+                            },
+                            selected = currentRoute == screen.route,
+                            modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
+                            onClick = {
+                                goTo(
+                                    navController,
+                                    screen,
+                                    coroutineScope,
+                                    drawerState
+                                )
+                            }
+                        )
                     }
-                }
             }
         }
     ) {
@@ -146,26 +130,18 @@ fun NavDrawer(
             topBar = {
                 TopAppBar(
                     title = {
-                        Title(navController, currentRoute, currentChatHolderViewModal)
+                        Title(currentRoute, currentChatHolderViewModal, navDrawerViewModal)
                     },
                     modifier = Modifier.fillMaxWidth(),
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = MaterialTheme.colorScheme.primaryContainer
                     ),
                     actions = {//Элементы в конце TopAppBar
-                        navController.addOnDestinationChangedListener { _, destination, _ -> //Хочу, чтобы выпадающий список появлялся только на странице настроек
-                            checkButtonOnSettingsScreen(destination)
-                            checkButtonOnGroupChatScreen(destination)
-                            checkButtonOnChatScreen(destination)
-                        }
-                        if (flagDropMenuButtonOnSettingsScreen == 1)
+                        if (navDrawerViewModal.isSettings)
                             DropdownMenuItems(drawerState, coroutineScope, navController)
                     },
                     navigationIcon = {
-                        navController.addOnDestinationChangedListener { _, destination, _ ->
-                            checkButtonOnChatsScreen(destination)
-                        }
-                        when (flagNavButtonOnChatsScreen == 1) {
+                        when (navDrawerViewModal.isChats) {
                             true -> NavIconButton(coroutineScope, drawerState)
 
                             false -> NavIconButton(coroutineScope, navController)
@@ -179,7 +155,20 @@ fun NavDrawer(
                     .fillMaxSize()
                     .padding(top = it.calculateTopPadding())
             ) {
-                DrawerNavigation(navController, currentChatHolderViewModal)
+                DrawerNavigation(navController, currentChatHolderViewModal, contactsViewModal)
+            }
+
+            LaunchedEffect(Unit) {
+                navController.addOnDestinationChangedListener { _, destination, _ ->
+                    navDrawerViewModal.startListeningChangeDestination(destination.route)
+                }
+            }
+
+            DisposableEffect(Unit) {
+
+                onDispose {
+
+                }
             }
         }
     }
@@ -187,14 +176,14 @@ fun NavDrawer(
 
 @Composable
 fun Title(
-    navController: NavHostController,
     currentRoute: Any,
-    currentChatHolderViewModal: CurrentChatHolderViewModal
+    currentChatHolderViewModal: CurrentChatHolderViewModal,
+    navDrawerViewModal: NavDrawerViewModal
 ) {
-    if (flagNavButtonOnChatScreen == 1)
-        TitleView(navController, TYPE_CHAT, currentChatHolderViewModal)
-    else if (flagNavButtonOnGroupChatScreen == 1)
-        TitleView(navController, TYPE_GROUP, currentChatHolderViewModal)
+    if (navDrawerViewModal.isChat)
+        TitleView(currentChatHolderViewModal)
+    else if (navDrawerViewModal.isGroupChat)
+        TitleView(currentChatHolderViewModal)
     else
         Text(
             text = currentRoute
@@ -205,8 +194,6 @@ fun Title(
 
 @Composable
 fun TitleView(
-    navController: NavHostController,
-    route: String,
     viewModel: CurrentChatHolderViewModal = viewModel()
 ) {
     val chat = viewModel.currentChat
@@ -221,32 +208,6 @@ fun TitleView(
 
     var statusUser = chat?.status ?: ""
     var photoURL = chat?.photoUrl ?: group?.photoUrl.orEmpty()
-
-//    var groupChat: GroupChatModal
-//    navController.addOnDestinationChangedListener { _, destination, bundle ->
-//        if ((bundle != null) && (destination.route == route)) {
-//            when (route) {
-//                TYPE_CHAT -> {
-//                    title = getBundle("fullname", bundle).toString()
-//                    statusUSER = getBundle("status", bundle).toString()
-//                    photoURL = bundle.getString("photoURL").toString()
-//                    //id = URLDecoder.decode(bundle.getString("id").toString(), "UTF-8")
-//                }
-//
-//                TYPE_GROUP -> {
-//                    val savedStateHandle = navController.previousBackStackEntry?.savedStateHandle
-//                    groupChat = savedStateHandle?.get<GroupChatModal>("groupChatModal")!!
-//
-//                    val f = savedStateHandle.get<String>("groupChatName")
-//                    val p = savedStateHandle.get<String>("photoUrlGroupChat")
-//
-//                    title = f.toString()
-//                    statusUSER = ""
-//                    photoURL = p.toString()
-//                }
-//            }
-//        }
-//    }
 
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -300,32 +261,12 @@ fun DropdownMenuItems(
     }
 }
 
-private fun checkButtonOnSettingsScreen(destination: NavDestination) {
-    flagDropMenuButtonOnSettingsScreen =
-        if (destination.route == Screens.Settings.route) 1 else -1
-}
-
-private fun checkButtonOnChatsScreen(destination: NavDestination) {
-    flagNavButtonOnChatsScreen =
-        if (destination.route == Screens.Chats.route) 1 else -1
-}
-
-private fun checkButtonOnGroupChatScreen(destination: NavDestination) {
-    flagNavButtonOnGroupChatScreen =
-        if (destination.route == Screens.GroupChat.route) 1 else -1
-}
-
-private fun checkButtonOnChatScreen(destination: NavDestination) {
-    flagNavButtonOnChatScreen =
-        if (destination.route == Screens.Chat.route) 1 else -1
-}
-
 fun navBackButton(navController: NavHostController) {
     navController.addOnDestinationChangedListener { _, destination, _ ->
         on_settings_screen =
             destination.route == Screens.ChangeName.route ||
-                    destination.route == Screens.ChangeUserName.route ||
-                    destination.route == Screens.ChangeBIO.route
+            destination.route == Screens.ChangeUserName.route ||
+            destination.route == Screens.ChangeBIO.route
     }
 
     when (on_settings_screen) {
@@ -333,9 +274,5 @@ fun navBackButton(navController: NavHostController) {
 
         else -> goTo(navController, Screens.Chats)
     }
-}
-
-fun getBundle(info: String, bundle: Bundle): String? {
-    return URLDecoder.decode(bundle.getString(info).toString(), "UTF-8")
 }
 

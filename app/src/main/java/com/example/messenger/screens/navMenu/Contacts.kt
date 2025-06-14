@@ -11,31 +11,33 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.messenger.modals.ChatModal
-import com.example.messenger.modals.ContactModal
 import com.example.messenger.navigation.Screens
 import com.example.messenger.screens.componentOfScreens.ContactCard
 import com.example.messenger.utils.contactsListUSER
 import com.example.messenger.utils.goTo
 import com.example.messenger.utils.mapContacts
+import com.example.messenger.viewModals.ContactsViewModal
 import com.example.messenger.viewModals.CurrentChatHolderViewModal
 
 @Composable
 fun ContactsScreen(
     navController: NavHostController,
-    currentChatViewModel: CurrentChatHolderViewModal
+    currentChatViewModel: CurrentChatHolderViewModal,
+    contactsViewModal: ContactsViewModal
 ) {
     LazyColumn {
-        items(mapContacts.size) { contact ->
+        items(contactsViewModal.getListContacts().size) { contact ->
             Spacer(modifier = Modifier.height(10.dp))
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable {
                         val chatModal = ChatModal(
-                            mapContacts[contactsListUSER[contact]]?.fullname ?: "",
-                            mapContacts[contactsListUSER[contact]]?.photoUrl ?: "",
-                            mapContacts[contactsListUSER[contact]]?.id ?: "",
-                            mapContacts[contactsListUSER[contact]]?.status ?: "",
+                            contactsViewModal.getListContacts()[contact].fullname,
+                            contactsViewModal.getListContacts()[contact].photoUrl,
+                            contactsViewModal.getListContacts()[contact].id,
+                            contactsViewModal.getListContacts()[contact].status,
+                            "",
                             "",
                             "",
                         )
@@ -44,7 +46,7 @@ fun ContactsScreen(
 
                     }
             ) {
-                ContactCard(mapContacts[contactsListUSER[contact]])
+                ContactCard(contactsViewModal.getListContacts()[contact])
             }
 
             Spacer(modifier = Modifier.height(10.dp))
