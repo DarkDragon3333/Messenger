@@ -42,7 +42,11 @@ fun Message(
                         Spacer(modifier = Modifier.width(10.dp))
                     }
 
-                    else -> Spacer(modifier = Modifier.width(60.dp))
+                    else ->
+                        if (typeChat == TYPE_GROUP)
+                            Spacer(modifier = Modifier.width(60.dp))
+                        else
+                            Spacer(modifier = Modifier.width(10.dp))
                 }
 
                 OutlinedCardMessage(messageModal, Arrangement.Start)

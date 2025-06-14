@@ -10,6 +10,7 @@ import com.example.messenger.modals.ContactModal
 import com.example.messenger.modals.User
 import com.example.messenger.modals.setLocalDataForUser
 import com.example.messenger.screens.loginAndSignUp.LoginActivity
+import com.example.messenger.utils.Constants
 import com.example.messenger.utils.Constants.CHILD_FROM
 import com.example.messenger.utils.Constants.CHILD_ID
 import com.example.messenger.utils.Constants.CHILD_INFO
@@ -359,7 +360,6 @@ fun uploadFileToStorage(
                             }
                         }
                     }
-
                 }
 
             } catch (e: Exception) {
@@ -387,4 +387,84 @@ fun singOutFromApp() {
     sign_in = true
     AUTH.signOut()
     goTo(LoginActivity::class.java, mainActivityContext)
+}
+
+fun addChatToChatsList(infoArray: Array<String>) {
+    try {
+        val db = Firebase.firestore
+
+        val userChats =
+            infoArray[2].let {
+                db
+                    .collection("users_talkers").document(UID)
+                    .collection("talkers").document(it)
+            }
+
+        val receivingUserChats =
+            infoArray[2].let {
+                db
+                    .collection("users_talkers").document(it)
+                    .collection("talkers").document(UID)
+            }
+
+        val mapChat = hashMapOf<String, Any>()
+        mapChat[Constants.CHILD_FULLNAME] = infoArray[0]
+        mapChat[Constants.CHILD_PHOTO_URL] = infoArray[1]
+        mapChat[Constants.CHILD_ID] = infoArray[2]
+        mapChat[Constants.CHILD_STATUS] = infoArray[3]
+        mapChat[Constants.CHILD_TYPE] = infoArray[4]
+        mapChat[Constants.CHILD_LAST_MESSAGE] = infoArray[5]
+        mapChat[Constants.CHILD_TIME_STAMP] = "00:00:00"
+
+        val mapReceivingUserChat = hashMapOf<String, Any>()
+        mapReceivingUserChat[Constants.CHILD_FULLNAME] = USER.fullname
+        mapReceivingUserChat[Constants.CHILD_PHOTO_URL] = USER.photoUrl
+        mapReceivingUserChat[Constants.CHILD_ID] = USER.id
+        mapReceivingUserChat[Constants.CHILD_STATUS] = USER.status
+        mapReceivingUserChat[Constants.CHILD_TYPE] = infoArray[4]
+        mapReceivingUserChat[Constants.CHILD_LAST_MESSAGE] = infoArray[5]
+        mapReceivingUserChat[Constants.CHILD_TIME_STAMP] = "00:00:00"
+
+        val mapChats = hashMapOf<String, Any>()
+        mapChats["$userChats/$infoArray[2]"] = mapChat
+        mapChats["$receivingUserChats/${UID}"] = mapReceivingUserChat
+
+        mapChats["$userChats/$infoArray[2]"]?.let {
+            userChats.set(
+                it
+            )
+        }
+
+        mapChats["$receivingUserChats/${UID}"]?.let {
+            receivingUserChats.set(
+                it
+            )
+        }
+    } catch (e: Exception) {
+        makeToast(e.message.toString(), mainActivityContext)
+    }
+
+}
+
+fun addGroupChatToChatsList(
+    mapInfo: HashMap<String, Any>,
+    contactListId: MutableList<String>,
+    context: Context,
+    callBack: () -> Unit
+) {
+    try {
+        contactListId.forEach { contactId ->
+            val userLink =
+                Firebase.firestore
+                    .collection("users_talkers").document(contactId)
+                    .collection("talkers").document(mapInfo[CHILD_ID].toString())
+
+            userLink.set(mapInfo)
+        }
+
+        callBack()
+    } catch (e: Exception) {
+        Log.e("KotltalkApp", e.message.toString())
+        makeToast(e.message.toString(), context)
+    }
 }

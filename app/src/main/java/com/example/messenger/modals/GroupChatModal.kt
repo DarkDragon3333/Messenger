@@ -9,8 +9,9 @@ data class GroupChatModal(
     var groupChatName: String = "",
     var photoUrl: String = "",
     override var id: String = " ",
+    override var status: String = "",
     var contactList: MutableList<String> = mutableListOf(),
     override var type: String = " ",
-    var lastMessage: String? = "empty",
-    val timeStamp: String? = null,
+    override var lastMessage: String? = "empty",
+    override val timeStamp: String? = null,
 ) : ChatItem, Serializable

@@ -38,5 +38,4 @@ class GroupChatViewModal : ViewModel() {
             }
         }
     }
-
 }

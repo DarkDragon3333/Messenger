@@ -36,8 +36,6 @@ import com.example.messenger.utils.makeToast
 import com.example.messenger.utils.pathToPhoto
 import com.google.firebase.storage.StorageReference
 
-
-
 @Composable
 fun ChangePhotoUrl(navController: NavHostController) {
     var imageUri by remember { mutableStateOf<Uri?>(null) } //Ссылка на картинку
@@ -47,7 +45,6 @@ fun ChangePhotoUrl(navController: NavHostController) {
         { uri: Uri? ->
             imageUri = uri
         }
-
 
     Column(
         modifier = Modifier.fillMaxSize(),

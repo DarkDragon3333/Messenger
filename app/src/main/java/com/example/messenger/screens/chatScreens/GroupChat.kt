@@ -56,11 +56,11 @@ import androidx.navigation.NavHostController
 import com.example.messenger.R
 import com.example.messenger.dataBase.firebaseFuns.getMessageKey
 import com.example.messenger.dataBase.firebaseFuns.uploadFileToStorage
+import com.example.messenger.dataBase.valueEventListenerClasses.LastMessageState
 import com.example.messenger.messageViews.sendTextToGroupChat
 import com.example.messenger.messageViews.startRecordVoiceMsg
 import com.example.messenger.messageViews.stopRecordVoiceMsg
 import com.example.messenger.modals.MessageModal
-import com.example.messenger.screens.chatScreens.SendMessageButton
 import com.example.messenger.screens.componentOfScreens.Message
 import com.example.messenger.utils.Constants.TYPE_FILE
 import com.example.messenger.utils.Constants.TYPE_GROUP
@@ -76,8 +76,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
-private lateinit var contactsList: MutableList<String>
-
 @SuppressLint("ReturnFromAwaitPointerEventScope")
 @Composable
 fun GroupChat(
@@ -86,7 +84,9 @@ fun GroupChat(
 ) {
     val groupChatViewModal: GroupChatViewModal = viewModel()
     val messagesListViewModal: MessagesListViewModal = viewModel()
-    val groupChatId = currentChatViewModel.currentGroupChat?.id?.replace(Regex("[{}]"), "").toString()
+
+    val groupChatId =
+        currentChatViewModel.currentGroupChat?.id?.replace(Regex("[{}]"), "").toString()
 
     val infoArray = arrayOf(
         currentChatViewModel.currentGroupChat?.groupChatName ?: "",
@@ -108,7 +108,6 @@ fun GroupChat(
     val coroutineScope = rememberCoroutineScope()
 
     val interactionSource = remember { MutableInteractionSource() } //Кнопка голосового сообщения
-
     val showBottomSheetState = remember { mutableStateOf(false) }
 
     val imageLauncher = rememberLauncherForActivityResult(
@@ -157,7 +156,7 @@ fun GroupChat(
         Box(
             modifier = Modifier.weight(1f)
         ) {
-            if (messagesListViewModal.getFlagDownloadOldMessages())
+            if (messagesListViewModal.getFlagDownloadFirstMessages())
                 Chat(listState, chatScreenState, groupChatViewModal)
         }
 
@@ -189,7 +188,7 @@ fun GroupChat(
 
     DisposableEffect(Unit) {
         messagesListViewModal.initMessagesList(groupChatId) {
-            messagesListViewModal.setFlagDownloadOldMessages(
+            messagesListViewModal.setFlagDownloadFirstMessages(
                 true
             )
         }
@@ -272,6 +271,7 @@ private fun PanelOfEnter(
             trailingIcon = {
                 Row {
                     AttachFileButton(
+                        currentChatViewModel,
                         launcher,
                         launcherFile,
                         showBottomSheetState,
@@ -304,6 +304,7 @@ private fun PanelOfEnter(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun AttachFileButton(
+    currentChatHolderViewModal: CurrentChatHolderViewModal,
     launcher: ManagedActivityResultLauncher<PickVisualMediaRequest, List<@JvmSuppressWildcards Uri>>,
     launcherFile: ManagedActivityResultLauncher<String, List<@JvmSuppressWildcards Uri>>,
     showBottomSheetState: MutableState<Boolean>,
@@ -331,6 +332,7 @@ private fun AttachFileButton(
             sheetState = sheetState
         ) {
             SheetContent(
+                currentChatHolderViewModal,
                 launcher, launcherFile, coroutineScope, sheetState, showBottomSheetState,
                 infoArray, receivingUserID
             )
@@ -341,6 +343,7 @@ private fun AttachFileButton(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun SheetContent(
+    currentChatHolderViewModal: CurrentChatHolderViewModal,
     launcher: ManagedActivityResultLauncher<PickVisualMediaRequest, List<@JvmSuppressWildcards Uri>>,
     launcherFile: ManagedActivityResultLauncher<String, List<@JvmSuppressWildcards Uri>>,
     coroutineScope: CoroutineScope,
@@ -357,7 +360,10 @@ private fun SheetContent(
                     showBottomSheetState.value = false
             }
 
-            //LastMessageState.updateLastMessage("Изображение", receivingUserID)
+            LastMessageState.updateLastMessageInGroupChat(
+                "Изображение", receivingUserID,
+                currentChatHolderViewModal.currentGroupChat?.contactList ?: mutableListOf()
+            )
         }) {
             Text("Image")
         }
@@ -368,7 +374,10 @@ private fun SheetContent(
                 if (!sheetState.isVisible)
                     showBottomSheetState.value = false
             }
-            //LastMessageState.updateLastMessage("Файл", receivingUserID)
+            LastMessageState.updateLastMessageInGroupChat(
+                "Файл", receivingUserID,
+                currentChatHolderViewModal.currentGroupChat?.contactList ?: mutableListOf()
+            )
         }) {
             Text("File")
         }
@@ -386,7 +395,7 @@ private fun SheetContent(
 
 @Composable
 private fun SendMessageButton(
-    currentChatViewModel: CurrentChatHolderViewModal,
+    currentChatHolderViewModal: CurrentChatHolderViewModal,
     interactionSource: MutableInteractionSource,
     fieldText: MutableState<String>,
     changeColor: MutableState<Color>,
@@ -438,11 +447,11 @@ private fun SendMessageButton(
                                 coroutineScope.launch {
                                     listState.animateScrollToItem(0)
                                 }
-                            //addChatToChatsList(infoArray)
-//                            LastMessageState.updateLastMessage(
-//                                "Голосовое сообщение",
-//                                groupChatId
-//                            )
+                            LastMessageState.updateLastMessageInGroupChat(
+                                "Голосовое сообщение", infoArray[2].toString(),
+                                currentChatHolderViewModal.currentGroupChat?.contactList
+                                    ?: mutableListOf()
+                            )
                         }
                     }
 
@@ -459,11 +468,12 @@ private fun SendMessageButton(
                                 coroutineScope.launch {
                                     listState.animateScrollToItem(0)
                                 }
-//                            LastMessageState.updateLastMessage(
-//                                "Голосовое сообщение",
-//                                groupChatId
-//                            )
-                            //addChatToChatsList(infoArray)
+                            LastMessageState.updateLastMessageInGroupChat(
+                                "Голосовое сообщение", infoArray[2].toString(),
+                                currentChatHolderViewModal.currentGroupChat?.contactList
+                                    ?: mutableListOf()
+                            )
+
                         }
 
                         if (isLongClick.not()) {
@@ -471,14 +481,17 @@ private fun SendMessageButton(
                                 sendTextToGroupChat(
                                     fieldText.value,
                                     infoArray[2].toString(),
-                                    currentChatViewModel.currentGroupChat!!.contactList
+                                    currentChatHolderViewModal.currentGroupChat!!.contactList
                                 )
                                 if (chatScreenState.isNotEmpty())
                                     coroutineScope.launch {
                                         listState.animateScrollToItem(0)
                                     }
-                                //addChatToChatsList(infoArray)
-                                //LastMessageState.updateLastMessage(fieldText.value, receivingUserID)
+                                LastMessageState.updateLastMessageInGroupChat(
+                                    fieldText.value, infoArray[2].toString(),
+                                    currentChatHolderViewModal.currentGroupChat?.contactList
+                                        ?: mutableListOf()
+                                )
                                 cleanText()
                             }
                         }

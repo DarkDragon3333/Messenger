@@ -8,9 +8,9 @@ data class ChatModal(
     var fullname: String = " ",
     var photoUrl: String = "",
     override var id: String = " ",
-    var status: String = "",
+    override var status: String = "",
     override var type: String = " ",
-    var lastMessage: String? = "empty",
-    val timeStamp: String? = null,
+    override var lastMessage: String? = "empty",
+    override val timeStamp: String? = null,
 ) : ChatItem
 //TO-DO разобраться с timeStamp: TimeStamp

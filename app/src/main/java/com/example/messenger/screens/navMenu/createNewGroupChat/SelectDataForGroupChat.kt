@@ -104,7 +104,7 @@ fun SelectDataForGroupChat(
                 .clip(CircleShape)
                 .size(100.dp)
                 .clickable {
-                    selectImageForGroupChat(launcher, selectImage)
+                    selectImageForGroupChat(launcher, selectImage, groupChatId)
                 }
         ) {
             ControlOfChangeImageView(selectImage, imageUri, bitmap)
@@ -203,11 +203,12 @@ private fun ControlOfChangeImageView(
 
 private fun selectImageForGroupChat(
     launcher: ManagedActivityResultLauncher<String, Uri?>,
-    selectImage: MutableState<Boolean>
+    selectImage: MutableState<Boolean>,
+    groupChatId: String,
 ) {
     pathToSelectPhoto =
         REF_STORAGE_ROOT.child(FOLDER_PHOTOS)
-            .child(UID) //Получаем ссылку на корневую директори в БД
+            .child(groupChatId) //Получаем ссылку на корневую директори в БД
     launcher.launch("image/*") //Открываем проводник для выбора картинки
     selectImage.value = true
 }
@@ -249,6 +250,7 @@ private fun createGroupChat(
                 mapInfo[CHILD_GROUP_CHAT_NAME].toString(),
                 imageUri.toString(),
                 mapInfo[CHILD_ID].toString(),
+                "",
                 mapInfo[CHILD_CONTACT_LIST] as MutableList<String>,
                 mapInfo[CHILD_TYPE].toString(),
                 mapInfo[CHILD_LAST_MESSAGE].toString(),
@@ -318,6 +320,7 @@ fun takeDefaultPhotoForGroupChat(
                                     mapInfo[CHILD_GROUP_CHAT_NAME].toString(),
                                     mapInfo[CHILD_PHOTO_URL].toString(),
                                     mapInfo[CHILD_ID].toString(),
+                                    "",
                                     mapInfo[CHILD_CONTACT_LIST] as MutableList<String>,
                                     mapInfo[CHILD_TYPE].toString(),
                                     mapInfo[CHILD_LAST_MESSAGE].toString(),

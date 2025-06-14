@@ -9,6 +9,8 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.example.messenger.dataBase.firebaseFuns.UID
 import com.example.messenger.modals.MessageModal
+import com.example.messenger.utils.mainActivityContext
+import com.example.messenger.utils.makeToast
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.ListenerRegistration
@@ -16,11 +18,8 @@ import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.firestore
 
 class MessagesListViewModal : ViewModel() {
-
     private var messagesList = mutableStateListOf<MessageModal>()
     private lateinit var listenerRegistration: ListenerRegistration
-
-    private var isLoadingOldMessages by mutableStateOf(false)
     private var isLoadingFirstMessages by mutableStateOf(false)
 
     fun initMessagesList(chatId: String, changeLoadingFlag: () -> Unit) {
@@ -52,7 +51,6 @@ class MessagesListViewModal : ViewModel() {
                         val newMessage = document.document.toObject(MessageModal::class.java)
                         if (messagesList.none { it.id == newMessage.id }) {
                             messagesList.add(0, newMessage)
-
                         }
                     }
 
@@ -74,7 +72,6 @@ class MessagesListViewModal : ViewModel() {
     }
 
     fun downloadOldMessages(groupChatId: String) {
-        isLoadingOldMessages = true
         val lastTimestamp = messagesList.last().timeStamp
 
         Firebase.firestore.collection("users_messages")
@@ -92,13 +89,10 @@ class MessagesListViewModal : ViewModel() {
                 }.filterNot { msg ->
                     messagesList.any { it.id == msg.id }
                 }
-                messagesList.addAll(newMessages)
-                //chatScreenState.addAll(newMessages)
-
-                isLoadingOldMessages = false
+                messagesList.addAll(newMessages) //Обновляем список сообщений
             }
             .addOnFailureListener {
-                isLoadingOldMessages = false
+                makeToast("Ошибка скачивания", mainActivityContext)
             }
     }
 
@@ -109,13 +103,13 @@ class MessagesListViewModal : ViewModel() {
         messagesList.addAll(newMessages)
     }
 
-    fun getFlagDownloadOldMessages(): Boolean = isLoadingFirstMessages
+    fun getFlagDownloadFirstMessages(): Boolean = isLoadingFirstMessages
 
-    fun setFlagDownloadOldMessages(newState: Boolean) {
+    fun setFlagDownloadFirstMessages(newState: Boolean) {
         isLoadingFirstMessages = newState
     }
 
-    fun chatMessLink(chatId: String) : Query{
+    fun chatMessLink(chatId: String): Query {
         return Firebase.firestore
             .collection("users_messages").document(UID)
             .collection("messages").document(chatId)

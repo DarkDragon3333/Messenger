@@ -59,23 +59,13 @@ fun ElementOfChatsList(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Spacer(modifier = Modifier.padding(4.dp))
-
                     UriImage(64.dp, chatModal.value.photoUrl) {}
-
                     Spacer(modifier = Modifier.padding(8.dp))
 
                     Column {
                         Text(text = chatModal.value.groupChatName)
                         chatModal.value.lastMessage?.let { Text(text = it) }
                     }
-//                    Box(
-//                        modifier = Modifier
-//                            .fillMaxWidth()
-//                            .padding(0.dp, 0.dp, 30.dp, 0.dp),
-//                        contentAlignment = Alignment.CenterEnd
-//                    ) {
-//                        Text(text = chatModal.status, fontSize = 13.sp)
-//                    }
                 }
             }
             HorizontalDivider()
@@ -103,9 +93,7 @@ fun ElementOfChatsList(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Spacer(modifier = Modifier.padding(4.dp))
-
                     UriImage(64.dp, chatModal.value.photoUrl) {}
-
                     Spacer(modifier = Modifier.padding(8.dp))
 
                     Column {

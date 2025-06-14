@@ -29,5 +29,4 @@ class CurrentChatHolderViewModal : ViewModel(){
         currentChat = null
         currentGroupChat = null
     }
-
 }

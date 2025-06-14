@@ -39,12 +39,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -54,15 +51,11 @@ import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.messenger.R
-import com.example.messenger.dataBase.firebaseFuns.UID
-import com.example.messenger.utils.attachFile
-import com.example.messenger.utils.attachImage
 import com.example.messenger.dataBase.firebaseFuns.addChatToChatsList
 import com.example.messenger.dataBase.firebaseFuns.getMessageKey
-import com.example.messenger.dataBase.firebaseFuns.initChat
-import com.example.messenger.dataBase.firebaseFuns.listeningUpdateChat
 import com.example.messenger.dataBase.firebaseFuns.uploadFileToStorage
 import com.example.messenger.dataBase.valueEventListenerClasses.LastMessageState
 import com.example.messenger.messageViews.sendText
@@ -70,15 +63,14 @@ import com.example.messenger.messageViews.startRecordVoiceMsg
 import com.example.messenger.messageViews.stopRecordVoiceMsg
 import com.example.messenger.modals.MessageModal
 import com.example.messenger.screens.componentOfScreens.Message
-import com.example.messenger.utils.voice.AppVoiceRecorder
 import com.example.messenger.utils.Constants.TYPE_CHAT
 import com.example.messenger.utils.Constants.TYPE_FILE
 import com.example.messenger.utils.Constants.TYPE_IMAGE
+import com.example.messenger.utils.attachFile
+import com.example.messenger.utils.attachImage
+import com.example.messenger.utils.voice.AppVoiceRecorder
 import com.example.messenger.viewModals.CurrentChatHolderViewModal
-import com.google.firebase.Firebase
-import com.google.firebase.firestore.ListenerRegistration
-import com.google.firebase.firestore.Query
-import com.google.firebase.firestore.firestore
+import com.example.messenger.viewModals.MessagesListViewModal
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
@@ -92,8 +84,10 @@ fun ChatScreen(
     navController: NavHostController,
     currentChatViewModel: CurrentChatHolderViewModal
 ) {
-    val regex = Regex("[{}]")
-    val receivingUserID = currentChatViewModel.currentChat?.id?.replace(regex, "").toString()
+    val messagesListViewModal: MessagesListViewModal = viewModel()
+
+    val receivingUserID =
+        currentChatViewModel.currentChat?.id?.replace(Regex("[{}]"), "").toString()
 
     val infoArray = arrayOf(
         currentChatViewModel.currentChat?.fullname.toString(),
@@ -104,40 +98,19 @@ fun ChatScreen(
         "lastMes_null",
         "timeStamp_null"
     )
-    var listenerRegistration: ListenerRegistration
-
-    val viewConfiguration = LocalViewConfiguration.current
-
-    val db = Firebase.firestore
 
     //Исправить отображение кнопки записывания голосового сообщения
     val recordVoiceFlag = remember { mutableStateOf(false) }
     val changeColor = remember { mutableStateOf(Color.Red) }
 
-    val messages = remember { mutableStateOf(listOf<MessageModal>()) }
-
-    val chatScreenState by remember {
-        derivedStateOf { messages.value }
-    }
+    val chatScreenState = messagesListViewModal.getMessageList()
 
     val text = remember { mutableStateOf("") }
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
 
-    val isLoadingFirstMessages = remember { mutableStateOf(false) }
-    var isLoadingOldMessages by remember { mutableStateOf(false) }
-
     val interactionSource = remember { MutableInteractionSource() } //Кнопка голосового сообщения
-
     val showBottomSheetState = remember { mutableStateOf(false) }
-
-    val messLink =
-        db
-            .collection("users_messages").document(UID)
-            .collection("messages").document(receivingUserID)
-            .collection("TheirMessages")
-            .orderBy("timeStamp", Query.Direction.DESCENDING) //Делает обратный порядок
-            .limit(30)
 
     val imageLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickMultipleVisualMedia(5)
@@ -183,7 +156,7 @@ fun ChatScreen(
         Box(
             modifier = Modifier.weight(1f)
         ) {
-            if (isLoadingFirstMessages.value)
+            if (messagesListViewModal.getFlagDownloadFirstMessages())
                 Chat(listState, chatScreenState)
         }
 
@@ -193,7 +166,7 @@ fun ChatScreen(
             changeColor,
             receivingUserID,
             recordVoiceFlag,
-            viewConfiguration,
+            LocalViewConfiguration.current,
             imageLauncher,
             fileLauncher,
             chatScreenState,
@@ -208,43 +181,18 @@ fun ChatScreen(
         snapshotFlow {
             listState.layoutInfo.visibleItemsInfo.any { it.index == chatScreenState.lastIndex - 10 }
         }.collect { isVisible ->
-            if (isVisible && !isLoadingOldMessages && chatScreenState.isNotEmpty()) {
-                isLoadingOldMessages = true
-
-                val lastTimestamp = chatScreenState[chatScreenState.lastIndex].timeStamp
-                db.collection("users_messages")
-                    .document(UID)
-                    .collection("messages")
-                    .document(receivingUserID)
-                    .collection("TheirMessages")
-                    .orderBy("timeStamp", Query.Direction.DESCENDING)
-                    .startAfter(lastTimestamp)
-                    .limit(30)
-                    .get()
-                    .addOnSuccessListener { result ->
-                        val newMessages = result.documents.mapNotNull {
-                            it.toObject(MessageModal::class.java)
-                        }.filterNot { msg ->
-                            chatScreenState.any { it.id == msg.id }
-                        }
-                        messages.value += newMessages
-
-                        isLoadingOldMessages = false
-                    }
-                    .addOnFailureListener {
-                        isLoadingOldMessages = false
-                    }
-            }
+            if (isVisible) messagesListViewModal.downloadOldMessages(receivingUserID)
         }
     }
 
     DisposableEffect(Unit) {
-        initChat(messages, messLink) { isLoadingFirstMessages.value = true }
-        listenerRegistration = listeningUpdateChat(messages, messLink)
+
+        messagesListViewModal.initMessagesList(receivingUserID) { messagesListViewModal.setFlagDownloadFirstMessages(true) }
+        messagesListViewModal.startListingMessageList(receivingUserID)
 
         onDispose {
-            messages.value = emptyList()
-            listenerRegistration.remove()
+            messagesListViewModal.removeListener()
+            currentChatViewModel.clearChat()
         }
     }
 
@@ -305,6 +253,7 @@ private fun PanelOfEnter(
             trailingIcon = {
                 Row {
                     AttachFileButton(
+                        chatScreenState,
                         launcher,
                         launcherFile,
                         showBottomSheetState,
@@ -336,6 +285,7 @@ private fun PanelOfEnter(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun AttachFileButton(
+    chatScreenState: List<MessageModal>,
     launcher: ManagedActivityResultLauncher<PickVisualMediaRequest, List<@JvmSuppressWildcards Uri>>,
     launcherFile: ManagedActivityResultLauncher<String, List<@JvmSuppressWildcards Uri>>,
     showBottomSheetState: MutableState<Boolean>,
@@ -364,6 +314,7 @@ private fun AttachFileButton(
         ) {
             // Sheet content
             SheetContent(
+                chatScreenState,
                 launcher, launcherFile, coroutineScope, sheetState, showBottomSheetState,
                 infoArray, receivingUserID
             )
@@ -374,6 +325,7 @@ private fun AttachFileButton(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun SheetContent(
+    chatScreenState: List<MessageModal>,
     launcher: ManagedActivityResultLauncher<PickVisualMediaRequest, List<@JvmSuppressWildcards Uri>>,
     launcherFile: ManagedActivityResultLauncher<String, List<@JvmSuppressWildcards Uri>>,
     coroutineScope: CoroutineScope,
@@ -389,8 +341,9 @@ private fun SheetContent(
                 if (!sheetState.isVisible)
                     showBottomSheetState.value = false
             }
-            addChatToChatsList(infoArray)
-            LastMessageState.updateLastMessage("Изображение", receivingUserID)
+            if (chatScreenState.isEmpty())
+                addChatToChatsList(infoArray)
+            LastMessageState.updateLastMessageInChat("Изображение", receivingUserID)
         }) {
             Text("Image")
         }
@@ -401,8 +354,9 @@ private fun SheetContent(
                 if (!sheetState.isVisible)
                     showBottomSheetState.value = false
             }
-            addChatToChatsList(infoArray)
-            LastMessageState.updateLastMessage("Файл", receivingUserID)
+            if (chatScreenState.isEmpty())
+                addChatToChatsList(infoArray)
+            LastMessageState.updateLastMessageInChat("Файл", receivingUserID)
         }) {
             Text("File")
         }
@@ -471,8 +425,9 @@ private fun SendMessageButton(
                                 coroutineScope.launch {
                                     listState.animateScrollToItem(0)
                                 }
-                            addChatToChatsList(infoArray)
-                            LastMessageState.updateLastMessage(
+                            if (chatScreenState.isEmpty())
+                                addChatToChatsList(infoArray)
+                            LastMessageState.updateLastMessageInChat(
                                 "Голосовое сообщение",
                                 receivingUserID
                             )
@@ -492,11 +447,12 @@ private fun SendMessageButton(
                                 coroutineScope.launch {
                                     listState.animateScrollToItem(0)
                                 }
-                            LastMessageState.updateLastMessage(
+                            LastMessageState.updateLastMessageInChat(
                                 "Голосовое сообщение",
                                 receivingUserID
                             )
-                            addChatToChatsList(infoArray)
+                            if (chatScreenState.isEmpty())
+                                addChatToChatsList(infoArray)
                         }
 
                         if (isLongClick.not()) {
@@ -509,8 +465,9 @@ private fun SendMessageButton(
                                     coroutineScope.launch {
                                         listState.animateScrollToItem(0)
                                     }
-                                addChatToChatsList(infoArray)
-                                LastMessageState.updateLastMessage(fieldText.value, receivingUserID)
+                                if (chatScreenState.isEmpty())
+                                    addChatToChatsList(infoArray)
+                                LastMessageState.updateLastMessageInChat(fieldText.value, receivingUserID)
                                 cleanText()
                             }
                         }
