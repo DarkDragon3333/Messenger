@@ -2,6 +2,7 @@ package com.example.messenger.modals
 
 import androidx.compose.runtime.Stable
 import com.example.messenger.utils.ChatItem
+import com.google.firebase.Timestamp
 import java.io.Serializable
 
 @Stable
@@ -13,5 +14,5 @@ data class GroupChatModal(
     var contactList: MutableList<String> = mutableListOf(),
     override var type: String = " ",
     override var lastMessage: String? = "empty",
-    override val timeStamp: String? = null,
+    override val timeStamp: Timestamp? = null,
 ) : ChatItem, Serializable

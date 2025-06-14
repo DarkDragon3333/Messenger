@@ -48,8 +48,10 @@ class ChatsViewModal : ViewModel() {
                         else
                             it.toObject(ChatModal::class.java)!!
                     }.toMutableList()
-                _chatsList.clear()
-                _chatsList.addAll(cacheMessages.distinctBy { it.id })
+                _chatsList.apply {
+                    clear()
+                    addAll(cacheMessages.sortedByDescending { it.timeStamp }.distinctBy { it.id })
+                }
                 changeLoadingFlag()
             }
             .addOnFailureListener { exception ->
@@ -95,6 +97,10 @@ class ChatsViewModal : ViewModel() {
 
                         if (index != -1) {
                             _chatsList[index] = updateContactInfo
+
+                            val sortedList = _chatsList.sortedByDescending { it.timeStamp }
+                            _chatsList.clear()
+                            _chatsList.addAll(sortedList)
                         }
 
                     }

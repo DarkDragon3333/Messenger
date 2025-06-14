@@ -53,6 +53,7 @@ import com.example.messenger.utils.NavIconButton
 import com.example.messenger.utils.UriImage
 import com.example.messenger.utils.goTo
 import com.example.messenger.utils.on_settings_screen
+import com.example.messenger.viewModals.ChatsViewModal
 import com.example.messenger.viewModals.ContactsViewModal
 import com.example.messenger.viewModals.CurrentChatHolderViewModal
 import com.example.messenger.viewModals.NavDrawerViewModal
@@ -63,7 +64,8 @@ import kotlinx.coroutines.CoroutineScope
 fun NavDrawer(
     currentChatHolderViewModal: CurrentChatHolderViewModal = viewModel(),
     navDrawerViewModal: NavDrawerViewModal = viewModel(),
-    contactsViewModal: ContactsViewModal
+    contactsViewModal: ContactsViewModal,
+    chatsViewModal: ChatsViewModal = viewModel()
 ) {
     val navController = rememberNavController()
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
@@ -155,7 +157,7 @@ fun NavDrawer(
                     .fillMaxSize()
                     .padding(top = it.calculateTopPadding())
             ) {
-                DrawerNavigation(navController, currentChatHolderViewModal, contactsViewModal)
+                DrawerNavigation(navController, currentChatHolderViewModal, contactsViewModal, chatsViewModal)
             }
 
             LaunchedEffect(Unit) {

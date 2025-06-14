@@ -23,17 +23,12 @@ class LastMessageState() {
                     .collection("users_talkers").document(id)
                     .collection("talkers").document(UID)
 
-            chatDataLinkUser
-                .update("lastMessage", lastMessage)
-                .addOnFailureListener { e ->
-                    makeToast(e.message.toString(), mainActivityContext)
-                }
+            chatDataLinkUser.update("lastMessage", lastMessage)
+            chatDataLinkUser.update("timeStamp", FieldValue.serverTimestamp())
 
-            chatDataLinkContact
-                .update("lastMessage", lastMessage)
-                .addOnFailureListener { e ->
-                    makeToast(e.message.toString(), mainActivityContext)
-                }
+            chatDataLinkContact.update("lastMessage", lastMessage)
+            chatDataLinkContact.update("timeStamp", FieldValue.serverTimestamp())
+
         }
 
         fun updateLastMessageInGroupChat(

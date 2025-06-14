@@ -66,6 +66,8 @@ import com.example.messenger.utils.mainFieldStyle
 import com.example.messenger.utils.makeToast
 import com.example.messenger.utils.pathToSelectPhoto
 import com.example.messenger.viewModals.CurrentChatHolderViewModal
+import com.google.firebase.Timestamp
+import com.google.firebase.firestore.FieldValue
 
 @Composable
 fun SelectDataForGroupChat(
@@ -232,7 +234,7 @@ private fun createGroupChat(
     mapInfo[CHILD_CONTACT_LIST] = contactListId
     mapInfo[CHILD_TYPE] = TYPE_GROUP
     mapInfo[CHILD_LAST_MESSAGE] = "lastMes_null"
-    mapInfo[CHILD_TIME_STAMP] = "timeStamp_null"
+    mapInfo[CHILD_TIME_STAMP] = FieldValue.serverTimestamp()
 
     if (!selectImage.value)
         takeDefaultPhotoForGroupChat(
@@ -254,7 +256,7 @@ private fun createGroupChat(
                 mapInfo[CHILD_CONTACT_LIST] as MutableList<String>,
                 mapInfo[CHILD_TYPE].toString(),
                 mapInfo[CHILD_LAST_MESSAGE].toString(),
-                mapInfo[CHILD_TIME_STAMP].toString()
+                mapInfo[CHILD_TIME_STAMP] as Timestamp?
             )
             currentChatViewModel.setGroupChat(groupChatModel)
             goTo(navController, Screens.GroupChat,)
@@ -324,7 +326,7 @@ fun takeDefaultPhotoForGroupChat(
                                     mapInfo[CHILD_CONTACT_LIST] as MutableList<String>,
                                     mapInfo[CHILD_TYPE].toString(),
                                     mapInfo[CHILD_LAST_MESSAGE].toString(),
-                                    mapInfo[CHILD_TIME_STAMP].toString()
+                                    mapInfo[CHILD_TIME_STAMP] as Timestamp?
                                 )
 
                                 currentChatViewModel.setGroupChat(groupChatModel)

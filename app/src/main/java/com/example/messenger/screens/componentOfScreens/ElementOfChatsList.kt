@@ -17,6 +17,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -64,7 +65,13 @@ fun ElementOfChatsList(
 
                     Column {
                         Text(text = chatModal.value.groupChatName)
-                        chatModal.value.lastMessage?.let { Text(text = it) }
+                        chatModal.value.lastMessage?.let {
+                            Text(
+                                text = it.take(10) + if (it.length > 20) "..." else "",
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
                     }
                 }
             }
@@ -98,7 +105,13 @@ fun ElementOfChatsList(
 
                     Column {
                         Text(text = chatModal.value.fullname)
-                        chatModal.value.lastMessage?.let { Text(text = it) }
+                        chatModal.value.lastMessage?.let {
+                            Text(
+                                text = it.take(20) + if (it.length > 20) "..." else "",
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
                     }
                     Box(
                         modifier = Modifier

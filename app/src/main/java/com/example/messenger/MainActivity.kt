@@ -16,6 +16,7 @@ import com.example.messenger.utils.getContactsFromSmartphone
 import com.example.messenger.utils.mainActivityContext
 import com.example.messenger.utils.makeToast
 import com.example.messenger.utils.sign_out
+import com.example.messenger.viewModals.ChatsViewModal
 import com.example.messenger.viewModals.ContactsViewModal
 import com.example.messenger.viewModals.CurrentChatHolderViewModal
 import com.example.messenger.viewModals.NavDrawerViewModal
@@ -27,7 +28,8 @@ import kotlinx.coroutines.launch
 class MainActivity : ComponentActivity() {
     lateinit var contactsViewModal: ContactsViewModal
     private var requestPermissionLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestPermission()) { isGranted,  ->
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
         when (isGranted) {
             true -> getContactsFromSmartphone(contactsViewModal)
 
@@ -45,9 +47,9 @@ class MainActivity : ComponentActivity() {
         setContent {
             val currentChatHolderViewModal = CurrentChatHolderViewModal()
             val navDrawerViewModal = NavDrawerViewModal()
-
+            val chatsViewModal = ChatsViewModal()
             MessengerTheme {
-                NavDrawer(currentChatHolderViewModal, navDrawerViewModal, contactsViewModal)
+                NavDrawer(currentChatHolderViewModal, navDrawerViewModal, contactsViewModal, chatsViewModal)
             }
         }
 
@@ -59,7 +61,8 @@ class MainActivity : ComponentActivity() {
     private fun init() {
         contactsViewModal = ContactsViewModal()
         startLocationPermissionRequest()
-        defaultImageUri = "android.resource://$packageName/${R.drawable.default_profile_image}".toUri()
+        defaultImageUri =
+            "android.resource://$packageName/${R.drawable.default_profile_image}".toUri()
     }
 
     override fun onStart() {

@@ -29,7 +29,12 @@ fun ContactCard(user: ContactModal?) {
                 Text(text = user.fullname)
                 Text(text = user.phone)
             }
-            Box(modifier = Modifier.fillMaxWidth().padding(0.dp, 0.dp, 30.dp, 0.dp), contentAlignment = Alignment.CenterEnd){
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(0.dp, 0.dp, 30.dp, 0.dp),
+                contentAlignment = Alignment.CenterEnd
+            ) {
                 Text(text = user.status)
             }
         }

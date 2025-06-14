@@ -24,9 +24,9 @@ import com.example.messenger.viewModals.CurrentChatHolderViewModal
 @Composable
 fun ChatsScreen(
     navController: NavHostController,
-    currentChatViewModel: CurrentChatHolderViewModal = viewModel()
+    currentChatViewModel: CurrentChatHolderViewModal = viewModel(),
+    chatsViewModal: ChatsViewModal = viewModel()
 ) {
-    val chatsViewModal: ChatsViewModal = viewModel()
     val listState = rememberLazyListState()
 
     if (chatsViewModal.getFlagDownloadFirstChats())

@@ -39,7 +39,6 @@ fun ContactsScreen(
                             contactsViewModal.getListContacts()[contact].status,
                             "",
                             "",
-                            "",
                         )
                         currentChatViewModel.setChat(chatModal)
                         goTo(navController, Screens.Chat)

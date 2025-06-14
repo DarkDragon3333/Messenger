@@ -5,7 +5,6 @@ import android.net.Uri
 import android.util.Log
 import androidx.navigation.NavHostController
 import com.example.messenger.dataBase.valueEventListenerClasses.AppStatus
-import com.example.messenger.messageViews.sendTextToGroupChat
 import com.example.messenger.modals.ContactModal
 import com.example.messenger.modals.User
 import com.example.messenger.modals.setLocalDataForUser

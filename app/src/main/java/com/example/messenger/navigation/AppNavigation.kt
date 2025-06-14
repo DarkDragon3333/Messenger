@@ -20,6 +20,7 @@ import com.example.messenger.screens.chatScreens.ChatScreen
 import com.example.messenger.screens.chatScreens.ChatsScreen
 import com.example.messenger.screens.chatScreens.GroupChat
 import com.example.messenger.screens.navMenu.createNewGroupChat.SelectUsers
+import com.example.messenger.viewModals.ChatsViewModal
 import com.example.messenger.viewModals.ContactsViewModal
 import com.example.messenger.viewModals.CurrentChatHolderViewModal
 
@@ -28,7 +29,8 @@ import com.example.messenger.viewModals.CurrentChatHolderViewModal
 fun DrawerNavigation(
     navController: NavHostController,
     currentChatViewModel: CurrentChatHolderViewModal,
-    contactsViewModal: ContactsViewModal
+    contactsViewModal: ContactsViewModal,
+    chatsViewModal: ChatsViewModal
 ) {
 
     NavHost(
@@ -39,7 +41,7 @@ fun DrawerNavigation(
             YourProfile()
         }
         composable(Screens.Chats.route) {
-            ChatsScreen(navController, currentChatViewModel)
+            ChatsScreen(navController, currentChatViewModel, chatsViewModal)
         }
         composable(Screens.Chat.route) {
             ChatScreen(navController, currentChatViewModel)

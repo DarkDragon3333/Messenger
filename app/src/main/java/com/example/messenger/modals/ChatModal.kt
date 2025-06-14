@@ -11,6 +11,6 @@ data class ChatModal(
     override var status: String = " ",
     override var type: String = " ",
     override var lastMessage: String? = "empty",
-    override val timeStamp: String? = null,
+    override val timeStamp: Timestamp? = null,
 ) : ChatItem
 //TO-DO разобраться с timeStamp: TimeStamp
