@@ -18,6 +18,7 @@ import com.example.messenger.utils.goTo
 import com.example.messenger.utils.mapContacts
 import com.example.messenger.viewModals.ContactsViewModal
 import com.example.messenger.viewModals.CurrentChatHolderViewModal
+import com.google.firebase.firestore.FieldValue
 
 @Composable
 fun ContactsScreen(

@@ -28,6 +28,8 @@ import com.example.messenger.navigation.Screens
 import com.example.messenger.screens.componentOfScreens.ContactCard
 import com.example.messenger.utils.contactsListUSER
 import com.example.messenger.utils.goTo
+import com.example.messenger.utils.mainActivityContext
+import com.example.messenger.utils.makeToast
 import com.example.messenger.utils.mapContacts
 import com.example.messenger.viewModals.ContactsViewModal
 import com.example.messenger.viewModals.CurrentChatHolderViewModal
@@ -95,11 +97,16 @@ fun SelectUsers(
                 .size(52.dp)
                 .clip(CircleShape),
             onClick = {
-                goTo(
-                    navController,
-                    Screens.SelectDataForGroupChat,
-                    contactsList
-                )
+                when (contactsList.size) {
+                    0 -> makeToast("Добавьте участников", mainActivityContext)
+
+                    else ->
+                        goTo(
+                            navController,
+                            Screens.SelectDataForGroupChat,
+                            contactsList
+                        )
+                }
             }
         ) {
             Icon(

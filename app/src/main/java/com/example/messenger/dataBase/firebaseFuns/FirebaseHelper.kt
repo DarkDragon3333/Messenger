@@ -6,6 +6,7 @@ import android.util.Log
 import androidx.navigation.NavHostController
 import com.example.messenger.dataBase.valueEventListenerClasses.AppStatus
 import com.example.messenger.modals.ContactModal
+import com.example.messenger.modals.GroupChatModal
 import com.example.messenger.modals.User
 import com.example.messenger.modals.setLocalDataForUser
 import com.example.messenger.screens.loginAndSignUp.LoginActivity
@@ -34,6 +35,7 @@ import com.example.messenger.utils.makeToast
 import com.example.messenger.utils.mapContacts
 import com.example.messenger.utils.sign_in
 import com.google.firebase.Firebase
+import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
@@ -449,7 +451,7 @@ fun addGroupChatToChatsList(
     mapInfo: HashMap<String, Any>,
     contactListId: MutableList<String>,
     context: Context,
-    callBack: () -> Unit
+    goToGroupChat: (timeStamp: Timestamp?) -> Unit
 ) {
     try {
         contactListId.forEach { contactId ->
@@ -460,10 +462,26 @@ fun addGroupChatToChatsList(
 
             userLink.set(mapInfo)
         }
+        getTimeStamp(mapInfo) { timeStamp ->
+            goToGroupChat(timeStamp)
+        }
 
-        callBack()
+
     } catch (e: Exception) {
         Log.e("KotltalkApp", e.message.toString())
         makeToast(e.message.toString(), context)
     }
+}
+
+fun getTimeStamp(mapInfo: HashMap<String, Any>, returnTimeStamp: (timeStamp: Timestamp?) -> Unit) {
+    Firebase.firestore
+        .collection("users_talkers").document(UID)
+        .collection("talkers").document(mapInfo[CHILD_ID].toString()).get()
+        .addOnCompleteListener { result ->
+            if (result.isSuccessful) {
+                val groupChatModal = result.result.toObject(GroupChatModal::class.java)
+                val timeStamp = groupChatModal?.timeStamp
+                returnTimeStamp(timeStamp)
+            }
+        }
 }

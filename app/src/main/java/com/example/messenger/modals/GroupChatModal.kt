@@ -3,6 +3,7 @@ package com.example.messenger.modals
 import androidx.compose.runtime.Stable
 import com.example.messenger.utils.ChatItem
 import com.google.firebase.Timestamp
+import com.google.firebase.firestore.FieldValue
 import java.io.Serializable
 
 @Stable

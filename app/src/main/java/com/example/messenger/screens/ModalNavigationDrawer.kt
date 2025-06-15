@@ -1,5 +1,6 @@
 package com.example.messenger.screens
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -52,6 +53,7 @@ import com.example.messenger.navigation.Screens
 import com.example.messenger.utils.NavIconButton
 import com.example.messenger.utils.UriImage
 import com.example.messenger.utils.goTo
+import com.example.messenger.utils.mainActivityContext
 import com.example.messenger.utils.on_settings_screen
 import com.example.messenger.viewModals.ChatsViewModal
 import com.example.messenger.viewModals.ContactsViewModal
@@ -73,6 +75,7 @@ fun NavDrawer(
 
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val coroutineScope = rememberCoroutineScope()
+
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -144,7 +147,12 @@ fun NavDrawer(
                     },
                     navigationIcon = {
                         when (navDrawerViewModal.isChats) {
-                            true -> NavIconButton(coroutineScope, drawerState)
+                            true -> {
+                                NavIconButton(coroutineScope, drawerState)
+                                BackHandler {
+                                    mainActivityContext.moveTaskToBack(true) // или exitProcess(0)
+                                }
+                            }
 
                             false -> NavIconButton(coroutineScope, navController)
                         }

@@ -37,15 +37,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.messenger.R
 import com.example.messenger.dataBase.firebaseFuns.REF_STORAGE_ROOT
-import com.example.messenger.dataBase.firebaseFuns.UID
 import com.example.messenger.dataBase.firebaseFuns.USER
 import com.example.messenger.dataBase.firebaseFuns.addGroupChatToChatsList
+import com.example.messenger.dataBase.firebaseFuns.getTimeStamp
 import com.example.messenger.modals.ContactModal
 import com.example.messenger.modals.GroupChatModal
 import com.example.messenger.navigation.Screens
@@ -66,23 +65,22 @@ import com.example.messenger.utils.mainFieldStyle
 import com.example.messenger.utils.makeToast
 import com.example.messenger.utils.pathToSelectPhoto
 import com.example.messenger.viewModals.CurrentChatHolderViewModal
+import com.google.firebase.Firebase
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.firestore
 
 @Composable
 fun SelectDataForGroupChat(
     navController: NavHostController,
-    contactList: MutableList<ContactModal>,
+    contactsList: MutableList<ContactModal>,
     currentChatViewModel: CurrentChatHolderViewModal,
 ) {
     val mapInfo = remember { hashMapOf<String, Any>() }
-
-    val context = LocalContext.current
-
     val selectImage = remember { mutableStateOf(false) }
 
-    val groupChatId: String = createGroupChatId()
-    mapInfo[CHILD_ID] = groupChatId
+    val groupChatId: String = remember { mutableStateOf(createGroupChatId()).toString() }
+    mapInfo[CHILD_ID] = createGroupChatId()
 
     var imageUri by remember { mutableStateOf<Uri?>(null) } //Ссылка на картинку
     val bitmap = remember { mutableStateOf<Bitmap?>(null) } //Само изображение
@@ -94,7 +92,7 @@ fun SelectDataForGroupChat(
         }
 
     val listState = rememberLazyListState()
-    val contacts = remember { mutableStateListOf<ContactModal>().apply { addAll(contactList) } }
+    val contacts = remember { mutableStateListOf<ContactModal>().apply { addAll(contactsList) } }
     val chatScreenState by remember { derivedStateOf { contacts } }
 
     Column(
@@ -138,7 +136,10 @@ fun SelectDataForGroupChat(
                         ContactCard(contact)
                         Row(
                             modifier = Modifier.clickable {
-                                contacts.remove(contact)
+                                if (contacts.size > 2)
+                                    contacts.remove(contact)
+                                else
+                                    makeToast("Слишком мало учатников", mainActivityContext)
                             }
                         ) {
                             Icon(
@@ -153,16 +154,19 @@ fun SelectDataForGroupChat(
 
             Button(
                 onClick = {
-                    createGroupChat(
-                        contactList,
-                        mapInfo,
-                        selectImage,
-                        groupChatName,
-                        imageUri,
-                        context,
-                        navController,
-                        currentChatViewModel
-                    )
+                    if (contactsList.isEmpty() || groupChatName == "")
+                        makeToast("Добавьте участников", mainActivityContext)
+                    else
+                        createGroupChat(
+                            contactsList,
+                            mapInfo,
+                            selectImage,
+                            groupChatName,
+                            imageUri,
+                            mainActivityContext,
+                            navController,
+                            currentChatViewModel
+                        )
                 }
             ) {
                 Text("Создать групповой чат")
@@ -233,8 +237,9 @@ private fun createGroupChat(
     mapInfo[CHILD_GROUP_CHAT_NAME] = groupChatName
     mapInfo[CHILD_CONTACT_LIST] = contactListId
     mapInfo[CHILD_TYPE] = TYPE_GROUP
-    mapInfo[CHILD_LAST_MESSAGE] = "lastMes_null"
-    mapInfo[CHILD_TIME_STAMP] = FieldValue.serverTimestamp()
+    mapInfo[CHILD_LAST_MESSAGE] = "Чат создан"
+    mapInfo["timeStamp"] = FieldValue.serverTimestamp()
+
 
     if (!selectImage.value)
         takeDefaultPhotoForGroupChat(
@@ -245,8 +250,8 @@ private fun createGroupChat(
             currentChatViewModel
         )
     else {
-        addGroupChatToChatsList(mapInfo, contactListId, context) {
-            makeToast("Чат создан", context)
+        addGroupChatToChatsList(mapInfo, contactListId, context) { timeStamp ->
+//            makeToast("Чат создан", context)
 
             val groupChatModel = GroupChatModal(
                 mapInfo[CHILD_GROUP_CHAT_NAME].toString(),
@@ -256,17 +261,63 @@ private fun createGroupChat(
                 mapInfo[CHILD_CONTACT_LIST] as MutableList<String>,
                 mapInfo[CHILD_TYPE].toString(),
                 mapInfo[CHILD_LAST_MESSAGE].toString(),
-                mapInfo[CHILD_TIME_STAMP] as Timestamp?
+                timeStamp
             )
             currentChatViewModel.setGroupChat(groupChatModel)
-            goTo(navController, Screens.GroupChat,)
+            goTo(navController, Screens.GroupChat)
         }
     }
 }
 
-fun createGroupChatId(): String {
+fun createGroupChatId(): String { return "4565" }
 
-    return "4565"
+fun takeDefaultPhotoForGroupChat(
+    mapInfo: HashMap<String, Any>,
+    groupChatId: String,
+    contactListId: MutableList<String>,
+    navController: NavHostController,
+    currentChatViewModel: CurrentChatHolderViewModal
+) {
+    pathToSelectPhoto = REF_STORAGE_ROOT.child(FOLDER_PHOTOS).child(groupChatId)
+    pathToSelectPhoto.putFile(defaultImageUri).addOnCompleteListener { putTask ->
+        when (putTask.isSuccessful) {
+            true -> {
+                pathToSelectPhoto.downloadUrl.addOnCompleteListener { downloadTask -> //Получаем ссылку на загруженную фотку
+                    when (downloadTask.isSuccessful) {
+                        true -> {
+                            val photoURL = downloadTask.result.toString()
+                            mapInfo[CHILD_PHOTO_URL] = photoURL
+
+                            addGroupChatToChatsList(mapInfo, contactListId, mainActivityContext) { timeStamp ->
+                                makeToast("Чат создан", mainActivityContext)
+
+                                val groupChatModel = GroupChatModal(
+                                    mapInfo[CHILD_GROUP_CHAT_NAME].toString(),
+                                    mapInfo[CHILD_PHOTO_URL].toString(),
+                                    mapInfo[CHILD_ID].toString(),
+                                    "",
+                                    mapInfo[CHILD_CONTACT_LIST] as MutableList<String>,
+                                    mapInfo[CHILD_TYPE].toString(),
+                                    mapInfo[CHILD_LAST_MESSAGE].toString(),
+                                    timeStamp
+                                )
+
+                                currentChatViewModel.setGroupChat(groupChatModel)
+                                goTo(navController, Screens.GroupChat)
+                            }
+                        }
+
+                        else -> makeToast(
+                            downloadTask.exception?.message.toString(),
+                            mainActivityContext
+                        )
+                    }
+                }
+            }
+
+            else -> makeToast(putTask.exception?.message.toString(), mainActivityContext)
+        }
+    }
 }
 
 fun selectYourImageForGroupChat(imageUri: Uri?, mapInfo: MutableMap<String, Any>) {
@@ -297,53 +348,3 @@ fun selectYourImageForGroupChat(imageUri: Uri?, mapInfo: MutableMap<String, Any>
         }
     }
 }
-
-fun takeDefaultPhotoForGroupChat(
-    mapInfo: HashMap<String, Any>,
-    groupChatId: String,
-    contactListId: MutableList<String>,
-    navController: NavHostController,
-    currentChatViewModel: CurrentChatHolderViewModal
-) {
-    pathToSelectPhoto = REF_STORAGE_ROOT.child(FOLDER_PHOTOS).child(groupChatId)
-    pathToSelectPhoto.putFile(defaultImageUri).addOnCompleteListener { putTask ->
-        when (putTask.isSuccessful) {
-            true -> {
-                pathToSelectPhoto.downloadUrl.addOnCompleteListener { downloadTask -> //Получаем ссылку на загруженную фотку
-                    when (downloadTask.isSuccessful) {
-                        true -> {
-                            val photoURL = downloadTask.result.toString()
-                            mapInfo[CHILD_PHOTO_URL] = photoURL
-
-                            addGroupChatToChatsList(mapInfo, contactListId, mainActivityContext) {
-                                makeToast("Чат создан", mainActivityContext)
-
-                                val groupChatModel = GroupChatModal(
-                                    mapInfo[CHILD_GROUP_CHAT_NAME].toString(),
-                                    mapInfo[CHILD_PHOTO_URL].toString(),
-                                    mapInfo[CHILD_ID].toString(),
-                                    "",
-                                    mapInfo[CHILD_CONTACT_LIST] as MutableList<String>,
-                                    mapInfo[CHILD_TYPE].toString(),
-                                    mapInfo[CHILD_LAST_MESSAGE].toString(),
-                                    mapInfo[CHILD_TIME_STAMP] as Timestamp?
-                                )
-
-                                currentChatViewModel.setGroupChat(groupChatModel)
-                                goTo(navController, Screens.GroupChat)
-                            }
-                        }
-
-                        else -> makeToast(
-                            downloadTask.exception?.message.toString(),
-                            mainActivityContext
-                        )
-                    }
-                }
-            }
-
-            else -> makeToast(putTask.exception?.message.toString(), mainActivityContext)
-        }
-    }
-}
-

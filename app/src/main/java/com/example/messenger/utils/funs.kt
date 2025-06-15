@@ -95,10 +95,14 @@ fun goTo(
     coroutineScope: CoroutineScope,
     drawerState: DrawerState
 ) {
-    navController.navigate(screen.route) {//Используем navController для перемещения по экранам
-        launchSingleTop = true
-    }
     coroutineScope.launch {
+        if (navController.currentDestination?.route != screen.route) {
+            navController.navigate(screen.route) {
+                popUpTo(navController.graph.startDestinationId) { saveState = true }
+                launchSingleTop = true
+                restoreState = true
+            }
+        }
         drawerState.close()
     }
 }
@@ -180,7 +184,7 @@ fun attachImage(launcher: ManagedActivityResultLauncher<PickVisualMediaRequest, 
     )
 }
 
-fun attachFile(launcherFile: ManagedActivityResultLauncher<String, List<@JvmSuppressWildcards Uri>>, ) {
+fun attachFile(launcherFile: ManagedActivityResultLauncher<String, List<@JvmSuppressWildcards Uri>>) {
     launcherFile.launch("*/*")
 }
 
@@ -244,6 +248,10 @@ fun getContactsFromSmartphone(contactsViewModal: ContactsViewModal) {
             }
         }
         cursor?.close()
+
+        val uniqueUsers = contactList.distinctBy { it.phone }
+        contactList.clear()
+        contactList.addAll(uniqueUsers)
 
         contactsViewModal.downloadContactsInfo(contactList)
         updateContactsForFirebase(contactList)
