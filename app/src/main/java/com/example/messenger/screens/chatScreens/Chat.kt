@@ -69,6 +69,7 @@ import com.example.messenger.utils.Constants.TYPE_IMAGE
 import com.example.messenger.utils.attachFile
 import com.example.messenger.utils.attachImage
 import com.example.messenger.utils.voice.AppVoiceRecorder
+import com.example.messenger.viewModals.ChatViewModal
 import com.example.messenger.viewModals.CurrentChatHolderViewModal
 import com.example.messenger.viewModals.MessagesListViewModal
 import kotlinx.coroutines.CoroutineScope
@@ -84,6 +85,7 @@ fun ChatScreen(
     navController: NavHostController,
     currentChatViewModel: CurrentChatHolderViewModal
 ) {
+
     val messagesListViewModal: MessagesListViewModal = viewModel()
 
     val receivingUserID =

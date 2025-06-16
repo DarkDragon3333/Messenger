@@ -132,15 +132,11 @@ class ChatsViewModal : ViewModel() {
                     snapshot: DataSnapshot,
                     previousChildName: String?
                 ) {
-
                     val updateStatus = snapshot.getValue(ChatModal::class.java) ?: ChatModal()
-
                     Firebase.firestore
                         .collection("users_talkers").document(UID)
-                        .collection("talkers").document(updateStatus.id).update(
-                            "status", updateStatus.status
-                        )
-
+                        .collection("talkers").document(updateStatus.id)
+                        .update("status", updateStatus.status)
                 }
 
                 override fun onChildRemoved(snapshot: DataSnapshot) {

@@ -12,9 +12,12 @@ import com.example.messenger.modals.setLocalDataForUser
 import com.example.messenger.screens.loginAndSignUp.LoginActivity
 import com.example.messenger.utils.Constants
 import com.example.messenger.utils.Constants.CHILD_FROM
+import com.example.messenger.utils.Constants.CHILD_FULLNAME
 import com.example.messenger.utils.Constants.CHILD_ID
 import com.example.messenger.utils.Constants.CHILD_INFO
+import com.example.messenger.utils.Constants.CHILD_LAST_MESSAGE
 import com.example.messenger.utils.Constants.CHILD_PHOTO_URL
+import com.example.messenger.utils.Constants.CHILD_STATUS
 import com.example.messenger.utils.Constants.CHILD_TIME_STAMP
 import com.example.messenger.utils.Constants.CHILD_TYPE
 import com.example.messenger.utils.Constants.CHILD_USER_NAME
@@ -409,22 +412,22 @@ fun addChatToChatsList(infoArray: Array<String>) {
             }
 
         val mapChat = hashMapOf<String, Any>()
-        mapChat[Constants.CHILD_FULLNAME] = infoArray[0]
-        mapChat[Constants.CHILD_PHOTO_URL] = infoArray[1]
-        mapChat[Constants.CHILD_ID] = infoArray[2]
-        mapChat[Constants.CHILD_STATUS] = infoArray[3]
-        mapChat[Constants.CHILD_TYPE] = infoArray[4]
-        mapChat[Constants.CHILD_LAST_MESSAGE] = infoArray[5]
-        mapChat[Constants.CHILD_TIME_STAMP] = "00:00:00"
+        mapChat[CHILD_FULLNAME] = infoArray[0]
+        mapChat[CHILD_PHOTO_URL] = infoArray[1]
+        mapChat[CHILD_ID] = infoArray[2]
+        mapChat[CHILD_STATUS] = infoArray[3]
+        mapChat[CHILD_TYPE] = infoArray[4]
+        mapChat[CHILD_LAST_MESSAGE] = infoArray[5]
+        mapChat[CHILD_TIME_STAMP] = "00:00:00"
 
         val mapReceivingUserChat = hashMapOf<String, Any>()
-        mapReceivingUserChat[Constants.CHILD_FULLNAME] = USER.fullname
-        mapReceivingUserChat[Constants.CHILD_PHOTO_URL] = USER.photoUrl
-        mapReceivingUserChat[Constants.CHILD_ID] = USER.id
-        mapReceivingUserChat[Constants.CHILD_STATUS] = USER.status
-        mapReceivingUserChat[Constants.CHILD_TYPE] = infoArray[4]
-        mapReceivingUserChat[Constants.CHILD_LAST_MESSAGE] = infoArray[5]
-        mapReceivingUserChat[Constants.CHILD_TIME_STAMP] = "00:00:00"
+        mapReceivingUserChat[CHILD_FULLNAME] = USER.fullname
+        mapReceivingUserChat[CHILD_PHOTO_URL] = USER.photoUrl
+        mapReceivingUserChat[CHILD_ID] = USER.id
+        mapReceivingUserChat[CHILD_STATUS] = USER.status
+        mapReceivingUserChat[CHILD_TYPE] = infoArray[4]
+        mapReceivingUserChat[CHILD_LAST_MESSAGE] = infoArray[5]
+        mapReceivingUserChat[CHILD_TIME_STAMP] = "00:00:00"
 
         val mapChats = hashMapOf<String, Any>()
         mapChats["$userChats/$infoArray[2]"] = mapChat

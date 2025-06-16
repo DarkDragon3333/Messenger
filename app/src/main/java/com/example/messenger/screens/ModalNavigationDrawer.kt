@@ -55,9 +55,11 @@ import com.example.messenger.utils.UriImage
 import com.example.messenger.utils.goTo
 import com.example.messenger.utils.mainActivityContext
 import com.example.messenger.utils.on_settings_screen
+import com.example.messenger.viewModals.ChatViewModal
 import com.example.messenger.viewModals.ChatsViewModal
 import com.example.messenger.viewModals.ContactsViewModal
 import com.example.messenger.viewModals.CurrentChatHolderViewModal
+import com.example.messenger.viewModals.GroupChatViewModal
 import com.example.messenger.viewModals.NavDrawerViewModal
 import kotlinx.coroutines.CoroutineScope
 
@@ -70,12 +72,14 @@ fun NavDrawer(
     chatsViewModal: ChatsViewModal = viewModel()
 ) {
     val navController = rememberNavController()
+    val chatViewModal: ChatViewModal = viewModel()
+    val groupChatViewModal: GroupChatViewModal = viewModel()
+
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = currentBackStackEntry?.destination?.route ?: Screens.Chats
 
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val coroutineScope = rememberCoroutineScope()
-
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -135,15 +139,26 @@ fun NavDrawer(
             topBar = {
                 TopAppBar(
                     title = {
-                        Title(currentRoute, currentChatHolderViewModal, navDrawerViewModal)
+                        Title(
+                            currentRoute,
+                            currentChatHolderViewModal,
+                            navDrawerViewModal,
+                            chatViewModal,
+                            groupChatViewModal
+                        )
                     },
                     modifier = Modifier.fillMaxWidth(),
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = MaterialTheme.colorScheme.primaryContainer
                     ),
                     actions = {//Элементы в конце TopAppBar
-                        if (navDrawerViewModal.isSettings)
-                            DropdownMenuItems(drawerState, coroutineScope, navController)
+                        if (navDrawerViewModal.isSettings || navDrawerViewModal.isGroupChat)
+                            DropdownMenuItems(
+                                drawerState,
+                                coroutineScope,
+                                navController,
+                                currentChatHolderViewModal
+                            )
                     },
                     navigationIcon = {
                         when (navDrawerViewModal.isChats) {
@@ -165,7 +180,13 @@ fun NavDrawer(
                     .fillMaxSize()
                     .padding(top = it.calculateTopPadding())
             ) {
-                DrawerNavigation(navController, currentChatHolderViewModal, contactsViewModal, chatsViewModal)
+                DrawerNavigation(
+                    navController,
+                    currentChatHolderViewModal,
+                    contactsViewModal,
+                    chatsViewModal,
+                    groupChatViewModal
+                )
             }
 
             LaunchedEffect(Unit) {
@@ -188,12 +209,14 @@ fun NavDrawer(
 fun Title(
     currentRoute: Any,
     currentChatHolderViewModal: CurrentChatHolderViewModal,
-    navDrawerViewModal: NavDrawerViewModal
+    navDrawerViewModal: NavDrawerViewModal,
+    chatViewModal: ChatViewModal,
+    groupChatViewModal: GroupChatViewModal
 ) {
     if (navDrawerViewModal.isChat)
-        TitleView(currentChatHolderViewModal)
+        ChatTitleView(currentChatHolderViewModal, chatViewModal)
     else if (navDrawerViewModal.isGroupChat)
-        TitleView(currentChatHolderViewModal)
+        GroupChatTitleView(currentChatHolderViewModal, groupChatViewModal)
     else
         Text(
             text = currentRoute
@@ -203,31 +226,72 @@ fun Title(
 }
 
 @Composable
-fun TitleView(
-    viewModel: CurrentChatHolderViewModal = viewModel()
+fun ChatTitleView(
+    currentChatHolderViewModal: CurrentChatHolderViewModal = viewModel(),
+    chatViewModal: ChatViewModal
 ) {
-    val chat = viewModel.currentChat
-    val group = viewModel.currentGroupChat
-
-    var title =
-        when {
-            chat != null -> chat.fullname
-            group != null -> group.groupChatName
-            else -> ""
-        }
-
-    var statusUser = chat?.status ?: ""
-    var photoURL = chat?.photoUrl ?: group?.photoUrl.orEmpty()
-
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        UriImage(dp = 32.dp, photoURL) {}
+
+        UriImage(dp = 32.dp, chatViewModal.photoUrl.value) {}
         Spacer(modifier = Modifier.width(8.dp))
         Column {
-            Text(text = title, fontSize = 16.sp)
-            if (statusUser.isNotBlank()) Text(text = statusUser, fontSize = 14.sp)
+            Text(text = chatViewModal.fullName.value, fontSize = 16.sp)
+            if (chatViewModal.status.value.isNotBlank()) Text(text = chatViewModal.status.value, fontSize = 14.sp)
+        }
+    }
+    LaunchedEffect(currentChatHolderViewModal.currentChat) {
+        if (chatViewModal.status.value.isEmpty()){
+            chatViewModal.initDataTitle(currentChatHolderViewModal.currentChat)
+            chatViewModal.startListingChatTitle()
+            chatViewModal.listingUsersStatus()
+        }
+
+    }
+    DisposableEffect(Unit) {
+        onDispose {
+            chatViewModal.removeListener()
+        }
+    }
+}
+
+@Composable
+fun GroupChatTitleView(
+    currentChatHolderViewModal: CurrentChatHolderViewModal = viewModel(),
+    groupChatViewModal: GroupChatViewModal,
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        UriImage(dp = 32.dp, groupChatViewModal.photoUrl.value) {}
+        Spacer(modifier = Modifier.width(8.dp))
+        Column {
+            Text(text = groupChatViewModal.groupChatName.value, fontSize = 16.sp)
+        }
+    }
+    LaunchedEffect(currentChatHolderViewModal.currentGroupChat) {
+        if (groupChatViewModal.groupChatName.value.isEmpty()) {
+            groupChatViewModal.initDataTitle(currentChatHolderViewModal.currentGroupChat)
+            groupChatViewModal.startListingGroupChatTitle()
+            groupChatViewModal.listingTitleChanges()
+        }
+
+
+        if (groupChatViewModal.getContactsData().isEmpty()){
+            groupChatViewModal.downloadContactsData(
+                currentChatHolderViewModal.currentGroupChat?.contactList ?: mutableListOf(),
+                currentChatHolderViewModal.currentGroupChat?.id ?: ""
+            )
+        }
+
+    }
+    DisposableEffect(Unit) {
+
+        onDispose {
+            groupChatViewModal.removeListener()
         }
     }
 }
@@ -237,6 +301,58 @@ fun DropdownMenuItems(
     drawerState: DrawerState,
     coroutineScope: CoroutineScope,
     navController: NavHostController,
+    currentChatHolderViewModal: CurrentChatHolderViewModal,
+) {
+    when (currentChatHolderViewModal.currentGroupChat != null) {
+        true -> GroupChatDropMenu(navController)
+        else -> SettingsDropMenu(drawerState, coroutineScope, navController)
+    }
+
+}
+
+@Composable
+fun GroupChatDropMenu(navController: NavHostController) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Box {
+        Row {
+            IconButton(onClick = { expanded = true }) {
+                Icon(Icons.Default.MoreVert, contentDescription = "Показать меню")
+            }
+        }
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            DropdownMenuItem(
+                onClick = {
+                    goTo(navController, Screens.ChangeGroupChatData)
+                },
+                text = { Text("Найстройки чата") }
+            )
+            DropdownMenuItem(
+                onClick = {
+
+                },
+                text = { Text("Настроить уведомления") }
+            )
+            HorizontalDivider()
+            DropdownMenuItem(
+                onClick = {
+
+                },
+                text = { Text("Выйти из группы") }
+            )
+
+        }
+    }
+}
+
+@Composable
+fun SettingsDropMenu(
+    drawerState: DrawerState,
+    coroutineScope: CoroutineScope,
+    navController: NavHostController
 ) {
     var expanded by remember { mutableStateOf(false) }
 
@@ -275,8 +391,8 @@ fun navBackButton(navController: NavHostController) {
     navController.addOnDestinationChangedListener { _, destination, _ ->
         on_settings_screen =
             destination.route == Screens.ChangeName.route ||
-            destination.route == Screens.ChangeUserName.route ||
-            destination.route == Screens.ChangeBIO.route
+                    destination.route == Screens.ChangeUserName.route ||
+                    destination.route == Screens.ChangeBIO.route
     }
 
     when (on_settings_screen) {

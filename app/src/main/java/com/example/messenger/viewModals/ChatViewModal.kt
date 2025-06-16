@@ -2,20 +2,15 @@ package com.example.messenger.viewModals
 
 import android.content.ContentValues
 import android.util.Log
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.example.messenger.dataBase.firebaseFuns.REF_DATABASE_ROOT
-import com.example.messenger.dataBase.firebaseFuns.REF_STORAGE_ROOT
 import com.example.messenger.dataBase.firebaseFuns.UID
+import com.example.messenger.modals.ChatModal
 import com.example.messenger.modals.ContactModal
-import com.example.messenger.modals.GroupChatModal
-import com.example.messenger.utils.Constants.FOLDER_PHOTOS
 import com.example.messenger.utils.Constants.NODE_USERS
 import com.example.messenger.utils.mainActivityContext
 import com.example.messenger.utils.makeToast
-import com.example.messenger.utils.pathToSelectPhoto
 import com.google.firebase.Firebase
 import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
@@ -25,25 +20,26 @@ import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.firestore
 
-class GroupChatViewModal : ViewModel() {
+class ChatViewModal : ViewModel() {
     private lateinit var listenerRegistration: ListenerRegistration
     private lateinit var listingUpdateUserStatus: ChildEventListener
 
-    private val _mapContactIdToPhotoUrl = mutableStateMapOf<String, Any>()
-    private val _contactsData = mutableListOf<ContactModal>()
+    private val _fullName = mutableStateOf<String>("")
+    val fullName get() = _fullName
 
-    private val _groupChatName = mutableStateOf("")
-    val groupChatName get() = _groupChatName
-
-    private val _photoUrl = mutableStateOf("")
+    private val _photoUrl = mutableStateOf<String>("")
     val photoUrl get() = _photoUrl
 
-    fun initDataTitle(groupChatModal: GroupChatModal?){
-        _groupChatName.value = groupChatModal?.groupChatName.toString()
-        _photoUrl.value = groupChatModal?.photoUrl.toString()
+    private val _status = mutableStateOf<String>("")
+    val status get() = _status
+
+    fun initDataTitle(chatModal: ChatModal?){
+        _fullName.value = chatModal?.fullname.toString()
+        _photoUrl.value = chatModal?.photoUrl.toString()
+        _status.value = chatModal?.status.toString()
     }
 
-    fun startListingGroupChatTitle() {
+    fun startListingChatTitle() {
         val listing = chatMessLink().addSnapshotListener { snapshots, e ->
             if (e != null) {
                 Log.w(ContentValues.TAG, "listen:error", e)
@@ -57,11 +53,11 @@ class GroupChatViewModal : ViewModel() {
                     }
 
                     DocumentChange.Type.MODIFIED -> {
-                        val newInfo = document.document.toObject(GroupChatModal::class.java)
+                        val newInfo = document.document.toObject(ContactModal::class.java)
 
-                        _groupChatName.value = newInfo.groupChatName.toString()
+                        _fullName.value = newInfo.fullname.toString()
                         _photoUrl.value = newInfo.photoUrl.toString()
-
+                        _status.value = newInfo.status.toString()
                     }
 
                     DocumentChange.Type.REMOVED -> Log.d(
@@ -76,7 +72,7 @@ class GroupChatViewModal : ViewModel() {
         listenerRegistration = listing
     }
 
-    fun listingTitleChanges() {
+    fun listingUsersStatus() {
         val listing =
             REF_DATABASE_ROOT.child(NODE_USERS).addChildEventListener(object :
                 ChildEventListener {
@@ -91,17 +87,12 @@ class GroupChatViewModal : ViewModel() {
                     snapshot: DataSnapshot,
                     previousChildName: String?
                 ) {
-                    val updateStatus = snapshot.getValue(GroupChatModal::class.java) ?: GroupChatModal()
+                    val updateStatus = snapshot.getValue(ChatModal::class.java) ?: ChatModal()
 
                     Firebase.firestore
                         .collection("users_talkers").document(UID)
                         .collection("talkers").document(updateStatus.id).update(
-                            "photoUrl", updateStatus.photoUrl
-                        )
-                    Firebase.firestore
-                        .collection("users_talkers").document(UID)
-                        .collection("talkers").document(updateStatus.id).update(
-                            "groupChatName", updateStatus.groupChatName
+                            "status", updateStatus.status
                         )
                 }
 
@@ -134,48 +125,6 @@ class GroupChatViewModal : ViewModel() {
         if (::listenerRegistration.isInitialized) {
             listenerRegistration.remove()
             REF_DATABASE_ROOT.child(NODE_USERS).removeEventListener(listingUpdateUserStatus)
-        }
-    }
-
-    fun getPhotoUrl(contactId: String): Any? {
-        return _mapContactIdToPhotoUrl[contactId]
-    }
-
-    fun getContactsData(): MutableList<ContactModal> {
-        return _contactsData
-    }
-
-    fun downloadContactsData(contactsListId: MutableList<String>, chatId: String) {
-        contactsListId.forEach { contactId ->
-            REF_DATABASE_ROOT.child(NODE_USERS).child(contactId).get()
-                .addOnCompleteListener { result ->
-                    if (result.isSuccessful) {
-                        val contactModal =
-                            result.result.getValue(ContactModal::class.java) ?: ContactModal()
-                        if (_contactsData.contains(contactModal) == false)
-                            _contactsData.add(contactModal)
-                    }
-                }
-        }
-    }
-
-    fun downloadContactsImages(contactsListId: MutableList<String>) {
-        contactsListId.forEach { contactId ->
-            pathToSelectPhoto = REF_STORAGE_ROOT.child(FOLDER_PHOTOS).child(contactId)
-
-            pathToSelectPhoto.downloadUrl.addOnCompleteListener { downloadTask ->
-                when (downloadTask.isSuccessful) {
-                    true -> {
-                        val photoURL = downloadTask.result.toString()
-                        _mapContactIdToPhotoUrl[contactId] = photoURL
-                    }
-
-                    else -> makeToast(
-                        downloadTask.exception?.message.toString(),
-                        mainActivityContext
-                    )
-                }
-            }
         }
     }
 }

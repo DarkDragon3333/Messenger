@@ -13,6 +13,7 @@ import com.example.messenger.screens.navMenu.SearchScreen
 import com.example.messenger.screens.navMenu.SettingsScreen
 import com.example.messenger.screens.navMenu.YourProfile
 import com.example.messenger.screens.changeInfoScreens.ChangeBIO
+import com.example.messenger.screens.changeInfoScreens.ChangeGroupChatData
 import com.example.messenger.screens.changeInfoScreens.ChangeName
 import com.example.messenger.screens.changeInfoScreens.ChangePhotoUrl
 import com.example.messenger.screens.changeInfoScreens.ChangeUserName
@@ -23,6 +24,7 @@ import com.example.messenger.screens.navMenu.createNewGroupChat.SelectUsers
 import com.example.messenger.viewModals.ChatsViewModal
 import com.example.messenger.viewModals.ContactsViewModal
 import com.example.messenger.viewModals.CurrentChatHolderViewModal
+import com.example.messenger.viewModals.GroupChatViewModal
 
 
 @Composable
@@ -30,7 +32,8 @@ fun DrawerNavigation(
     navController: NavHostController,
     currentChatViewModel: CurrentChatHolderViewModal,
     contactsViewModal: ContactsViewModal,
-    chatsViewModal: ChatsViewModal
+    chatsViewModal: ChatsViewModal,
+    groupChatViewModal: GroupChatViewModal
 ) {
 
     NavHost(
@@ -87,6 +90,9 @@ fun DrawerNavigation(
             if (contactsList != null) {
                 SelectDataForGroupChat(navController, contactsList, currentChatViewModel)
             }
+        }
+        composable(Screens.ChangeGroupChatData.route){
+            ChangeGroupChatData(groupChatViewModal)
         }
     }
 }

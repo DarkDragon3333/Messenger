@@ -197,6 +197,7 @@ fun GroupChat(
         if (currentChatViewModel.currentGroupChat?.contactList != null)
             groupChatViewModal.downloadContactsImages(currentChatViewModel.currentGroupChat!!.contactList)
 
+
         onDispose {
             messagesListViewModal.removeListener()
             currentChatViewModel.clearChat()
