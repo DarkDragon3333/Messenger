@@ -1,15 +1,22 @@
 package com.example.messenger
 
+import android.content.Context
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import com.example.messenger.screens.NavDrawer
 import com.example.messenger.ui.theme.MessengerTheme
 import com.example.messenger.dataBase.valueEventListenerClasses.AppStatus
 import com.example.messenger.utils.READ_CONTACTS
+import com.example.messenger.utils.SEND_PUSH
 import com.example.messenger.utils.defaultImageUri
 import com.example.messenger.utils.get_out_from_auth
 import com.example.messenger.utils.getContactsFromSmartphone
@@ -20,9 +27,12 @@ import com.example.messenger.viewModals.ChatsViewModal
 import com.example.messenger.viewModals.ContactsViewModal
 import com.example.messenger.viewModals.CurrentChatHolderViewModal
 import com.example.messenger.viewModals.NavDrawerViewModal
+import com.google.firebase.messaging.FirebaseMessaging
+import com.google.firebase.messaging.FirebaseMessagingService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.util.jar.Manifest
 
 
 class MainActivity : ComponentActivity() {
@@ -36,13 +46,11 @@ class MainActivity : ComponentActivity() {
             else -> makeToast("Нет разрешения", mainActivityContext)
         }
     }
-
     @Suppress("DEPRECATION")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mainActivityContext = this
-
-
+        requestNotificationPermission()
         window.setSoftInputMode(SOFT_INPUT_ADJUST_RESIZE);
         setContent {
             val currentChatHolderViewModal = CurrentChatHolderViewModal()
@@ -96,6 +104,22 @@ class MainActivity : ComponentActivity() {
 
     private fun startLocationPermissionRequest() {
         requestPermissionLauncher.launch(READ_CONTACTS)
+    }
+
+    private fun requestNotificationPermission(){
+        val hasPermission = ContextCompat.checkSelfPermission(
+            mainActivityContext,
+            android.Manifest.permission.POST_NOTIFICATIONS
+        ) == PackageManager.PERMISSION_GRANTED
+
+        if (hasPermission) {
+            ActivityCompat.requestPermissions(
+                mainActivityContext,
+                arrayOf(android.Manifest.permission.POST_NOTIFICATIONS),
+                0
+            )
+        }
+
     }
 }
 

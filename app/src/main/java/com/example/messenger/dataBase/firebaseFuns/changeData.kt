@@ -15,7 +15,7 @@ fun choseChangeInformation(
     navController: NavHostController
 ) {
     when (typeInfo) {
-        Constants.CHILD_FULLNAME -> changeInfo(changeInfo, typeInfo, context, navController)
+        Constants.CHILD_CHAT_NAME -> changeInfo(changeInfo, typeInfo, context, navController)
 
         Constants.CHILD_USER_NAME -> checkUsername(changeInfo, context, navController)
 
@@ -35,19 +35,38 @@ fun changeInfo(
     context: Context,
     navController: NavHostController
 ) {
-    REF_DATABASE_ROOT
-        .child(Constants.NODE_USERS)
-        .child(UID)
-        .child(typeInfo)
-        .setValue(changeInfo).addOnCompleteListener {
-            when (it.isSuccessful) {
-                true -> {
-                    setLocalDataForUser(changeInfo, typeInfo)
-                    goTo(navController, Screens.Settings)
+    if (typeInfo == "chatName")
+        REF_DATABASE_ROOT
+            .child(Constants.NODE_USERS)
+            .child(UID)
+            .child("fullname")
+            .setValue(changeInfo).addOnCompleteListener {
+                when (it.isSuccessful) {
+                    true -> {
+                        setLocalDataForUser(changeInfo, typeInfo)
+                        goTo(navController, Screens.Settings)
+                    }
+
+                    false -> makeToast("Ошибка" + it.exception?.message.toString(), context)
                 }
 
-                false -> makeToast("Ошибка" + it.exception?.message.toString(), context)
+            }
+    else
+        REF_DATABASE_ROOT
+            .child(Constants.NODE_USERS)
+            .child(UID)
+            .child(typeInfo)
+            .setValue(changeInfo).addOnCompleteListener {
+                when (it.isSuccessful) {
+                    true -> {
+                        setLocalDataForUser(changeInfo, typeInfo)
+                        goTo(navController, Screens.Settings)
+                    }
+
+                    false -> makeToast("Ошибка" + it.exception?.message.toString(), context)
+                }
+
             }
 
-        }
+
 }

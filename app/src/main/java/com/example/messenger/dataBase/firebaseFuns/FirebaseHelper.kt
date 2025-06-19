@@ -10,9 +10,8 @@ import com.example.messenger.modals.GroupChatModal
 import com.example.messenger.modals.User
 import com.example.messenger.modals.setLocalDataForUser
 import com.example.messenger.screens.loginAndSignUp.LoginActivity
-import com.example.messenger.utils.Constants
+import com.example.messenger.utils.Constants.CHILD_CHAT_NAME
 import com.example.messenger.utils.Constants.CHILD_FROM
-import com.example.messenger.utils.Constants.CHILD_FULLNAME
 import com.example.messenger.utils.Constants.CHILD_ID
 import com.example.messenger.utils.Constants.CHILD_INFO
 import com.example.messenger.utils.Constants.CHILD_LAST_MESSAGE
@@ -412,22 +411,22 @@ fun addChatToChatsList(infoArray: Array<String>) {
             }
 
         val mapChat = hashMapOf<String, Any>()
-        mapChat[CHILD_FULLNAME] = infoArray[0]
+        mapChat[CHILD_CHAT_NAME] = infoArray[0]
         mapChat[CHILD_PHOTO_URL] = infoArray[1]
         mapChat[CHILD_ID] = infoArray[2]
         mapChat[CHILD_STATUS] = infoArray[3]
         mapChat[CHILD_TYPE] = infoArray[4]
         mapChat[CHILD_LAST_MESSAGE] = infoArray[5]
-        mapChat[CHILD_TIME_STAMP] = "00:00:00"
+        mapChat[CHILD_TIME_STAMP] = FieldValue.serverTimestamp()
 
         val mapReceivingUserChat = hashMapOf<String, Any>()
-        mapReceivingUserChat[CHILD_FULLNAME] = USER.fullname
+        mapReceivingUserChat[CHILD_CHAT_NAME] = USER.fullname
         mapReceivingUserChat[CHILD_PHOTO_URL] = USER.photoUrl
         mapReceivingUserChat[CHILD_ID] = USER.id
         mapReceivingUserChat[CHILD_STATUS] = USER.status
         mapReceivingUserChat[CHILD_TYPE] = infoArray[4]
         mapReceivingUserChat[CHILD_LAST_MESSAGE] = infoArray[5]
-        mapReceivingUserChat[CHILD_TIME_STAMP] = "00:00:00"
+        mapReceivingUserChat[CHILD_TIME_STAMP] = FieldValue.serverTimestamp()
 
         val mapChats = hashMapOf<String, Any>()
         mapChats["$userChats/$infoArray[2]"] = mapChat
@@ -465,10 +464,14 @@ fun addGroupChatToChatsList(
 
             userLink.set(mapInfo)
         }
+        val link =
+            Firebase.firestore.collection("users_groups").document(mapInfo[CHILD_ID].toString())
+
+        link.set(mapInfo)
+
         getTimeStamp(mapInfo) { timeStamp ->
             goToGroupChat(timeStamp)
         }
-
 
     } catch (e: Exception) {
         Log.e("KotltalkApp", e.message.toString())

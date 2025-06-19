@@ -11,6 +11,10 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
@@ -26,6 +30,7 @@ import com.example.messenger.utils.whenSelect
 
 @Composable
 fun ChangeUserName(navController: NavHostController) {
+    var changeUserNameField by rememberSaveable { mutableStateOf("") }
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -38,12 +43,14 @@ fun ChangeUserName(navController: NavHostController) {
             textAlign = TextAlign.Center
         )
         Spacer(modifier = Modifier.padding(0.dp, 40.dp, 0.dp, 0.dp))
-        val changeUserNameField = mainFieldStyle(
+        mainFieldStyle(
             labelText = "Никнейм",
             enable = true,
             maxLine = 1,
             USER.username
-        ) {}
+        ) { name ->
+            changeUserNameField = name
+        }
         Spacer(modifier = Modifier.padding(0.dp, 40.dp, 0.dp, 0.dp))
         Button(
             onClick = {

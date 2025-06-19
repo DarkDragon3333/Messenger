@@ -2,7 +2,6 @@ package com.example.messenger.viewModals
 
 import android.content.ContentValues
 import android.util.Log
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -30,7 +29,11 @@ class GroupChatViewModal : ViewModel() {
     private lateinit var listingUpdateUserStatus: ChildEventListener
 
     private val _mapContactIdToPhotoUrl = mutableStateMapOf<String, Any>()
+
     private val _contactsData = mutableListOf<ContactModal>()
+
+    private val _changeContactsList = mutableListOf<ContactModal>()
+    val changeContactsList get() = _changeContactsList
 
     private val _groupChatName = mutableStateOf("")
     val groupChatName get() = _groupChatName
@@ -38,9 +41,19 @@ class GroupChatViewModal : ViewModel() {
     private val _photoUrl = mutableStateOf("")
     val photoUrl get() = _photoUrl
 
-    fun initDataTitle(groupChatModal: GroupChatModal?){
-        _groupChatName.value = groupChatModal?.groupChatName.toString()
+    private val _status = mutableStateOf("")
+    val status get() = _status
+
+    fun initDataTitle(groupChatModal: GroupChatModal?) {
+        _groupChatName.value = groupChatModal?.chatName.toString()
         _photoUrl.value = groupChatModal?.photoUrl.toString()
+        _changeContactsList.addAll(_contactsData)
+    }
+
+    fun removeDataTitle(){
+        _groupChatName.value = ""
+        _photoUrl.value = ""
+        _status.value = ""
     }
 
     fun startListingGroupChatTitle() {
@@ -58,10 +71,9 @@ class GroupChatViewModal : ViewModel() {
 
                     DocumentChange.Type.MODIFIED -> {
                         val newInfo = document.document.toObject(GroupChatModal::class.java)
-
-                        _groupChatName.value = newInfo.groupChatName.toString()
+                        _groupChatName.value = newInfo.chatName.toString()
                         _photoUrl.value = newInfo.photoUrl.toString()
-
+                        _status.value = "Группа"
                     }
 
                     DocumentChange.Type.REMOVED -> Log.d(
@@ -91,7 +103,8 @@ class GroupChatViewModal : ViewModel() {
                     snapshot: DataSnapshot,
                     previousChildName: String?
                 ) {
-                    val updateStatus = snapshot.getValue(GroupChatModal::class.java) ?: GroupChatModal()
+                    val updateStatus =
+                        snapshot.getValue(GroupChatModal::class.java) ?: GroupChatModal()
 
                     Firebase.firestore
                         .collection("users_talkers").document(UID)
@@ -101,7 +114,12 @@ class GroupChatViewModal : ViewModel() {
                     Firebase.firestore
                         .collection("users_talkers").document(UID)
                         .collection("talkers").document(updateStatus.id).update(
-                            "groupChatName", updateStatus.groupChatName
+                            "chatName", updateStatus.chatName
+                        )
+                    Firebase.firestore
+                        .collection("users_talkers").document(UID)
+                        .collection("talkers").document(updateStatus.id).update(
+                            "lastMessage", updateStatus.lastMessage
                         )
                 }
 
@@ -142,7 +160,7 @@ class GroupChatViewModal : ViewModel() {
     }
 
     fun getContactsData(): MutableList<ContactModal> {
-        return _contactsData
+        return changeContactsList
     }
 
     fun downloadContactsData(contactsListId: MutableList<String>, chatId: String) {
@@ -152,8 +170,8 @@ class GroupChatViewModal : ViewModel() {
                     if (result.isSuccessful) {
                         val contactModal =
                             result.result.getValue(ContactModal::class.java) ?: ContactModal()
-                        if (_contactsData.contains(contactModal) == false)
-                            _contactsData.add(contactModal)
+                        if (changeContactsList.contains(contactModal) == false)
+                            changeContactsList.add(contactModal)
                     }
                 }
         }

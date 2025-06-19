@@ -107,9 +107,17 @@ fun goTo(
     }
 }
 
-fun goTo(navController: NavHostController, screen: Screens) {
-    navController.navigate(screen.route) {//Используем navController для перемещения по экранам
-        launchSingleTop = true
+fun goTo(
+    navController: NavHostController,
+    screen: Screens
+) {
+    val routeWithTime = "${screen.route}?t=${System.currentTimeMillis()}"
+    navController.navigate(routeWithTime) {
+        launchSingleTop = false
+        popUpTo(navController.graph.startDestinationId) {
+            inclusive = false
+            saveState = false
+        }
     }
 }
 
@@ -137,7 +145,7 @@ fun goTo(navController: NavHostController, contact: ContactModal) {
 
 fun goTo(navController: NavHostController, user: ChatModal, screen: Screens) {
     navController.currentBackStackEntry?.savedStateHandle?.apply {
-        set("fullName", user.fullname)
+        set("fullName", user.chatName)
         set("status", user.status)
         set("uri", user.photoUrl)
         set("user.id", user.id)
@@ -173,9 +181,6 @@ fun goTo(
     }
 }
 
-fun DataSnapshot.getMessageModel(): MessageModal =
-    this.getValue(MessageModal::class.java) ?: MessageModal()
-
 fun attachImage(launcher: ManagedActivityResultLauncher<PickVisualMediaRequest, List<@JvmSuppressWildcards Uri>>) {
     launcher.launch(
         PickVisualMediaRequest(
@@ -201,7 +206,7 @@ fun getFileName(context: Context, uri: Uri): String? {
 }
 
 fun getContactsFromSmartphone(contactsViewModal: ContactsViewModal) {
-    if (myCheckPermission(READ_CONTACTS)) {
+    if (myCheckPermission(READ_CONTACTS) && myCheckPermission(SEND_PUSH)) {
         val contactList = mutableListOf<ContactModal>()
         val cursor = mainActivityContext.contentResolver.query(
             ContactsContract.CommonDataKinds.Phone.CONTENT_URI,

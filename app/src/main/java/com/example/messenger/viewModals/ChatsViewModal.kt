@@ -11,8 +11,9 @@ import androidx.lifecycle.ViewModel
 import com.example.messenger.dataBase.firebaseFuns.REF_DATABASE_ROOT
 import com.example.messenger.dataBase.firebaseFuns.UID
 import com.example.messenger.modals.ChatModal
+import com.example.messenger.modals.ContactModal
 import com.example.messenger.modals.GroupChatModal
-import com.example.messenger.utils.ChatItem
+import com.example.messenger.modals.ChatItem
 import com.example.messenger.utils.Constants.NODE_USERS
 import com.example.messenger.utils.mainActivityContext
 import com.example.messenger.utils.makeToast
@@ -20,6 +21,7 @@ import com.google.firebase.Firebase
 import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
+import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.Query
@@ -29,8 +31,9 @@ class ChatsViewModal : ViewModel() {
     private val _chatsList = mutableStateListOf<ChatItem>()
     val chatsList: SnapshotStateList<ChatItem> get() = _chatsList
 
-    private lateinit var listenerRegistration: ListenerRegistration
-    private lateinit var listingUpdateUserStatus: ChildEventListener
+    private lateinit var listenerUsersChats: ListenerRegistration
+    private lateinit var listingUpdateUserData: ChildEventListener
+    private lateinit var listenerGroupChats: ListenerRegistration
 
     private var isLoadingFirstChats by mutableStateOf(false)
 
@@ -85,14 +88,12 @@ class ChatsViewModal : ViewModel() {
                     }
 
                     DocumentChange.Type.MODIFIED -> {
-                        val updateContactInfo = if (document.document.get("type") == "group")
-                            document.document.toObject(
-                                GroupChatModal::class.java
-                            )
-                        else
-                            document.document.toObject(
-                                ChatModal::class.java
-                            )
+                        val updateContactInfo =
+                            if (document.document.get("type") == "group")
+                                document.document.toObject(GroupChatModal::class.java)
+                            else
+                                document.document.toObject(ChatModal::class.java)
+
                         val index = _chatsList.indexOfFirst { it.id == updateContactInfo.id }
 
                         if (index != -1) {
@@ -114,10 +115,10 @@ class ChatsViewModal : ViewModel() {
             }
         }
 
-        listenerRegistration = listing
+        listenerUsersChats = listing
     }
 
-    fun listingUsersStatus() {
+    fun listingUsersData() {
         val listing =
             REF_DATABASE_ROOT.child(NODE_USERS).addChildEventListener(object :
                 ChildEventListener {
@@ -132,11 +133,23 @@ class ChatsViewModal : ViewModel() {
                     snapshot: DataSnapshot,
                     previousChildName: String?
                 ) {
-                    val updateStatus = snapshot.getValue(ChatModal::class.java) ?: ChatModal()
+                    val updateStatus = snapshot.getValue(ContactModal::class.java) ?: ContactModal()
                     Firebase.firestore
                         .collection("users_talkers").document(UID)
                         .collection("talkers").document(updateStatus.id)
                         .update("status", updateStatus.status)
+
+                    Firebase.firestore
+                        .collection("users_talkers").document(UID)
+                        .collection("talkers").document(updateStatus.id).update(
+                            "chatName", updateStatus.fullname
+                        )
+
+                    Firebase.firestore
+                        .collection("users_talkers").document(UID)
+                        .collection("talkers").document(updateStatus.id).update(
+                            "photoUrl", updateStatus.photoUrl
+                        )
                 }
 
                 override fun onChildRemoved(snapshot: DataSnapshot) {
@@ -155,7 +168,67 @@ class ChatsViewModal : ViewModel() {
                 }
             })
 
-        listingUpdateUserStatus = listing
+        listingUpdateUserData = listing
+    }
+
+    fun listingGroupChatData() {
+        val listing = groupChatLink().addSnapshotListener { snapshots, e ->
+            if (e != null) {
+                Log.w(ContentValues.TAG, "listen:error", e)
+                return@addSnapshotListener
+            }
+
+            for (document in snapshots!!.documentChanges) {
+                when (document.type) {
+                    DocumentChange.Type.ADDED -> {
+                        val newChat =
+                            if (document.document.get("type") == "group")
+                                document.document.toObject(
+                                    GroupChatModal::class.java
+                                )
+                            else
+                                document.document.toObject(
+                                    ChatModal::class.java
+                                )
+
+                        if (_chatsList.none { it.id == newChat.id }) {
+                            _chatsList.add(0, newChat)
+                        }
+                    }
+
+                    DocumentChange.Type.MODIFIED -> {
+                        val updateData = document.document.toObject<GroupChatModal>(
+                            GroupChatModal::class.java
+                        )
+                        Firebase.firestore
+                            .collection("users_talkers").document(UID)
+                            .collection("talkers").document(updateData.id)
+                            .update("status", updateData.lastMessage)
+
+                        Firebase.firestore
+                            .collection("users_talkers").document(UID)
+                            .collection("talkers").document(updateData.id).update(
+                                "chatName", updateData.chatName
+                            )
+
+                        Firebase.firestore
+                            .collection("users_talkers").document(UID)
+                            .collection("talkers").document(updateData.id).update(
+                                "photoUrl", updateData.photoUrl
+                            )
+
+                    }
+
+                    DocumentChange.Type.REMOVED -> Log.d(
+                        ContentValues.TAG,
+                        "Removed city: ${document.document.data}"
+                    )
+
+                }
+            }
+        }
+
+        listenerGroupChats = listing
     }
 
     fun downloadOldChats(userUID: String) {
@@ -196,10 +269,16 @@ class ChatsViewModal : ViewModel() {
             .collection("talkers")
     }
 
+    fun groupChatLink(): CollectionReference {
+
+        return Firebase.firestore
+            .collection("users_groups")
+    }
+
     fun removeListener() {
-        if (::listenerRegistration.isInitialized) {
-            listenerRegistration.remove()
-            REF_DATABASE_ROOT.child(NODE_USERS).removeEventListener(listingUpdateUserStatus)
+        if (::listenerUsersChats.isInitialized) {
+            listenerUsersChats.remove()
+            REF_DATABASE_ROOT.child(NODE_USERS).removeEventListener(listingUpdateUserData)
         }
     }
 

@@ -89,7 +89,7 @@ fun GroupChat(
         currentChatViewModel.currentGroupChat?.id?.replace(Regex("[{}]"), "").toString()
 
     val infoArray = arrayOf(
-        currentChatViewModel.currentGroupChat?.groupChatName ?: "",
+        currentChatViewModel.currentGroupChat?.chatName ?: "",
         currentChatViewModel.currentGroupChat?.photoUrl ?: "",
         groupChatId,
         TYPE_GROUP,
@@ -335,7 +335,7 @@ private fun AttachFileButton(
             SheetContent(
                 currentChatHolderViewModal,
                 launcher, launcherFile, coroutineScope, sheetState, showBottomSheetState,
-                infoArray, receivingUserID
+                receivingUserID
             )
         }
     }
@@ -350,7 +350,6 @@ private fun SheetContent(
     coroutineScope: CoroutineScope,
     sheetState: SheetState,
     showBottomSheetState: MutableState<Boolean>,
-    infoArray: Array<String>,
     receivingUserID: String
 ) {
     Row {
@@ -441,7 +440,8 @@ private fun SendMessageButton(
                                 groupChatId,
                                 changeColor,
                                 recordVoiceFlag,
-                                TYPE_GROUP
+                                TYPE_GROUP,
+                                currentChatHolderViewModal.currentGroupChat!!.contactList
                             )
                             appVoiceRecorder.releaseRecordedVoice()
                             if (chatScreenState.isNotEmpty())
@@ -462,7 +462,8 @@ private fun SendMessageButton(
                                 groupChatId,
                                 changeColor,
                                 recordVoiceFlag,
-                                TYPE_GROUP
+                                TYPE_GROUP,
+                                currentChatHolderViewModal.currentGroupChat!!.contactList
                             )
                             appVoiceRecorder.releaseRecordedVoice()
                             if (chatScreenState.isNotEmpty())
@@ -519,57 +520,3 @@ private fun ControlIconOfVoiceButton(fieldText: MutableState<String>) {
             )
     }
 }
-
-//@Composable
-//fun rememberMediaLauncher(
-//    groupChatId: String,
-//    typeMessage: String,
-//    typeChat: String,
-//    contactList: MutableList<String>,
-//    maxItems: Int = 1,
-//    isImage: Boolean = true,
-//    currentChatViewModel: CurrentChatHolderViewModal
-//): ManagedActivityResultLauncher<*, *> {
-//    val contract = if (isImage) {
-//        ActivityResultContracts.PickMultipleVisualMedia(maxItems)
-//    } else {
-//        ActivityResultContracts.GetMultipleContents()
-//    }
-//
-//    return rememberLauncherForActivityResult(contract = contract) { uris: List<Uri> ->
-//        if (uris.isEmpty()) return@rememberLauncherForActivityResult
-//
-//        val filesToUpload = uris.map { uri ->
-//            val messageKey = getMessageKey(groupChatId)
-//            messageKey to uri
-//        }
-//
-//        uploadFileToStorage(
-//            filesToUpload = filesToUpload,
-//            receivingUserID = groupChatId,
-//            typeMessage = typeMessage,
-//            typeChat = typeChat,
-//            contactList = contactList
-//        )
-//    }
-//}
-
-//    val i = rememberMediaLauncher(
-//        groupChatId,
-//        TYPE_IMAGE,
-//        TYPE_GROUP,
-//        currentChatViewModel.currentGroupChat!!.contactList,
-//        5,
-//        true,
-//        currentChatViewModel
-//    )
-//
-//    val f = rememberMediaLauncher(
-//        groupChatId,
-//        TYPE_FILE,
-//        TYPE_GROUP,
-//        currentChatViewModel.currentGroupChat!!.contactList,
-//        1,
-//        false,
-//        currentChatViewModel
-//    )

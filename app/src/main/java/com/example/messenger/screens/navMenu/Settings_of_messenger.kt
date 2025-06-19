@@ -75,7 +75,7 @@ fun BodyOfSettings(navController: NavHostController) {
             enable = false,
             3,
             USER.phone
-        ) {
+        ) { _ ->
             goTo(ChangeNumber::class.java, mainActivityContext)
         }
 
@@ -85,7 +85,7 @@ fun BodyOfSettings(navController: NavHostController) {
             enable = false,
             1,
             USER.username,
-        ) {
+        ) { _ ->
             goTo(navController, Screens.ChangeUserName)
         }
 
@@ -95,7 +95,7 @@ fun BodyOfSettings(navController: NavHostController) {
             enable = false,
             1,
             USER.bio,
-        ) {
+        ) { _ ->
             goTo(navController, Screens.ChangeBIO)
         }
     }

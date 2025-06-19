@@ -42,9 +42,17 @@ class LastMessageState() {
                         .collection("users_talkers").document(contactId)
                         .collection("talkers").document(groupChatId)
 
+
+
                 userLink.update("lastMessage", lastMessage)
                 userLink.update("timeStamp", FieldValue.serverTimestamp())
             }
+
+            val groupLink =
+                Firebase.firestore.collection("users_groups").document(groupChatId)
+
+            groupLink.update("lastMessage", lastMessage)
+            groupLink.update("timeStamp", FieldValue.serverTimestamp())
         }
     }
 }

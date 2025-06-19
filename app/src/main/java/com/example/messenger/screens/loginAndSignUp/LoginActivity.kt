@@ -16,6 +16,10 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -97,6 +101,8 @@ class LoginActivity : ComponentActivity() {
 
     @Composable
     fun GreetingInLoginActivity() {
+        var phoneField by rememberSaveable { mutableStateOf("") }
+        var passwordField by rememberSaveable { mutableStateOf("") }
         Column {
             Column(
                 modifier = Modifier
@@ -105,23 +111,29 @@ class LoginActivity : ComponentActivity() {
                 horizontalAlignment = Alignment.CenterHorizontally
             )
             {
-                val phone = mainFieldStyle(
+                mainFieldStyle(
                     labelText = "Номер телефона",
                     enable = true,
-                    maxLine = 1
-                ) {}
+                    maxLine = 1,
+                    phoneField
+                ) { phone ->
+                    phoneField = phone
+                }
                 Spacer(modifier = Modifier.padding(8.dp))
-                val password = mainFieldStyle(
+                mainFieldStyle(
                     labelText = "Пароль",
                     enable = true,
-                    maxLine = 1
-                ) {}
+                    maxLine = 1,
+                    passwordField
+                ) { password->
+                    passwordField = password
+                }
 
                 Spacer(modifier = Modifier.padding(120.dp))
                 Button(
                     onClick = {
                         var pattern = Regex("[^\\d+]")
-                        var formattedPhone = phone.replace(pattern, "")
+                        var formattedPhone = phoneField.replace(pattern, "")
                         formattedPhone =
                             if (!formattedPhone.startsWith("+")) "+$formattedPhone" else formattedPhone
                         pattern = Regex("(\\+\\d+)(\\d{3})(\\d{3})(\\d{4})")
@@ -132,7 +144,7 @@ class LoginActivity : ComponentActivity() {
                                     "-${match.groups[3]?.value}" +
                                     "-${match.groups[4]?.value}"
                         }
-                        checkPhone(/*formattedPhone*/phone, password)
+                        checkPhone(/*formattedPhone*/phoneField, passwordField)
                     }
                 ) { Text("Sing in", fontSize = 18.sp) }
 

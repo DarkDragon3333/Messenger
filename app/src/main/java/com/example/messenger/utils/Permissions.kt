@@ -5,6 +5,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 
 const val READ_CONTACTS = android.Manifest.permission.READ_CONTACTS
+const val SEND_PUSH = android.Manifest.permission.POST_NOTIFICATIONS
 const val PERMISSION_REQUEST = 200
 const val RECORD_AUDIO = android.Manifest.permission.RECORD_AUDIO
 

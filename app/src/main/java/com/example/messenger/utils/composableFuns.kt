@@ -34,6 +34,7 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.messenger.R
 import com.example.messenger.screens.navBackButton
+import com.example.messenger.viewModals.NavDrawerViewModal
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -42,17 +43,16 @@ fun mainFieldStyle(
     labelText: String,
     enable: Boolean,
     maxLine: Int,
-    action: () -> Unit,
-): String {
-    var text by remember { mutableStateOf("") }
-
+    text: String,
+    action: (String) -> Unit,
+) {
     TextField(
         value = text,
-        onValueChange = { text = it },
+        onValueChange = { action(it) },
         modifier = Modifier
             .fillMaxWidth()
             .clickable {
-                action()
+                action(text)
             },
         label = { Text(text = labelText, fontSize = 12.sp) },
         maxLines = maxLine,
@@ -68,11 +68,10 @@ fun mainFieldStyle(
             disabledTextColor = MaterialTheme.colorScheme.tertiaryContainer,
             disabledLabelColor = MaterialTheme.colorScheme.outline,
             disabledIndicatorColor = MaterialTheme.colorScheme.outlineVariant,
-
-            )
+        )
     )
-    return text
 }
+
 
 @Composable
 fun mainFieldStyle(
@@ -169,12 +168,13 @@ fun NavIconButton(
 @Composable
 fun NavIconButton(
     coroutineScope: CoroutineScope,
-    navController: NavHostController
+    navController: NavHostController,
+    navDrawerViewModal: NavDrawerViewModal
 ) {
     IconButton(
         onClick = {
             coroutineScope.launch {
-                navBackButton(navController)
+                navBackButton(navController, navDrawerViewModal)
             }
         }
     ) {
@@ -234,7 +234,7 @@ fun UriImage(
 @Composable
 fun MessageImage(
     uri: String
-){
+) {
     val context = LocalContext.current
     val imageRequest = remember(uri) {
         ImageRequest.Builder(context)

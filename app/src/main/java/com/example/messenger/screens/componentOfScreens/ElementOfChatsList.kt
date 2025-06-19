@@ -1,6 +1,7 @@
 package com.example.messenger.screens.componentOfScreens
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -25,7 +26,7 @@ import androidx.navigation.NavHostController
 import com.example.messenger.modals.ChatModal
 import com.example.messenger.modals.GroupChatModal
 import com.example.messenger.navigation.Screens
-import com.example.messenger.utils.ChatItem
+import com.example.messenger.modals.ChatItem
 import com.example.messenger.utils.UriImage
 import com.example.messenger.utils.goTo
 import com.example.messenger.viewModals.CurrentChatHolderViewModal
@@ -43,7 +44,7 @@ fun ElementOfChatsList(
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(60.dp)
+                    .height(70.dp)
                     .clickable {
                         currentChatHolderViewModal.setGroupChat(chatModal.value)
                         goTo(navController, Screens.GroupChat)
@@ -60,11 +61,15 @@ fun ElementOfChatsList(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Spacer(modifier = Modifier.padding(4.dp))
-                    UriImage(64.dp, chatModal.value.photoUrl) {}
+                    Column(verticalArrangement = Arrangement.Center) {
+                        Spacer(modifier = Modifier.padding(2.dp))
+                        UriImage(64.dp, chatModal.value.photoUrl) {}
+                    }
+
                     Spacer(modifier = Modifier.padding(8.dp))
 
                     Column {
-                        Text(text = chatModal.value.groupChatName)
+                        Text(text = chatModal.value.chatName)
                         chatModal.value.lastMessage?.let {
                             Text(
                                 text = it.take(10) + if (it.length > 20) "..." else "",
@@ -72,6 +77,14 @@ fun ElementOfChatsList(
                                 overflow = TextOverflow.Ellipsis
                             )
                         }
+                    }
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(0.dp, 0.dp, 30.dp, 0.dp),
+                        contentAlignment = Alignment.CenterEnd
+                    ) {
+                        Text(text = "Группа", fontSize = 13.sp)
                     }
                 }
             }
@@ -83,11 +96,12 @@ fun ElementOfChatsList(
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(60.dp)
+                    .height(70.dp)
                     .clickable {
                         currentChatHolderViewModal.setChat(chatModal.value)
                         goTo(navController, Screens.Chat)
                     },
+
                 shape = RoundedCornerShape(
                     topStart = 0.dp,
                     topEnd = 0.dp,
@@ -97,14 +111,17 @@ fun ElementOfChatsList(
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Spacer(modifier = Modifier.padding(4.dp))
-                    UriImage(64.dp, chatModal.value.photoUrl) {}
+                    Column(verticalArrangement = Arrangement.Center) {
+                        Spacer(modifier = Modifier.padding(2.dp))
+                        UriImage(64.dp, chatModal.value.photoUrl) {}
+                    }
                     Spacer(modifier = Modifier.padding(8.dp))
 
                     Column {
-                        Text(text = chatModal.value.fullname)
+                        Text(text = chatModal.value.chatName)
                         chatModal.value.lastMessage?.let {
                             Text(
                                 text = it.take(20) + if (it.length > 20) "..." else "",

@@ -10,6 +10,10 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -28,21 +32,29 @@ fun ChangeBIO(navController: NavHostController) {
         horizontalAlignment = Alignment.CenterHorizontally
     )
     {
+        var bio by rememberSaveable { mutableStateOf("") }
         Spacer(modifier = Modifier.padding(0.dp, 100.dp, 0.dp, 0.dp))
         Text(text = "Напишите о себе:")
         Spacer(modifier = Modifier.padding(0.dp, 40.dp, 0.dp, 0.dp))
-        val bio = mainFieldStyle(
+        mainFieldStyle(
             labelText = "О себе",
             enable = true,
             maxLine = 1,
             USER.bio
-        ) {}
+        ) { newName ->
+            bio = newName
+        }
         Spacer(modifier = Modifier.padding(0.dp, 40.dp, 0.dp, 0.dp))
         Button(
             onClick = {
                 when (bio == "") {
                     true -> makeToast("Напишите о себе!", mainActivityContext)
-                    false -> choseChangeInformation(bio, CHILD_BIO, mainActivityContext, navController)
+                    false -> choseChangeInformation(
+                        bio,
+                        CHILD_BIO,
+                        mainActivityContext,
+                        navController
+                    )
                 }
             }
         ) {

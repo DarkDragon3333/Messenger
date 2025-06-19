@@ -40,3 +40,23 @@ fun ContactCard(user: ContactModal?) {
         }
     }
 }
+
+@Composable
+fun AddContactCard(user: ContactModal?) {
+    if (user != null) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Spacer(modifier = Modifier.padding(8.dp))
+
+            UriImage(dp = 54.dp, user.photoUrl) {}
+
+            Spacer(modifier = Modifier.padding(4.dp))
+            Column {
+                Text(text = user.fullname)
+                Text(text = user.phone)
+            }
+        }
+    }
+}

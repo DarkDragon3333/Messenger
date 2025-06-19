@@ -54,7 +54,6 @@ import com.example.messenger.utils.NavIconButton
 import com.example.messenger.utils.UriImage
 import com.example.messenger.utils.goTo
 import com.example.messenger.utils.mainActivityContext
-import com.example.messenger.utils.on_settings_screen
 import com.example.messenger.viewModals.ChatViewModal
 import com.example.messenger.viewModals.ChatsViewModal
 import com.example.messenger.viewModals.ContactsViewModal
@@ -81,8 +80,11 @@ fun NavDrawer(
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val coroutineScope = rememberCoroutineScope()
 
+    val currentRBool = currentBackStackEntry?.destination?.route == Screens.Chats.route
+
     ModalNavigationDrawer(
         drawerState = drawerState,
+        gesturesEnabled = currentRBool,
         drawerContent = {
             ModalDrawerSheet {//Элемент выдвигающегося меню
                 HorizontalDivider(modifier = Modifier.padding(bottom = 20.dp), thickness = 1.dp)
@@ -169,7 +171,11 @@ fun NavDrawer(
                                 }
                             }
 
-                            false -> NavIconButton(coroutineScope, navController)
+                            false -> NavIconButton(
+                                coroutineScope,
+                                navController,
+                                navDrawerViewModal
+                            )
                         }
                     },
                 )
@@ -223,6 +229,7 @@ fun Title(
                 .toString()
                 .replaceFirstChar { it.uppercase() })
 
+
 }
 
 @Composable
@@ -239,11 +246,17 @@ fun ChatTitleView(
         Spacer(modifier = Modifier.width(8.dp))
         Column {
             Text(text = chatViewModal.fullName.value, fontSize = 16.sp)
-            if (chatViewModal.status.value.isNotBlank()) Text(text = chatViewModal.status.value, fontSize = 14.sp)
+            if (chatViewModal.status.value.isNotBlank()) Text(
+                text = chatViewModal.status.value,
+                fontSize = 14.sp
+            )
         }
     }
     LaunchedEffect(currentChatHolderViewModal.currentChat) {
-        if (chatViewModal.status.value.isEmpty()){
+        if (chatViewModal.status.value.isEmpty() ||
+            chatViewModal.fullName.value.isEmpty() ||
+            chatViewModal.photoUrl.value.isEmpty()
+        ) {
             chatViewModal.initDataTitle(currentChatHolderViewModal.currentChat)
             chatViewModal.startListingChatTitle()
             chatViewModal.listingUsersStatus()
@@ -253,6 +266,8 @@ fun ChatTitleView(
     DisposableEffect(Unit) {
         onDispose {
             chatViewModal.removeListener()
+            chatViewModal.removeDataTitle()
+            currentChatHolderViewModal.clearChat()
         }
     }
 }
@@ -273,25 +288,29 @@ fun GroupChatTitleView(
         }
     }
     LaunchedEffect(currentChatHolderViewModal.currentGroupChat) {
-        if (groupChatViewModal.groupChatName.value.isEmpty()) {
+        if (groupChatViewModal.groupChatName.value.isEmpty() ||
+            groupChatViewModal.status.value.isEmpty() ||
+            groupChatViewModal.photoUrl.value.isEmpty()
+        ) {
             groupChatViewModal.initDataTitle(currentChatHolderViewModal.currentGroupChat)
             groupChatViewModal.startListingGroupChatTitle()
             groupChatViewModal.listingTitleChanges()
         }
 
-
-        if (groupChatViewModal.getContactsData().isEmpty()){
+        if (groupChatViewModal.getContactsData().isEmpty()) {
             groupChatViewModal.downloadContactsData(
                 currentChatHolderViewModal.currentGroupChat?.contactList ?: mutableListOf(),
                 currentChatHolderViewModal.currentGroupChat?.id ?: ""
             )
+
         }
 
     }
     DisposableEffect(Unit) {
-
         onDispose {
             groupChatViewModal.removeListener()
+            currentChatHolderViewModal.clearChat()
+            groupChatViewModal.removeDataTitle()
         }
     }
 }
@@ -307,7 +326,6 @@ fun DropdownMenuItems(
         true -> GroupChatDropMenu(navController)
         else -> SettingsDropMenu(drawerState, coroutineScope, navController)
     }
-
 }
 
 @Composable
@@ -387,18 +405,17 @@ fun SettingsDropMenu(
     }
 }
 
-fun navBackButton(navController: NavHostController) {
-    navController.addOnDestinationChangedListener { _, destination, _ ->
-        on_settings_screen =
-            destination.route == Screens.ChangeName.route ||
-                    destination.route == Screens.ChangeUserName.route ||
-                    destination.route == Screens.ChangeBIO.route
+fun navBackButton(navController: NavHostController, navDrawerViewModal: NavDrawerViewModal) {
+
+    if (navDrawerViewModal.isGroupChatSetting) {
+        goTo(navController, Screens.GroupChat)
+    } else if (navDrawerViewModal.isSelectUserForGroupChat) {
+        goTo(navController, Screens.Chats)
+    } else if (navDrawerViewModal.isSelectDataForGroupChat) {
+        goTo(navController, Screens.SelectUsers)
+    } else {
+        goTo(navController, Screens.Chats)
     }
 
-    when (on_settings_screen) {
-        true -> goTo(navController, Screens.Settings)
-
-        else -> goTo(navController, Screens.Chats)
-    }
 }
 

@@ -3,7 +3,7 @@ package com.example.messenger.modals
 import androidx.compose.runtime.Stable
 import com.example.messenger.dataBase.firebaseFuns.USER
 import com.example.messenger.utils.Constants.CHILD_BIO
-import com.example.messenger.utils.Constants.CHILD_FULLNAME
+import com.example.messenger.utils.Constants.CHILD_CHAT_NAME
 import com.example.messenger.utils.Constants.CHILD_PASSWORD
 import com.example.messenger.utils.Constants.CHILD_PHONE
 import com.example.messenger.utils.Constants.CHILD_PHOTO_URL
@@ -24,7 +24,7 @@ data class User(
 
 fun setLocalDataForUser(newInfo: String, typeInfo: String) {
     when (typeInfo) {
-        CHILD_FULLNAME -> USER.fullname = newInfo
+        CHILD_CHAT_NAME -> USER.fullname = newInfo
 
         CHILD_USER_NAME -> USER.username = newInfo
 

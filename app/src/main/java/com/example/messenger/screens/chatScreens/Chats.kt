@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -17,7 +18,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.messenger.dataBase.firebaseFuns.UID
 import com.example.messenger.screens.componentOfScreens.ElementOfChatsList
-import com.example.messenger.utils.ChatItem
+import com.example.messenger.modals.ChatItem
 import com.example.messenger.viewModals.ChatsViewModal
 import com.example.messenger.viewModals.CurrentChatHolderViewModal
 
@@ -43,7 +44,8 @@ fun ChatsScreen(
     DisposableEffect(Unit) {
         chatsViewModal.initChatsList(UID) { chatsViewModal.setFlagDownloadFirstChats(true) }
         chatsViewModal.startListingChatsList(UID)
-        chatsViewModal.listingUsersStatus()
+        chatsViewModal.listingUsersData()
+        chatsViewModal.listingGroupChatData()
 
         onDispose {
             chatsViewModal.removeListener()
@@ -59,7 +61,9 @@ private fun ChatsList(
     currentChatViewModel: CurrentChatHolderViewModal = viewModel()
 ) {
     if (chatsScreenState.isNotEmpty()) {
+        HorizontalDivider()
         Spacer(modifier = Modifier.height(10.dp))
+
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             state = listState,
@@ -68,10 +72,9 @@ private fun ChatsList(
                 chatsScreenState,
                 key = {
                     it.id.toString() + "_" + (it.lastMessage ?: "") + "_" + (it.timeStamp
-                        ?: "") + "_" + it.status
+                        ?: "") + "_" + it.status + "_" + it.photoUrl + "_" + it.chatName
                 }) { chat ->
                 ElementOfChatsList(chat, navController, currentChatViewModel)
-                Spacer(modifier = Modifier.height(10.dp))
             }
         }
 

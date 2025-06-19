@@ -24,13 +24,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.example.messenger.R
 import com.example.messenger.dataBase.firebaseFuns.REF_STORAGE_ROOT
 import com.example.messenger.dataBase.firebaseFuns.UID
+import com.example.messenger.dataBase.firebaseFuns.USER
 import com.example.messenger.dataBase.firebaseFuns.choseChangeInformation
 import com.example.messenger.utils.Constants.CHILD_PHOTO_URL
 import com.example.messenger.utils.Constants.FOLDER_PHOTOS
+import com.example.messenger.utils.UriImage
 import com.example.messenger.utils.mainActivityContext
 import com.example.messenger.utils.makeToast
 import com.example.messenger.utils.pathToPhoto
@@ -44,6 +49,15 @@ fun ChangePhotoUrl(navController: NavHostController) {
         rememberLauncherForActivityResult(contract = ActivityResultContracts.GetContent()) // Проводник для выбора картинки
         { uri: Uri? ->
             imageUri = uri
+
+            uri?.let {
+                try {
+                    val source = ImageDecoder.createSource(mainActivityContext.contentResolver, it)
+                    bitmap.value = ImageDecoder.decodeBitmap(source)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
         }
 
     Column(
@@ -52,20 +66,7 @@ fun ChangePhotoUrl(navController: NavHostController) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-        imageUri?.let {
-            val source = ImageDecoder.createSource(mainActivityContext.contentResolver, it)
-            bitmap.value = ImageDecoder.decodeBitmap(source)
-
-            bitmap.value?.let { btm ->
-                Image(
-                    bitmap = btm.asImageBitmap(),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .clip(CircleShape)
-                        .size(192.dp)
-                )
-            }
-        }
+        GroupImagePreview(bitmap.value)
 
         Spacer(modifier = Modifier.height(12.dp))
 
@@ -81,13 +82,29 @@ fun ChangePhotoUrl(navController: NavHostController) {
         Button(
             onClick = {
                 choseNewPhoto(imageUri, navController)
-
             }
         )
         { Text(text = "Сохранить изменения") }
     }
 
 
+}
+
+@Composable
+private fun GroupImagePreview(bitmap: Bitmap?) {
+    if (bitmap != null) {
+        Image(
+            bitmap = bitmap.asImageBitmap(),
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            alignment = Alignment.Center,
+            modifier = Modifier
+                .size(192.dp)
+                .clip(CircleShape)
+        )
+    } else {
+        UriImage(192.dp, USER.photoUrl) { }
+    }
 }
 
 private fun choseNewPhoto(

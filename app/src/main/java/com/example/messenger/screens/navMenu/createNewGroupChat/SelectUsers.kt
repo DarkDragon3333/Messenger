@@ -16,6 +16,7 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -40,13 +41,13 @@ fun SelectUsers(
     currentChatViewModel: CurrentChatHolderViewModal,
     contactsViewModal: ContactsViewModal
 ) {
-    val contactsList = remember { mutableListOf<ContactModal>() }
+    val contactsList = remember { mutableListOf<ContactModal>().apply { contactsViewModal.contacts } }
 
     Box(contentAlignment = Alignment.BottomEnd) {
         LazyColumn(
             modifier = Modifier.fillMaxSize()
         ) {
-            items(contactsViewModal.getListContacts().size) { contact ->
+            items(contactsViewModal.contacts.size) { contact ->
                 val check = remember { mutableStateOf(false) }
 
                 Spacer(modifier = Modifier.height(10.dp))
@@ -72,20 +73,20 @@ fun SelectUsers(
 
                                 when (check.value) {
                                     true -> {
-                                        if (!contactsList.contains(contactsViewModal.getListContacts()[contact])) {
-                                            contactsList.add(contactsViewModal.getListContacts()[contact])
+                                        if (!contactsList.contains(contactsViewModal.contacts[contact])) {
+                                            contactsList.add(contactsViewModal.contacts[contact])
                                         }
                                     }
 
                                     false -> {
-                                        if (contactsList.contains(contactsViewModal.getListContacts()[contact])) {
-                                            contactsList.remove(contactsViewModal.getListContacts()[contact])
+                                        if (contactsList.contains(contactsViewModal.contacts[contact])) {
+                                            contactsList.remove(contactsViewModal.contacts[contact])
                                         }
                                     }
                                 }
                             }
                         )
-                        ContactCard(contactsViewModal.getListContacts()[contact])
+                        ContactCard(contactsViewModal.contacts[contact])
                     }
                 }
 
@@ -114,5 +115,9 @@ fun SelectUsers(
                 contentDescription = ""
             )
         }
+    }
+
+    LaunchedEffect(Unit) {
+
     }
 }

@@ -12,6 +12,10 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -63,7 +67,10 @@ class SingUpActivity : ComponentActivity() {
 
     @Composable
     fun GreetingInRegisterActivity() {
-        Column {
+        var phoneField by rememberSaveable { mutableStateOf("") }
+        var passwordField by rememberSaveable { mutableStateOf("") }
+        var rePasswordField by rememberSaveable { mutableStateOf("") }
+            Column {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -71,25 +78,36 @@ class SingUpActivity : ComponentActivity() {
                 horizontalAlignment = Alignment.CenterHorizontally
             )
             {
-                val phoneField = mainFieldStyle(
+                mainFieldStyle(
                     labelText = "Номер телефона",
                     enable = true,
-                    maxLine = 1
-                ) {}
+                    maxLine = 1,
+                    phoneField
+                ) { phone ->
+                    phoneField = phone
+                }
 
                 Spacer(modifier = Modifier.padding(8.dp))
-                val passwordField = mainFieldStyle(
+                mainFieldStyle(
                     labelText = "Пароль",
                     enable = true,
-                    maxLine = 1
-                ) {}
+                    maxLine = 1,
+                    passwordField
+                ) { password ->
+                    passwordField = password
+
+                }
 
                 Spacer(modifier = Modifier.padding(8.dp))
-                val rePasswordField = mainFieldStyle(
+                mainFieldStyle(
                     labelText = "Повторите пароль",
                     enable = true,
-                    maxLine = 1
-                ) {}
+                    maxLine = 1,
+                    rePasswordField
+                ) { rePassword ->
+                    rePasswordField = rePassword
+
+                }
 
                 Spacer(modifier = Modifier.padding(120.dp))
                 Button(

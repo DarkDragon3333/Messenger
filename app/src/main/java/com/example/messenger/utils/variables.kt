@@ -10,7 +10,6 @@ lateinit var defaultImageUri: Uri
 lateinit var pathToPhoto: StorageReference
 lateinit var pathToSelectPhoto: StorageReference
 
-var on_settings_screen = false
 var get_out_from_auth = false
 var sign_out = false
 var sign_in = true

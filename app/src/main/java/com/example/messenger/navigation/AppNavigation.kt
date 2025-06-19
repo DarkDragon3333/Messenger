@@ -6,6 +6,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import com.example.messenger.modals.ContactModal
 import com.example.messenger.screens.navMenu.createNewGroupChat.SelectDataForGroupChat
 import com.example.messenger.screens.navMenu.ContactsScreen
@@ -64,7 +65,12 @@ fun DrawerNavigation(
         composable(Screens.Settings.route) {
             SettingsScreen(navController)
         }
-        composable(Screens.ChangeName.route) {
+        composable(
+            route = "${Screens.ChangeName.route}?t={t}",
+            arguments = listOf(navArgument("t") {
+                defaultValue = ""
+            })
+        ) {
             ChangeName(navController)
         }
         composable(Screens.ChangeBIO.route) {

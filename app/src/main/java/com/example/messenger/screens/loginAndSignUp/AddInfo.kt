@@ -16,6 +16,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -28,7 +32,7 @@ import com.example.messenger.dataBase.firebaseFuns.USER
 
 import com.example.messenger.ui.theme.MessengerTheme
 import com.example.messenger.utils.Constants.CHILD_BIO
-import com.example.messenger.utils.Constants.CHILD_FULLNAME
+import com.example.messenger.utils.Constants.CHILD_CHAT_NAME
 import com.example.messenger.utils.Constants.CHILD_ID
 import com.example.messenger.utils.Constants.CHILD_PASSWORD
 import com.example.messenger.utils.Constants.CHILD_PHONE
@@ -96,6 +100,10 @@ class AddInfo : ComponentActivity() {
 
     @Composable
     fun GreetingAddInfo(m: Modifier = Modifier) {
+        var nameField by rememberSaveable { mutableStateOf("") }
+        var surnameField by rememberSaveable { mutableStateOf("") }
+        var userNameField by rememberSaveable { mutableStateOf("") }
+        var bioField by rememberSaveable { mutableStateOf("") }
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.fillMaxSize()
@@ -104,32 +112,44 @@ class AddInfo : ComponentActivity() {
             Text(text = "Введите информацию о себе:")
 
             Spacer(modifier = Modifier.padding(0.dp, 20.dp, 0.dp, 0.dp))
-            val nameField = mainFieldStyle(
+            mainFieldStyle(
                 labelText = "Ваше имя",
                 enable = true,
-                1
-            ) {}
+                1,
+                nameField
+            ) { name ->
+
+            }
 
             Spacer(modifier = Modifier.padding(0.dp, 20.dp, 0.dp, 0.dp))
-            val surnameField = mainFieldStyle(
+            mainFieldStyle(
                 labelText = "Ваша фамилия",
                 enable = true,
-                1
-            ) {}
+                1,
+                surnameField
+            ) { surname ->
+                surnameField = surname
+            }
 
             Spacer(modifier = Modifier.padding(0.dp, 20.dp, 0.dp, 0.dp))
-            val userNameField = mainFieldStyle(
+            mainFieldStyle(
                 labelText = "Ваш ник",
                 enable = true,
-                1
-            ) {}
+                1,
+                userNameField
+            ) { userName ->
+                surnameField = userName
+            }
 
             Spacer(modifier = Modifier.padding(0.dp, 20.dp, 0.dp, 0.dp))
-            val bioField = mainFieldStyle(
+            mainFieldStyle(
                 labelText = "Немного о себе",
                 enable = true,
-                3
-            ) {}
+                3,
+                bioField
+            ) { bio ->
+                surnameField = bio
+            }
 
             Spacer(modifier = Modifier.padding(0.dp, 40.dp, 0.dp, 0.dp))
             Button(
@@ -166,7 +186,7 @@ class AddInfo : ComponentActivity() {
         val dataMap = mutableMapOf<String, Any>() //Создаём место, куда погрузим наши данные для бд
 
         dataMap[CHILD_ID] = uId
-        dataMap[CHILD_FULLNAME] = fullname
+        dataMap[CHILD_CHAT_NAME] = fullname
         dataMap[CHILD_USER_NAME] = userName
         dataMap[CHILD_BIO] = bio
         dataMap[CHILD_PHONE] = phoneNumber

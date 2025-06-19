@@ -24,13 +24,12 @@ object Constants {
     const val CHILD_PHONE = "phone"
     const val CHILD_PASSWORD = "password"
     const val CHILD_USER_NAME = "username"
-    const val CHILD_FULLNAME = "fullname"
+    const val CHILD_CHAT_NAME = "chatName"
     const val CHILD_BIO = "bio"
     const val CHILD_STATUS: String = "status"
     const val CHILD_PHOTO_URL: String = "photoUrl"
     const val CHILD_LAST_MESSAGE: String = "lastMessage"
 
-    const val CHILD_GROUP_CHAT_NAME = "groupChatName"
     const val CHILD_CONTACT_LIST = "contactList"
 
     const val CHILD_FILE_URL: String = "fileUrl"
@@ -40,6 +39,6 @@ object Constants {
     const val CHILD_FROM: String = "from"
     const val CHILD_TIME_STAMP: String = "timeStamp"
 
-
+    const val ADMINISTRATOR: String = "administrator"
 }
 

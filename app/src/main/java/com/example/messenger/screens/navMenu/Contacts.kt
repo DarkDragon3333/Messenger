@@ -27,26 +27,27 @@ fun ContactsScreen(
     contactsViewModal: ContactsViewModal
 ) {
     LazyColumn {
-        items(contactsViewModal.getListContacts().size) { contact ->
+        items(contactsViewModal.contacts.size) { contact ->
             Spacer(modifier = Modifier.height(10.dp))
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable {
                         val chatModal = ChatModal(
-                            contactsViewModal.getListContacts()[contact].fullname,
-                            contactsViewModal.getListContacts()[contact].photoUrl,
-                            contactsViewModal.getListContacts()[contact].id,
-                            contactsViewModal.getListContacts()[contact].status,
+                            contactsViewModal.contacts[contact].fullname,
+                            contactsViewModal.contacts[contact].photoUrl,
+                            contactsViewModal.contacts[contact].id,
+                            contactsViewModal.contacts[contact].status,
                             "",
                             "",
                         )
+                        currentChatViewModel.clearChat()
                         currentChatViewModel.setChat(chatModal)
                         goTo(navController, Screens.Chat)
 
                     }
             ) {
-                ContactCard(contactsViewModal.getListContacts()[contact])
+                ContactCard(contactsViewModal.contacts[contact])
             }
 
             Spacer(modifier = Modifier.height(10.dp))

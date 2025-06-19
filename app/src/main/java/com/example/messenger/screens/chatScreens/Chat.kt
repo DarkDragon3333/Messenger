@@ -47,9 +47,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.platform.ClipboardManager
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -69,13 +72,15 @@ import com.example.messenger.utils.Constants.TYPE_IMAGE
 import com.example.messenger.utils.attachFile
 import com.example.messenger.utils.attachImage
 import com.example.messenger.utils.voice.AppVoiceRecorder
-import com.example.messenger.viewModals.ChatViewModal
 import com.example.messenger.viewModals.CurrentChatHolderViewModal
 import com.example.messenger.viewModals.MessagesListViewModal
+import com.google.firebase.Firebase
+import com.google.firebase.messaging.messaging
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 lateinit var appVoiceRecorder: AppVoiceRecorder
 
@@ -85,14 +90,13 @@ fun ChatScreen(
     navController: NavHostController,
     currentChatViewModel: CurrentChatHolderViewModal
 ) {
-
     val messagesListViewModal: MessagesListViewModal = viewModel()
 
     val receivingUserID =
         currentChatViewModel.currentChat?.id?.replace(Regex("[{}]"), "").toString()
 
     val infoArray = arrayOf(
-        currentChatViewModel.currentChat?.fullname.toString(),
+        currentChatViewModel.currentChat?.chatName.toString(),
         currentChatViewModel.currentChat?.photoUrl.toString(),
         receivingUserID,
         currentChatViewModel.currentChat?.status.toString(),
@@ -188,7 +192,6 @@ fun ChatScreen(
     }
 
     DisposableEffect(Unit) {
-
         messagesListViewModal.initMessagesList(receivingUserID) { messagesListViewModal.setFlagDownloadFirstMessages(true) }
         messagesListViewModal.startListingMessageList(receivingUserID)
 
@@ -388,6 +391,7 @@ private fun SendMessageButton(
     infoArray: Array<String>,
     cleanText: () -> Unit
 ) {
+    val clickBoardManager: ClipboardManager = LocalClipboardManager.current
     IconButton(
         interactionSource = interactionSource,
         modifier = Modifier
@@ -464,12 +468,19 @@ private fun SendMessageButton(
                                     receivingUserID
                                 )
                                 if (chatScreenState.isNotEmpty())
+
                                     coroutineScope.launch {
                                         listState.animateScrollToItem(0)
+
+                                        val localToken = Firebase.messaging.token.await()
+                                        clickBoardManager.setText(AnnotatedString(localToken))
+
                                     }
                                 if (chatScreenState.isEmpty())
                                     addChatToChatsList(infoArray)
                                 LastMessageState.updateLastMessageInChat(fieldText.value, receivingUserID)
+
+
                                 cleanText()
                             }
                         }
