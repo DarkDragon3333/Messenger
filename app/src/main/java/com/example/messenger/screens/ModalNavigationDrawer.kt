@@ -191,7 +191,8 @@ fun NavDrawer(
                     currentChatHolderViewModal,
                     contactsViewModal,
                     chatsViewModal,
-                    groupChatViewModal
+                    groupChatViewModal,
+                    chatViewModal
                 )
             }
 
@@ -257,17 +258,19 @@ fun ChatTitleView(
             chatViewModal.fullName.value.isEmpty() ||
             chatViewModal.photoUrl.value.isEmpty()
         ) {
-            chatViewModal.initDataTitle(currentChatHolderViewModal.currentChat)
-            chatViewModal.startListingChatTitle()
-            chatViewModal.listingUsersStatus()
+
         }
 
     }
     DisposableEffect(Unit) {
+        chatViewModal.listingUsersData(currentChatHolderViewModal.currentChat?.id ?: " ")
+        chatViewModal.startListingChatDataForTitle(currentChatHolderViewModal.currentChat?.id ?: " ")
+        chatViewModal.initDataTitle(currentChatHolderViewModal.currentChat)
+
         onDispose {
             chatViewModal.removeListener()
             chatViewModal.removeDataTitle()
-            currentChatHolderViewModal.clearChat()
+            //currentChatHolderViewModal.clearChat()
         }
     }
 }
@@ -292,25 +295,28 @@ fun GroupChatTitleView(
             groupChatViewModal.status.value.isEmpty() ||
             groupChatViewModal.photoUrl.value.isEmpty()
         ) {
-            groupChatViewModal.initDataTitle(currentChatHolderViewModal.currentGroupChat)
-            groupChatViewModal.startListingGroupChatTitle()
-            groupChatViewModal.listingTitleChanges()
-        }
-
-        if (groupChatViewModal.getContactsData().isEmpty()) {
-            groupChatViewModal.downloadContactsData(
-                currentChatHolderViewModal.currentGroupChat?.contactList ?: mutableListOf(),
-                currentChatHolderViewModal.currentGroupChat?.id ?: ""
-            )
 
         }
+
+
 
     }
     DisposableEffect(Unit) {
+        groupChatViewModal.initDataTitle(currentChatHolderViewModal.currentGroupChat)
+        groupChatViewModal.startListingGroupChatData(currentChatHolderViewModal.currentGroupChat?.id
+            ?: " ")
+        groupChatViewModal.startListingGroupChatDataForTitle(currentChatHolderViewModal.currentGroupChat?.id
+            ?: " ")
+        if (groupChatViewModal.getContactsData().isEmpty()) {
+            groupChatViewModal.downloadContactsData(
+                currentChatHolderViewModal.currentGroupChat?.contactList ?: mutableListOf()
+            )
+
+        }
         onDispose {
             groupChatViewModal.removeListener()
-            currentChatHolderViewModal.clearChat()
             groupChatViewModal.removeDataTitle()
+           // currentChatHolderViewModal.clearChat()
         }
     }
 }

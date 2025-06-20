@@ -1,6 +1,5 @@
 package com.example.messenger.viewModals
 
-import android.content.ContentValues
 import android.util.Log
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
@@ -16,20 +15,15 @@ import com.example.messenger.utils.mainActivityContext
 import com.example.messenger.utils.makeToast
 import com.example.messenger.utils.pathToSelectPhoto
 import com.google.firebase.Firebase
-import com.google.firebase.database.ChildEventListener
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.firestore.DocumentChange
+import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.ListenerRegistration
-import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.firestore
 
 class GroupChatViewModal : ViewModel() {
-    private lateinit var listenerRegistration: ListenerRegistration
-    private lateinit var listingUpdateUserStatus: ChildEventListener
+    private lateinit var listenerGroupChatDataForTitle: ListenerRegistration
+    private lateinit var listenerGroupChatData: ListenerRegistration
 
     private val _mapContactIdToPhotoUrl = mutableStateMapOf<String, Any>()
-
     private val _contactsData = mutableListOf<ContactModal>()
 
     private val _changeContactsList = mutableListOf<ContactModal>()
@@ -50,109 +44,81 @@ class GroupChatViewModal : ViewModel() {
         _changeContactsList.addAll(_contactsData)
     }
 
-    fun removeDataTitle(){
+    fun updateDataTitle(groupChatModal: GroupChatModal?) {
+        _groupChatName.value = groupChatModal?.chatName.toString()
+        _photoUrl.value = groupChatModal?.photoUrl.toString()
+        //_changeContactsList.addAll(_contactsData)
+    }
+
+    fun removeDataTitle() {
         _groupChatName.value = ""
         _photoUrl.value = ""
         _status.value = ""
     }
 
-    fun startListingGroupChatTitle() {
-        val listing = chatMessLink().addSnapshotListener { snapshots, e ->
-            if (e != null) {
-                Log.w(ContentValues.TAG, "listen:error", e)
-                return@addSnapshotListener
+    fun startListingGroupChatData(chatId: String) {
+        val listingData = Firebase.firestore.collection("users_groups").document(chatId)
+            .addSnapshotListener { snapshot, e ->
+                if (e != null) {
+                    Log.e("Firestore", "Ошибка прослушивания", e)
+                    return@addSnapshotListener
+                }
+
+                if (snapshot != null && snapshot.exists()) {
+                    val chatData = snapshot.toObject(GroupChatModal::class.java)
+
+                    Firebase.firestore
+                        .collection("users_talkers").document(UID)
+                        .collection("talkers").document(chatData?.id ?: "")
+                        .update("chatName", chatData?.chatName)
+
+                    Firebase.firestore
+                        .collection("users_talkers").document(UID)
+                        .collection("talkers").document(chatData?.id ?: "")
+                        .update("photoUrl", chatData?.photoUrl)
+
+                } else {
+                    Log.d("Firestore", "Документ не найден")
+                }
             }
 
-            for (document in snapshots!!.documentChanges) {
-                when (document.type) {
-                    DocumentChange.Type.ADDED -> {
+        listenerGroupChatData = listingData
+    }
 
-                    }
+    fun startListingGroupChatDataForTitle(chatId: String) {
+        val listingGroupChatDataForTitle =
+            chatMessLink2(chatId).addSnapshotListener { snapshot, e ->
+                if (e != null) {
+                    Log.e("Firestore", "Ошибка прослушивания", e)
+                    return@addSnapshotListener
+                }
 
-                    DocumentChange.Type.MODIFIED -> {
-                        val newInfo = document.document.toObject(GroupChatModal::class.java)
-                        _groupChatName.value = newInfo.chatName.toString()
-                        _photoUrl.value = newInfo.photoUrl.toString()
-                        _status.value = "Группа"
-                    }
+                if (snapshot != null && snapshot.exists()) {
+                    val chatData = snapshot.toObject(GroupChatModal::class.java)
+                    updateDataTitle(chatData)
 
-                    DocumentChange.Type.REMOVED -> Log.d(
-                        ContentValues.TAG,
-                        "Removed city: ${document.document.data}"
-                    )
-
+                } else {
+                    Log.d("Firestore", "Документ не найден")
                 }
             }
-        }
 
-        listenerRegistration = listing
+        listenerGroupChatDataForTitle = listingGroupChatDataForTitle
     }
 
-    fun listingTitleChanges() {
-        val listing =
-            REF_DATABASE_ROOT.child(NODE_USERS).addChildEventListener(object :
-                ChildEventListener {
-                override fun onChildAdded(
-                    snapshot: DataSnapshot,
-                    previousChildName: String?
-                ) {
-
-                }
-
-                override fun onChildChanged(
-                    snapshot: DataSnapshot,
-                    previousChildName: String?
-                ) {
-                    val updateStatus =
-                        snapshot.getValue(GroupChatModal::class.java) ?: GroupChatModal()
-
-                    Firebase.firestore
-                        .collection("users_talkers").document(UID)
-                        .collection("talkers").document(updateStatus.id).update(
-                            "photoUrl", updateStatus.photoUrl
-                        )
-                    Firebase.firestore
-                        .collection("users_talkers").document(UID)
-                        .collection("talkers").document(updateStatus.id).update(
-                            "chatName", updateStatus.chatName
-                        )
-                    Firebase.firestore
-                        .collection("users_talkers").document(UID)
-                        .collection("talkers").document(updateStatus.id).update(
-                            "lastMessage", updateStatus.lastMessage
-                        )
-                }
-
-                override fun onChildRemoved(snapshot: DataSnapshot) {
-
-                }
-
-                override fun onChildMoved(
-                    snapshot: DataSnapshot,
-                    previousChildName: String?
-                ) {
-
-                }
-
-                override fun onCancelled(error: DatabaseError) {
-                    makeToast(error.message, mainActivityContext)
-                }
-            })
-
-        listingUpdateUserStatus = listing
-    }
-
-    fun chatMessLink(): Query {
+    fun chatMessLink2(charId: String): DocumentReference {
         return Firebase.firestore
             .collection("users_talkers").document(UID)
-            .collection("talkers")
+            .collection("talkers").document(charId)
     }
 
     fun removeListener() {
-        if (::listenerRegistration.isInitialized) {
-            listenerRegistration.remove()
-            REF_DATABASE_ROOT.child(NODE_USERS).removeEventListener(listingUpdateUserStatus)
+        if (::listenerGroupChatDataForTitle.isInitialized) {
+            listenerGroupChatDataForTitle.remove()
         }
+        if (::listenerGroupChatData.isInitialized){
+            listenerGroupChatData.remove()
+        }
+
     }
 
     fun getPhotoUrl(contactId: String): Any? {
@@ -163,7 +129,7 @@ class GroupChatViewModal : ViewModel() {
         return changeContactsList
     }
 
-    fun downloadContactsData(contactsListId: MutableList<String>, chatId: String) {
+    fun downloadContactsData(contactsListId: MutableList<String>) {
         contactsListId.forEach { contactId ->
             REF_DATABASE_ROOT.child(NODE_USERS).child(contactId).get()
                 .addOnCompleteListener { result ->

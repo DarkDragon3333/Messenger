@@ -22,6 +22,7 @@ import com.example.messenger.screens.chatScreens.ChatScreen
 import com.example.messenger.screens.chatScreens.ChatsScreen
 import com.example.messenger.screens.chatScreens.GroupChat
 import com.example.messenger.screens.navMenu.createNewGroupChat.SelectUsers
+import com.example.messenger.viewModals.ChatViewModal
 import com.example.messenger.viewModals.ChatsViewModal
 import com.example.messenger.viewModals.ContactsViewModal
 import com.example.messenger.viewModals.CurrentChatHolderViewModal
@@ -34,9 +35,10 @@ fun DrawerNavigation(
     currentChatViewModel: CurrentChatHolderViewModal,
     contactsViewModal: ContactsViewModal,
     chatsViewModal: ChatsViewModal,
-    groupChatViewModal: GroupChatViewModal
+    groupChatViewModal: GroupChatViewModal,
+    chatViewModal: ChatViewModal
 ) {
-
+    val state = chatViewModal.state
     NavHost(
         navController = navController,
         startDestination = Screens.Chats.route
@@ -48,7 +50,19 @@ fun DrawerNavigation(
             ChatsScreen(navController, currentChatViewModel, chatsViewModal)
         }
         composable(Screens.Chat.route) {
-            ChatScreen(navController, currentChatViewModel)
+            ChatScreen(navController, currentChatViewModel,
+                token = state.remoteToken,
+                onRemoteTokenChange = chatViewModal::onRemoteTokenChange,
+                onSubmit = chatViewModal::onSubmitRemoteToken,
+                messageText = state.messageText,
+                onMessageSend = {
+                    chatViewModal.sendMessage(isBroadcast = false)
+                },
+                onMessageBroadcast = {
+                    chatViewModal.sendMessage(isBroadcast = true)
+                },
+                onMessageChange = chatViewModal::onMessageChange
+            )
         }
         composable(Screens.GroupChat.route) {
             GroupChat(navController, currentChatViewModel)

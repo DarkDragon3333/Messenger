@@ -14,6 +14,7 @@ import com.example.messenger.modals.ChatModal
 import com.example.messenger.modals.ContactModal
 import com.example.messenger.modals.GroupChatModal
 import com.example.messenger.modals.ChatItem
+import com.example.messenger.modals.User
 import com.example.messenger.utils.Constants.NODE_USERS
 import com.example.messenger.utils.mainActivityContext
 import com.example.messenger.utils.makeToast
@@ -55,6 +56,7 @@ class ChatsViewModal : ViewModel() {
                     clear()
                     addAll(cacheMessages.sortedByDescending { it.timeStamp }.distinctBy { it.id })
                 }
+                updateChatsListData()
                 changeLoadingFlag()
             }
             .addOnFailureListener { exception ->
@@ -116,6 +118,96 @@ class ChatsViewModal : ViewModel() {
         }
 
         listenerUsersChats = listing
+    }
+
+    fun updateChatsListData() {
+        _chatsList.forEach { oldData ->
+            if (oldData.type == "group") {
+
+                var newData = GroupChatModal()
+                Firebase.firestore
+                    .collection("users_groups").document(oldData.id.toString()).get()
+                    .addOnCompleteListener { task ->
+                        if (task.isSuccessful) {
+                            newData =
+                                task.result.toObject(GroupChatModal::class.java) ?: GroupChatModal()
+
+                            val mapInfo = mutableMapOf<String, Any>()
+
+                            // Сравниваем и добавляем в map только то, что отличается
+                            if (newData.chatName != oldData.chatName) {
+                                mapInfo["chatName"] = newData.chatName
+                            }
+                            if (newData.photoUrl != oldData.photoUrl) {
+                                mapInfo["photoUrl"] = newData.photoUrl
+                            }
+                            if (newData.status != oldData.status) {
+                                mapInfo["status"] = newData.status
+                            }
+
+                            if (mapInfo.isNotEmpty()) {
+                                Firebase.firestore
+                                    .collection("users_talkers").document(UID)
+                                    .collection("talkers").document(oldData.id.toString())
+                                    .update(mapInfo)
+                                    .addOnSuccessListener {
+                                        Log.d(
+                                            "updateChatsListData",
+                                            "Обновлён документ ${oldData.id}"
+                                        )
+                                    }
+                                    .addOnFailureListener {
+                                        Log.e(
+                                            "updateChatsListData",
+                                            "Ошибка обновления: ${it.message}"
+                                        )
+                                    }
+
+
+                            }
+                        }
+                    }
+            } else {
+                var newData = User()
+                REF_DATABASE_ROOT.child(NODE_USERS).child(oldData.id.toString()).get()
+                    .addOnCompleteListener { task ->
+                        if (task.isSuccessful) {
+                            newData = task.result.getValue<User>(User::class.java) ?: User()
+
+                            val mapInfo = mutableMapOf<String, Any>()
+
+                            if (newData.fullname != oldData.chatName) {
+                                mapInfo["chatName"] = newData.fullname
+                            }
+                            if (newData.photoUrl != oldData.photoUrl) {
+                                mapInfo["photoUrl"] = newData.photoUrl
+                            }
+                            if (newData.status != oldData.status) {
+                                mapInfo["status"] = newData.status
+                            }
+
+                            if (mapInfo.isNotEmpty()) {
+                                Firebase.firestore
+                                    .collection("users_talkers").document(UID)
+                                    .collection("talkers").document(oldData.id.toString())
+                                    .update(mapInfo)
+                                    .addOnSuccessListener {
+                                        Log.d(
+                                            "updateChatsListData",
+                                            "Обновлён документ ${oldData.id}"
+                                        )
+                                    }
+                                    .addOnFailureListener {
+                                        Log.e(
+                                            "updateChatsListData",
+                                            "Ошибка обновления: ${it.message}"
+                                        )
+                                    }
+                            }
+                        }
+                    }
+            }
+        }
     }
 
     fun listingUsersData() {
@@ -197,6 +289,8 @@ class ChatsViewModal : ViewModel() {
                     }
 
                     DocumentChange.Type.MODIFIED -> {
+                        //val chatId = document.document.get("id")
+
                         val updateData = document.document.toObject<GroupChatModal>(
                             GroupChatModal::class.java
                         )
@@ -270,7 +364,6 @@ class ChatsViewModal : ViewModel() {
     }
 
     fun groupChatLink(): CollectionReference {
-
         return Firebase.firestore
             .collection("users_groups")
     }
@@ -279,6 +372,9 @@ class ChatsViewModal : ViewModel() {
         if (::listenerUsersChats.isInitialized) {
             listenerUsersChats.remove()
             REF_DATABASE_ROOT.child(NODE_USERS).removeEventListener(listingUpdateUserData)
+        }
+        if (::listenerGroupChats.isInitialized){
+            listenerGroupChats.remove()
         }
     }
 

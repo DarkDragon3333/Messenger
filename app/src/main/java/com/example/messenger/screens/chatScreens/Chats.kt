@@ -43,6 +43,7 @@ fun ChatsScreen(
 
     DisposableEffect(Unit) {
         chatsViewModal.initChatsList(UID) { chatsViewModal.setFlagDownloadFirstChats(true) }
+        chatsViewModal.updateChatsListData()
         chatsViewModal.startListingChatsList(UID)
         chatsViewModal.listingUsersData()
         chatsViewModal.listingGroupChatData()

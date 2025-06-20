@@ -47,16 +47,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.platform.ClipboardManager
-import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.messenger.R
+import com.example.messenger.dataBase.firebaseFuns.UID
 import com.example.messenger.dataBase.firebaseFuns.addChatToChatsList
 import com.example.messenger.dataBase.firebaseFuns.getMessageKey
 import com.example.messenger.dataBase.firebaseFuns.uploadFileToStorage
@@ -65,6 +63,7 @@ import com.example.messenger.messageViews.sendText
 import com.example.messenger.messageViews.startRecordVoiceMsg
 import com.example.messenger.messageViews.stopRecordVoiceMsg
 import com.example.messenger.modals.MessageModal
+import com.example.messenger.modals.TokenModal
 import com.example.messenger.screens.componentOfScreens.Message
 import com.example.messenger.utils.Constants.TYPE_CHAT
 import com.example.messenger.utils.Constants.TYPE_FILE
@@ -75,6 +74,7 @@ import com.example.messenger.utils.voice.AppVoiceRecorder
 import com.example.messenger.viewModals.CurrentChatHolderViewModal
 import com.example.messenger.viewModals.MessagesListViewModal
 import com.google.firebase.Firebase
+import com.google.firebase.firestore.firestore
 import com.google.firebase.messaging.messaging
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
@@ -88,7 +88,14 @@ lateinit var appVoiceRecorder: AppVoiceRecorder
 @Composable
 fun ChatScreen(
     navController: NavHostController,
-    currentChatViewModel: CurrentChatHolderViewModal
+    currentChatViewModel: CurrentChatHolderViewModal,
+    token: String,
+    onRemoteTokenChange: (String) -> Unit,
+    onSubmit: () -> Unit,
+    messageText: String,
+    onMessageChange: (String) -> Unit,
+    onMessageSend: () -> Unit,
+    onMessageBroadcast: () -> Unit
 ) {
     val messagesListViewModal: MessagesListViewModal = viewModel()
 
@@ -102,7 +109,7 @@ fun ChatScreen(
         currentChatViewModel.currentChat?.status.toString(),
         TYPE_CHAT,
         "lastMes_null",
-        "timeStamp_null"
+        "timeStamp_null",
     )
 
     //Исправить отображение кнопки записывания голосового сообщения
@@ -179,7 +186,13 @@ fun ChatScreen(
             coroutineScope,
             listState,
             showBottomSheetState,
-            infoArray
+            infoArray,
+            token,
+            onRemoteTokenChange,
+            onSubmit,
+            onMessageChange,
+            onMessageSend
+
         )
     }
 
@@ -192,7 +205,11 @@ fun ChatScreen(
     }
 
     DisposableEffect(Unit) {
-        messagesListViewModal.initMessagesList(receivingUserID) { messagesListViewModal.setFlagDownloadFirstMessages(true) }
+        messagesListViewModal.initMessagesList(receivingUserID) {
+            messagesListViewModal.setFlagDownloadFirstMessages(
+                true
+            )
+        }
         messagesListViewModal.startListingMessageList(receivingUserID)
 
         onDispose {
@@ -236,7 +253,12 @@ private fun PanelOfEnter(
     coroutineScope: CoroutineScope,
     listState: LazyListState,
     showBottomSheetState: MutableState<Boolean>,
-    infoArray: Array<String>
+    infoArray: Array<String>,
+    token: String,
+    onTokenChange: (String) -> Unit,
+    onSubmit: () -> Unit,
+    onMessageChange: (String) -> Unit,
+    onMessageSend: () -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -247,7 +269,9 @@ private fun PanelOfEnter(
     ) {
         TextField(
             value = text.value,
-            onValueChange = { text.value = it },
+            onValueChange = {
+                text.value = it
+            },
             modifier = Modifier
                 .weight(1f)
                 .fillMaxHeight()
@@ -280,7 +304,12 @@ private fun PanelOfEnter(
             chatScreenState,
             coroutineScope,
             listState,
-            infoArray
+            infoArray,
+            token,
+            onTokenChange,
+            onSubmit,
+            onMessageChange,
+            onMessageSend
         ) {
             text.value = ""
         }
@@ -389,15 +418,20 @@ private fun SendMessageButton(
     coroutineScope: CoroutineScope,
     listState: LazyListState,
     infoArray: Array<String>,
+    token: String,
+    onTokenChange: (String) -> Unit,
+    onSubmit: () -> Unit,
+    onMessageChange: (String) -> Unit,
+    onMessageSend: () -> Unit,
     cleanText: () -> Unit
 ) {
-    val clickBoardManager: ClipboardManager = LocalClipboardManager.current
     IconButton(
         interactionSource = interactionSource,
         modifier = Modifier
             .fillMaxHeight()
             .background(Color.Transparent),
-        onClick = {}
+        onClick = {
+        }
     ) {
         ControlIconOfVoiceButton(fieldText)
 
@@ -463,6 +497,7 @@ private fun SendMessageButton(
 
                         if (isLongClick.not()) {
                             if (fieldText.value.isNotEmpty()) {
+                                val tempText = fieldText.value.toString()
                                 sendText(
                                     fieldText.value,
                                     receivingUserID
@@ -473,13 +508,34 @@ private fun SendMessageButton(
                                         listState.animateScrollToItem(0)
 
                                         val localToken = Firebase.messaging.token.await()
-                                        clickBoardManager.setText(AnnotatedString(localToken))
+                                        val tempMap = mutableMapOf<String, String>()
+                                        tempMap["token"] = localToken.toString()
+                                        Firebase.firestore.collection("Tokens").document(UID).set(tempMap)
+
+                                        var remoteToken = TokenModal()
+
+                                        Firebase.firestore.collection("Tokens").document(receivingUserID).get().addOnCompleteListener { result ->
+                                            if (result.isSuccessful){
+                                                val task = result.result.toObject<TokenModal>(TokenModal::class.java)
+
+                                                remoteToken = remoteToken.copy(
+                                                    token = task?.token ?: "null"
+                                                )
+                                            }
+                                        }.await()
+
+                                        onTokenChange(remoteToken.token.toString())
+                                        onSubmit()
+                                        onMessageChange(tempText)
+                                        onMessageSend()
 
                                     }
                                 if (chatScreenState.isEmpty())
                                     addChatToChatsList(infoArray)
-                                LastMessageState.updateLastMessageInChat(fieldText.value, receivingUserID)
-
+                                LastMessageState.updateLastMessageInChat(
+                                    fieldText.value,
+                                    receivingUserID
+                                )
 
                                 cleanText()
                             }

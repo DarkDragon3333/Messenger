@@ -12,6 +12,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
+import com.example.messenger.dataBase.firebaseFuns.UID
 import com.example.messenger.screens.NavDrawer
 import com.example.messenger.ui.theme.MessengerTheme
 import com.example.messenger.dataBase.valueEventListenerClasses.AppStatus
@@ -27,11 +28,15 @@ import com.example.messenger.viewModals.ChatsViewModal
 import com.example.messenger.viewModals.ContactsViewModal
 import com.example.messenger.viewModals.CurrentChatHolderViewModal
 import com.example.messenger.viewModals.NavDrawerViewModal
+import com.google.firebase.Firebase
+import com.google.firebase.firestore.firestore
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.messaging.FirebaseMessagingService
+import com.google.firebase.messaging.messaging
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import java.util.jar.Manifest
 
 
@@ -63,6 +68,11 @@ class MainActivity : ComponentActivity() {
 
         CoroutineScope(Dispatchers.IO).launch {
             init()
+            val localToken = Firebase.messaging.token.await()
+            val tempMap = mutableMapOf<String, String>()
+            tempMap["token"] = localToken.toString()
+            Firebase.firestore.collection("Tokens").document(UID)
+                .set(tempMap)
         }
     }
 
@@ -72,6 +82,7 @@ class MainActivity : ComponentActivity() {
         defaultImageUri =
             "android.resource://$packageName/${R.drawable.default_profile_image}".toUri()
     }
+
 
     override fun onStart() {
         super.onStart()
