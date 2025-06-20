@@ -65,17 +65,17 @@ class GroupChatViewModal : ViewModel() {
                 }
 
                 if (snapshot != null && snapshot.exists()) {
-                    val chatData = snapshot.toObject(GroupChatModal::class.java)
+                    val newData = snapshot.toObject(GroupChatModal::class.java)
 
                     Firebase.firestore
                         .collection("users_talkers").document(UID)
-                        .collection("talkers").document(chatData?.id ?: "")
-                        .update("chatName", chatData?.chatName)
+                        .collection("talkers").document(newData?.id ?: "")
+                        .update("chatName", newData?.chatName)
 
                     Firebase.firestore
                         .collection("users_talkers").document(UID)
-                        .collection("talkers").document(chatData?.id ?: "")
-                        .update("photoUrl", chatData?.photoUrl)
+                        .collection("talkers").document(newData?.id ?: "")
+                        .update("photoUrl", newData?.photoUrl)
 
                 } else {
                     Log.d("Firestore", "Документ не найден")

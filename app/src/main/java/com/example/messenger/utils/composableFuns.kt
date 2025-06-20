@@ -4,7 +4,10 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.selection.LocalTextSelectionColors
+import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Menu
@@ -16,16 +19,18 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -39,37 +44,51 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
-fun mainFieldStyle(
+fun MainFieldStyle(
     labelText: String,
     enable: Boolean,
     maxLine: Int,
     text: String,
     action: (String) -> Unit,
 ) {
-    TextField(
-        value = text,
-        onValueChange = { action(it) },
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable {
-                action(text)
-            },
-        label = { Text(text = labelText, fontSize = 12.sp) },
-        maxLines = maxLine,
-        enabled = enable,
-        colors = TextFieldDefaults.colors(
-            unfocusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-            unfocusedTextColor = MaterialTheme.colorScheme.tertiary,
 
-            focusedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
-            focusedTextColor = MaterialTheme.colorScheme.onTertiary,
-
-            disabledContainerColor = MaterialTheme.colorScheme.onSecondaryContainer,
-            disabledTextColor = MaterialTheme.colorScheme.tertiaryContainer,
-            disabledLabelColor = MaterialTheme.colorScheme.outline,
-            disabledIndicatorColor = MaterialTheme.colorScheme.outlineVariant,
-        )
+    val customTextSelectionColors = TextSelectionColors(
+        handleColor = Color.Gray,
+        backgroundColor = Color.Gray
     )
+    CompositionLocalProvider(LocalTextSelectionColors provides customTextSelectionColors) {
+        TextField(
+            value = text,
+            onValueChange = { action(it) },
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable {
+                    action(text)
+                },
+            label = {
+                Text(
+                    text = labelText,
+                    fontSize = 12.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            },
+            maxLines = maxLine,
+            enabled = enable,
+            textStyle = TextStyle(
+                fontSize = 14.sp,
+                color = MaterialTheme.colorScheme.onSurface
+            ),
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = Color.Transparent,
+                unfocusedContainerColor = Color.Transparent,
+                disabledContainerColor = Color.Transparent,
+                focusedIndicatorColor = MaterialTheme.colorScheme.outline,
+                unfocusedIndicatorColor = MaterialTheme.colorScheme.outline,
+                disabledIndicatorColor = MaterialTheme.colorScheme.outlineVariant,
+                cursorColor = Color.Gray
+            )
+        )
+    }
 }
 
 
@@ -90,20 +109,25 @@ fun mainFieldStyle(
             .clickable {
                 action()
             },
-        label = { Text(text = labelText, fontSize = 12.sp) },
+        label = { Text(
+            text = labelText,
+            fontSize = 12.sp,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        ) },
+        textStyle = TextStyle(
+            fontSize = 14.sp,
+            color = MaterialTheme.colorScheme.onSurface
+        ),
         maxLines = maxLine,
         enabled = enable,
         colors = TextFieldDefaults.colors(
-            unfocusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-            unfocusedTextColor = MaterialTheme.colorScheme.tertiary,
-
-            focusedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
-            focusedTextColor = MaterialTheme.colorScheme.onTertiary,
-
-            disabledContainerColor = MaterialTheme.colorScheme.onSecondaryContainer,
-            disabledTextColor = MaterialTheme.colorScheme.tertiaryContainer,
-            disabledLabelColor = MaterialTheme.colorScheme.outline,
+            focusedContainerColor = Color.Transparent,
+            unfocusedContainerColor = Color.Transparent,
+            disabledContainerColor = Color.Transparent,
+            focusedIndicatorColor = MaterialTheme.colorScheme.primary,
+            unfocusedIndicatorColor = MaterialTheme.colorScheme.outline,
             disabledIndicatorColor = MaterialTheme.colorScheme.outlineVariant,
+            //cursorColor = MaterialTheme.colorScheme.primary
         )
     )
     return text
@@ -127,20 +151,24 @@ fun MainFieldStyle(
             .clickable {
                 function()
             },
-        label = { Text(text = labelText, fontSize = 12.sp) },
+        label = { Text(
+            text = labelText,
+            fontSize = 12.sp,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        ) },
         maxLines = maxLine,
         enabled = enable,
+        textStyle = TextStyle(
+            fontSize = 14.sp,
+            color = MaterialTheme.colorScheme.onSurface
+        ),
         keyboardOptions = keyboardOptions,
         colors = TextFieldDefaults.colors(
-            unfocusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-            unfocusedTextColor = MaterialTheme.colorScheme.tertiary,
-
-            focusedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
-            focusedTextColor = MaterialTheme.colorScheme.onTertiary,
-
-            disabledContainerColor = MaterialTheme.colorScheme.onSecondaryContainer,
-            disabledTextColor = MaterialTheme.colorScheme.tertiaryContainer,
-            disabledLabelColor = MaterialTheme.colorScheme.outline,
+            focusedContainerColor = Color.Transparent,
+            unfocusedContainerColor = Color.Transparent,
+            disabledContainerColor = Color.Transparent,
+            focusedIndicatorColor = MaterialTheme.colorScheme.primary,
+            unfocusedIndicatorColor = MaterialTheme.colorScheme.outline,
             disabledIndicatorColor = MaterialTheme.colorScheme.outlineVariant,
         )
     )
@@ -213,28 +241,8 @@ fun UriImage(
     )
 }
 
-//@Composable
-//fun MainImage(
-//    dp: Dp,
-//    action: () -> Unit,
-//) {
-//    Image(
-//        bitmap = ImageBitmap.imageResource(R.drawable.tank),
-//        contentDescription = " ",
-//        contentScale = ContentScale.Crop,
-//        modifier = Modifier
-//            .clip(CircleShape)
-//            .size(dp)
-//            .clickable {
-//                action()
-//            }
-//    )
-//}
-
 @Composable
-fun MessageImage(
-    uri: String
-) {
+fun MessageImage(uri: String) {
     val context = LocalContext.current
     val imageRequest = remember(uri) {
         ImageRequest.Builder(context)
@@ -246,11 +254,11 @@ fun MessageImage(
 
     AsyncImage(
         model = imageRequest,
+        contentDescription = null,
         placeholder = painterResource(R.drawable.def_image_msg),
-        contentDescription = "",
-        contentScale = ContentScale.FillBounds,
+        contentScale = ContentScale.Crop,
         modifier = Modifier
-            .clip(RectangleShape)
             .size(200.dp)
+            .clip(RoundedCornerShape(8.dp))
     )
 }

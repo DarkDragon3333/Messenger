@@ -6,12 +6,16 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -37,110 +41,71 @@ fun ElementOfChatsList(
     navController: NavHostController,
     currentChatHolderViewModal: CurrentChatHolderViewModal = viewModel()
 ) {
+    val isGroup = chatType is GroupChatModal
+    val title = chatType.chatName
+    val subtitle = chatType.lastMessage?.take(30)?.let { if (it.length == 30) "$it..." else it }
+    val trailingText = if (isGroup) "Группа" else (chatType as ChatModal).status
+    val photoUrl = chatType.photoUrl
 
-    when (chatType.type) {
-        "group" -> {
-            val chatModal = remember { mutableStateOf(chatType as GroupChatModal) }
-            Card(
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(72.dp)
+            .padding( vertical = 2.dp) // уменьшенные отступы
+            .clickable {
+                if (isGroup) {
+                    currentChatHolderViewModal.setGroupChat(chatType as GroupChatModal)
+                    goTo(navController, Screens.GroupChat)
+                } else {
+                    currentChatHolderViewModal.setChat(chatType as ChatModal)
+                    goTo(navController, Screens.Chat)
+                }
+            },
+        shape = MaterialTheme.shapes.medium,
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        ),
+        elevation = CardDefaults.cardElevation(1.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            UriImage(48.dp,  photoUrl) {} // чуть меньше аватар
+
+            Spacer(modifier = Modifier.width(8.dp)) // уменьшен промежуток
+
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(70.dp)
-                    .clickable {
-                        currentChatHolderViewModal.setGroupChat(chatModal.value)
-                        goTo(navController, Screens.GroupChat)
-                    },
-                shape = RoundedCornerShape(
-                    topStart = 0.dp,
-                    topEnd = 0.dp,
-                    bottomEnd = 0.dp,
-                    bottomStart = 0.dp,
-                ),
+                    .weight(1f)
+                    .padding(vertical = 6.dp),
+                verticalArrangement = Arrangement.Center
             ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Spacer(modifier = Modifier.padding(4.dp))
-                    Column(verticalArrangement = Arrangement.Center) {
-                        Spacer(modifier = Modifier.padding(2.dp))
-                        UriImage(64.dp, chatModal.value.photoUrl) {}
-                    }
-
-                    Spacer(modifier = Modifier.padding(8.dp))
-
-                    Column {
-                        Text(text = chatModal.value.chatName)
-                        chatModal.value.lastMessage?.let {
-                            Text(
-                                text = it.take(10) + if (it.length > 20) "..." else "",
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                        }
-                    }
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(0.dp, 0.dp, 30.dp, 0.dp),
-                        contentAlignment = Alignment.CenterEnd
-                    ) {
-                        Text(text = "Группа", fontSize = 13.sp)
-                    }
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                if (!subtitle.isNullOrEmpty()) {
+                    Text(
+                        text = subtitle,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
                 }
             }
-            HorizontalDivider()
-        }
 
-        "chat" -> {
-            val chatModal = remember { mutableStateOf(chatType as ChatModal) }
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(70.dp)
-                    .clickable {
-                        currentChatHolderViewModal.setChat(chatModal.value)
-                        goTo(navController, Screens.Chat)
-                    },
-
-                shape = RoundedCornerShape(
-                    topStart = 0.dp,
-                    topEnd = 0.dp,
-                    bottomEnd = 0.dp,
-                    bottomStart = 0.dp,
-                ),
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Spacer(modifier = Modifier.padding(4.dp))
-                    Column(verticalArrangement = Arrangement.Center) {
-                        Spacer(modifier = Modifier.padding(2.dp))
-                        UriImage(64.dp, chatModal.value.photoUrl) {}
-                    }
-                    Spacer(modifier = Modifier.padding(8.dp))
-
-                    Column {
-                        Text(text = chatModal.value.chatName)
-                        chatModal.value.lastMessage?.let {
-                            Text(
-                                text = it.take(20) + if (it.length > 20) "..." else "",
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                        }
-                    }
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(0.dp, 0.dp, 30.dp, 0.dp),
-                        contentAlignment = Alignment.CenterEnd
-                    ) {
-                        Text(text = chatModal.value.status, fontSize = 13.sp)
-                    }
-                }
-            }
-            HorizontalDivider()
+            Text(
+                text = trailingText,
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.primary
+            )
         }
     }
 }
+
+

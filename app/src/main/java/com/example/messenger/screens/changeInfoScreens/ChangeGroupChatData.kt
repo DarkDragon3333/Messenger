@@ -31,7 +31,7 @@ import com.example.messenger.modals.ContactModal
 import com.example.messenger.screens.componentOfScreens.ContactCard
 import com.example.messenger.utils.UriImage
 import com.example.messenger.utils.mainActivityContext
-import com.example.messenger.utils.mainFieldStyle
+import com.example.messenger.utils.MainFieldStyle
 import com.example.messenger.utils.makeToast
 import com.example.messenger.viewModals.GroupChatViewModal
 
@@ -47,7 +47,7 @@ fun ChangeGroupChatData(groupChatViewModal: GroupChatViewModal) {
         UriImage(192.dp, groupChatViewModal.photoUrl.value) { }
         Spacer(modifier = Modifier.padding(20.dp))
 
-        mainFieldStyle(
+        MainFieldStyle(
             labelText = "Измените название чата",
             enable = true,
             maxLine = 1,

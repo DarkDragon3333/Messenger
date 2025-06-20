@@ -24,7 +24,7 @@ import com.example.messenger.dataBase.firebaseFuns.USER
 import com.example.messenger.dataBase.firebaseFuns.choseChangeInformation
 import com.example.messenger.utils.Constants.CHILD_USER_NAME
 import com.example.messenger.utils.mainActivityContext
-import com.example.messenger.utils.mainFieldStyle
+import com.example.messenger.utils.MainFieldStyle
 import com.example.messenger.utils.makeToast
 import com.example.messenger.utils.whenSelect
 
@@ -43,7 +43,7 @@ fun ChangeUserName(navController: NavHostController) {
             textAlign = TextAlign.Center
         )
         Spacer(modifier = Modifier.padding(0.dp, 40.dp, 0.dp, 0.dp))
-        mainFieldStyle(
+        MainFieldStyle(
             labelText = "Никнейм",
             enable = true,
             maxLine = 1,

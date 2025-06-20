@@ -1,10 +1,14 @@
 package com.example.messenger.utils
 
 import android.app.Activity
+import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
+import android.os.Environment
 import android.provider.ContactsContract
+import android.provider.MediaStore
 import android.provider.OpenableColumns
 import android.widget.Toast
 import androidx.activity.compose.ManagedActivityResultLauncher
@@ -12,6 +16,7 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material3.DrawerState
 import androidx.navigation.NavHostController
+import com.example.messenger.dataBase.firebaseFuns.REF_STORAGE_ROOT
 import com.example.messenger.dataBase.firebaseFuns.updateContactsForFirebase
 import com.example.messenger.modals.ChatModal
 import com.example.messenger.modals.CommonModal
@@ -20,11 +25,17 @@ import com.example.messenger.modals.GroupChatModal
 import com.example.messenger.modals.MessageModal
 import com.example.messenger.navigation.Screens
 import com.example.messenger.screens.loginAndSignUp.AddInfo
+import com.example.messenger.utils.Constants.FOLDER_PHOTOS
 import com.example.messenger.viewModals.ContactsViewModal
 import com.google.firebase.auth.PhoneAuthProvider
 import com.google.firebase.database.DataSnapshot
+import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
+import java.net.URLDecoder
 import java.net.URLEncoder
 
 /*
@@ -282,4 +293,59 @@ fun whenSelect(bool: Boolean, funTrue: () -> Unit, funFalse: () -> Unit) {
         true -> funTrue
         false -> funFalse
     }
+}
+
+suspend fun downloadFileToDownloads(
+    context: Context,
+    firebasePath: String,
+    fileName: String
+): Boolean = withContext(Dispatchers.IO) {
+    try {
+        val storageRef = FirebaseStorage.getInstance().reference.child(firebasePath)
+        val streamResult = storageRef.stream.await()
+        val inputStream = streamResult.stream
+
+        val resolver = context.contentResolver
+        val contentValues = ContentValues().apply {
+            put(MediaStore.Downloads.DISPLAY_NAME, fileName)
+            put(MediaStore.Downloads.MIME_TYPE, getMimeType(fileName))
+            put(MediaStore.Downloads.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
+            put(MediaStore.Downloads.IS_PENDING, 1)
+        }
+
+        val uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
+            ?: return@withContext false
+
+        resolver.openOutputStream(uri).use { outputStream ->
+            inputStream.copyTo(outputStream!!)
+        }
+
+        contentValues.clear()
+        contentValues.put(MediaStore.Downloads.IS_PENDING, 0)
+        resolver.update(uri, contentValues, null, null)
+
+        true
+    } catch (e: Exception) {
+        e.printStackTrace()
+        false
+    }
+}
+
+
+// Пример функции для определения MIME типа по имени файла
+fun getMimeType(fileName: String): String {
+    return when {
+        fileName.endsWith(".pdf") -> "application/pdf"
+        fileName.endsWith(".jpg") || fileName.endsWith(".jpeg") -> "image/jpeg"
+        fileName.endsWith(".png") -> "image/png"
+        fileName.endsWith(".txt") -> "text/plain"
+        else -> "*/*"
+    }
+}
+
+fun extractFirebasePathFromUrl(url: String): String? {
+    val decoded = URLDecoder.decode(url, "UTF-8")
+    val regex = Regex("/o/(.+)\\?alt")
+    val match = regex.find(decoded)
+    return match?.groups?.get(1)?.value?.replace("%2F", "/")
 }

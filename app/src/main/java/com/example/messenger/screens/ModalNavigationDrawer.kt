@@ -1,12 +1,15 @@
 package com.example.messenger.screens
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
@@ -40,6 +43,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -82,38 +86,43 @@ fun NavDrawer(
 
     val currentRBool = currentBackStackEntry?.destination?.route == Screens.Chats.route
 
+    fun Color.adjustBrightness(factor: Float): Color {
+        return Color(
+            red = (red * factor).coerceIn(0f, 1f),
+            green = (green * factor).coerceIn(0f, 1f),
+            blue = (blue * factor).coerceIn(0f, 1f),
+            alpha = alpha
+        )
+    }
+
+    // Основной фон
+    val mainBackground = MaterialTheme.colorScheme.onBackground
+    // Фон меню — чуть темнее
+    val drawerBackground = mainBackground.adjustBrightness(0.95f)
+    // Фон топ-бара — чуть прозрачнее и чуть светлее основного
+    val topBarBackground = mainBackground.copy(alpha = 0.85f)
+
     ModalNavigationDrawer(
         drawerState = drawerState,
         gesturesEnabled = currentRBool,
         drawerContent = {
-            ModalDrawerSheet {//Элемент выдвигающегося меню
-                HorizontalDivider(modifier = Modifier.padding(bottom = 20.dp), thickness = 1.dp)
-
-                Column(modifier = Modifier.padding(15.dp, 0.dp)) {
-                    Spacer(modifier = Modifier.padding(10.dp))
+            ModalDrawerSheet(
+                windowInsets = WindowInsets(0), // Убираем отступы по умолчанию
+                modifier = Modifier.background(MaterialTheme.colorScheme.background) // Прозрачный/основной фон
+            ) {
+                Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 24.dp)) {
                     UriImage(64.dp, USER.photoUrl) {
-                        goTo(
-                            navController,
-                            Screens.YourProfile,
-                            coroutineScope,
-                            drawerState
-                        )
+                        goTo(navController, Screens.YourProfile, coroutineScope, drawerState)
                     }
 
-                    Spacer(modifier = Modifier.padding(10.dp))
-                    Text(text = USER.fullname)
-                    Spacer(modifier = Modifier.padding(5.dp))
-                    Text(text = USER.phone)
-                }
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(text = USER.fullname, style = MaterialTheme.typography.bodyLarge)
+                    Text(text = USER.phone, style = MaterialTheme.typography.bodySmall)
 
-                Spacer(modifier = Modifier.padding(10.dp)) //Отступ
-                HorizontalDivider(
-                    thickness = 1.dp,
-                    modifier = Modifier.padding(bottom = 10.dp)
-                ) //Линия
-
-                navDrawerViewModal.getVisibleScreens()
-                    .forEach { screen -> //Циклом генерируем элементы выдвигающегося меню
+                    Spacer(modifier = Modifier.height(20.dp))
+                    HorizontalDivider()
+                    Spacer(modifier = Modifier.height(8.dp))
+                    navDrawerViewModal.getVisibleScreens().forEach { screen ->
                         NavigationDrawerItem(
                             label = { Text(text = screen.title) },
                             icon = {
@@ -125,15 +134,11 @@ fun NavDrawer(
                             selected = currentRoute == screen.route,
                             modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
                             onClick = {
-                                goTo(
-                                    navController,
-                                    screen,
-                                    coroutineScope,
-                                    drawerState
-                                )
+                                goTo(navController, screen, coroutineScope, drawerState)
                             }
                         )
                     }
+                }
             }
         }
     ) {
@@ -149,42 +154,40 @@ fun NavDrawer(
                             groupChatViewModal
                         )
                     },
-                    modifier = Modifier.fillMaxWidth(),
                     colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer
+                        containerColor = Color.Transparent,
+                        scrolledContainerColor = Color.Transparent,
+                        titleContentColor = MaterialTheme.colorScheme.onBackground,
+                        navigationIconContentColor = MaterialTheme.colorScheme.onBackground,
+                        actionIconContentColor = MaterialTheme.colorScheme.onBackground
                     ),
-                    actions = {//Элементы в конце TopAppBar
-                        if (navDrawerViewModal.isSettings || navDrawerViewModal.isGroupChat)
+                    actions = {
+                        if (navDrawerViewModal.isSettings || navDrawerViewModal.isGroupChat) {
                             DropdownMenuItems(
                                 drawerState,
                                 coroutineScope,
                                 navController,
                                 currentChatHolderViewModal
                             )
-                    },
-                    navigationIcon = {
-                        when (navDrawerViewModal.isChats) {
-                            true -> {
-                                NavIconButton(coroutineScope, drawerState)
-                                BackHandler {
-                                    mainActivityContext.moveTaskToBack(true) // или exitProcess(0)
-                                }
-                            }
-
-                            false -> NavIconButton(
-                                coroutineScope,
-                                navController,
-                                navDrawerViewModal
-                            )
                         }
                     },
+                    navigationIcon = {
+                        if (navDrawerViewModal.isChats) {
+                            NavIconButton(coroutineScope, drawerState)
+                            BackHandler { mainActivityContext.moveTaskToBack(true) }
+                        } else {
+                            NavIconButton(coroutineScope, navController, navDrawerViewModal)
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth()
                 )
             }
-        ) {
+        ) { padding ->
             Surface(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(top = it.calculateTopPadding())
+                    .padding(top = padding.calculateTopPadding()),
+
             ) {
                 DrawerNavigation(
                     navController,
@@ -203,14 +206,12 @@ fun NavDrawer(
             }
 
             DisposableEffect(Unit) {
-
-                onDispose {
-
-                }
+                onDispose { /* тут можно добавить очистку */ }
             }
         }
     }
 }
+
 
 @Composable
 fun Title(
@@ -253,15 +254,7 @@ fun ChatTitleView(
             )
         }
     }
-    LaunchedEffect(currentChatHolderViewModal.currentChat) {
-        if (chatViewModal.status.value.isEmpty() ||
-            chatViewModal.fullName.value.isEmpty() ||
-            chatViewModal.photoUrl.value.isEmpty()
-        ) {
 
-        }
-
-    }
     DisposableEffect(Unit) {
         chatViewModal.listingUsersData(currentChatHolderViewModal.currentChat?.id ?: " ")
         chatViewModal.startListingChatDataForTitle(currentChatHolderViewModal.currentChat?.id ?: " ")
@@ -270,7 +263,6 @@ fun ChatTitleView(
         onDispose {
             chatViewModal.removeListener()
             chatViewModal.removeDataTitle()
-            //currentChatHolderViewModal.clearChat()
         }
     }
 }
@@ -290,17 +282,7 @@ fun GroupChatTitleView(
             Text(text = groupChatViewModal.groupChatName.value, fontSize = 16.sp)
         }
     }
-    LaunchedEffect(currentChatHolderViewModal.currentGroupChat) {
-        if (groupChatViewModal.groupChatName.value.isEmpty() ||
-            groupChatViewModal.status.value.isEmpty() ||
-            groupChatViewModal.photoUrl.value.isEmpty()
-        ) {
 
-        }
-
-
-
-    }
     DisposableEffect(Unit) {
         groupChatViewModal.initDataTitle(currentChatHolderViewModal.currentGroupChat)
         groupChatViewModal.startListingGroupChatData(currentChatHolderViewModal.currentGroupChat?.id
@@ -316,7 +298,6 @@ fun GroupChatTitleView(
         onDispose {
             groupChatViewModal.removeListener()
             groupChatViewModal.removeDataTitle()
-           // currentChatHolderViewModal.clearChat()
         }
     }
 }

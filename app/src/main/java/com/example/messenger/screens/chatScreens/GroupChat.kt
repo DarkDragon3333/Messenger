@@ -47,6 +47,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.res.painterResource
@@ -408,6 +409,7 @@ private fun SendMessageButton(
     infoArray: Array<String>,
     cleanText: () -> Unit,
 ) {
+    val context = LocalContext.current
     IconButton(
         interactionSource = interactionSource,
         modifier = Modifier
@@ -427,7 +429,9 @@ private fun SendMessageButton(
                         delay(viewConfiguration.longPressTimeoutMillis)
                         isLongClick = true
                         appVoiceRecorder = AppVoiceRecorder()
+
                         startRecordVoiceMsg(
+                            context,
                             changeColor,
                             groupChatId,
                             recordVoiceFlag
@@ -443,7 +447,7 @@ private fun SendMessageButton(
                                 TYPE_GROUP,
                                 currentChatHolderViewModal.currentGroupChat!!.contactList
                             )
-                            appVoiceRecorder.releaseRecordedVoice()
+                            appVoiceRecorder.releaseRecorder()
                             if (chatScreenState.isNotEmpty())
                                 coroutineScope.launch {
                                     listState.animateScrollToItem(0)
@@ -465,7 +469,7 @@ private fun SendMessageButton(
                                 TYPE_GROUP,
                                 currentChatHolderViewModal.currentGroupChat!!.contactList
                             )
-                            appVoiceRecorder.releaseRecordedVoice()
+                            appVoiceRecorder.releaseRecorder()
                             if (chatScreenState.isNotEmpty())
                                 coroutineScope.launch {
                                     listState.animateScrollToItem(0)

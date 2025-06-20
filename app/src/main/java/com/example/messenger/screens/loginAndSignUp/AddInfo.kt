@@ -43,7 +43,7 @@ import com.example.messenger.utils.Constants.FOLDER_PHOTOS
 import com.example.messenger.utils.Constants.NODE_PHONES
 import com.example.messenger.utils.Constants.NODE_USERS
 import com.example.messenger.utils.goTo
-import com.example.messenger.utils.mainFieldStyle
+import com.example.messenger.utils.MainFieldStyle
 import com.example.messenger.utils.makeToast
 import com.example.messenger.utils.sign_out
 import androidx.core.net.toUri
@@ -112,7 +112,7 @@ class AddInfo : ComponentActivity() {
             Text(text = "Введите информацию о себе:")
 
             Spacer(modifier = Modifier.padding(0.dp, 20.dp, 0.dp, 0.dp))
-            mainFieldStyle(
+            MainFieldStyle(
                 labelText = "Ваше имя",
                 enable = true,
                 1,
@@ -122,7 +122,7 @@ class AddInfo : ComponentActivity() {
             }
 
             Spacer(modifier = Modifier.padding(0.dp, 20.dp, 0.dp, 0.dp))
-            mainFieldStyle(
+            MainFieldStyle(
                 labelText = "Ваша фамилия",
                 enable = true,
                 1,
@@ -132,7 +132,7 @@ class AddInfo : ComponentActivity() {
             }
 
             Spacer(modifier = Modifier.padding(0.dp, 20.dp, 0.dp, 0.dp))
-            mainFieldStyle(
+            MainFieldStyle(
                 labelText = "Ваш ник",
                 enable = true,
                 1,
@@ -142,7 +142,7 @@ class AddInfo : ComponentActivity() {
             }
 
             Spacer(modifier = Modifier.padding(0.dp, 20.dp, 0.dp, 0.dp))
-            mainFieldStyle(
+            MainFieldStyle(
                 labelText = "Немного о себе",
                 enable = true,
                 3,

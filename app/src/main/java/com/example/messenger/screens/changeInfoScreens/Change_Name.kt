@@ -3,12 +3,10 @@ package com.example.messenger.screens.changeInfoScreens
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -24,7 +22,7 @@ import com.example.messenger.dataBase.firebaseFuns.USER
 import com.example.messenger.dataBase.firebaseFuns.choseChangeInformation
 import com.example.messenger.utils.Constants.CHILD_CHAT_NAME
 import com.example.messenger.utils.mainActivityContext
-import com.example.messenger.utils.mainFieldStyle
+import com.example.messenger.utils.MainFieldStyle
 import com.example.messenger.utils.makeToast
 
 @Composable
@@ -38,7 +36,7 @@ fun ChangeName(navController: NavHostController) {
         Text(text = "Введите новое имя и фамилию:")
 
         Spacer(modifier = Modifier.height(10.dp))
-        mainFieldStyle(
+        MainFieldStyle(
             labelText = "Введите имя",
             enable = true,
             maxLine = 1,
@@ -48,7 +46,7 @@ fun ChangeName(navController: NavHostController) {
         }
 
         Spacer(modifier = Modifier.height(10.dp))
-        mainFieldStyle(
+        MainFieldStyle(
             labelText = "Введите фамилию",
             enable = true,
             maxLine = 1,

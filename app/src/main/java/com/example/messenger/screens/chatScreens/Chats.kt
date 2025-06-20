@@ -1,17 +1,24 @@
 package com.example.messenger.screens.chatScreens
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.snapshotFlow
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -56,29 +63,40 @@ fun ChatsScreen(
 
 @Composable
 private fun ChatsList(
-    chatsScreenState: MutableList<ChatItem>,
+    chatsScreenState: List<ChatItem>,
     listState: LazyListState,
     navController: NavHostController,
-    currentChatViewModel: CurrentChatHolderViewModal = viewModel()
+    currentChatViewModel: CurrentChatHolderViewModal,
+    modifier: Modifier = Modifier
 ) {
     if (chatsScreenState.isNotEmpty()) {
-        HorizontalDivider()
-        Spacer(modifier = Modifier.height(10.dp))
-
         LazyColumn(
-            modifier = Modifier.fillMaxSize(),
             state = listState,
+            contentPadding = PaddingValues(vertical = 4.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp),
+            modifier = modifier.fillMaxSize().padding(horizontal = 8.dp)
         ) {
             items(
-                chatsScreenState,
-                key = {
-                    it.id.toString() + "_" + (it.lastMessage ?: "") + "_" + (it.timeStamp
-                        ?: "") + "_" + it.status + "_" + it.photoUrl + "_" + it.chatName
-                }) { chat ->
+                items = chatsScreenState,
+                key = { it.id.toString() + "_" + (it.lastMessage ?: "") + "_" + (it.timeStamp
+                    ?: "") + "_" + it.status + "_" + it.photoUrl + "_" + it.chatName }
+            ) { chat ->
                 ElementOfChatsList(chat, navController, currentChatViewModel)
             }
         }
-
+    } else {
+        Box(
+            modifier = modifier
+                .fillMaxSize()
+                .padding(32.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = "Список чатов пуст",
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
     }
 }
 

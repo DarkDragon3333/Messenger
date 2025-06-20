@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
@@ -22,6 +23,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.messenger.MainActivity
@@ -36,7 +38,7 @@ import com.example.messenger.ui.theme.MessengerTheme
 import com.example.messenger.utils.Constants.NODE_PHONES
 import com.example.messenger.utils.Constants.NODE_USERS
 import com.example.messenger.utils.goTo
-import com.example.messenger.utils.mainFieldStyle
+import com.example.messenger.utils.MainFieldStyle
 import com.example.messenger.utils.makeToast
 import com.example.messenger.utils.whenSelect
 import com.google.firebase.FirebaseException
@@ -103,85 +105,74 @@ class LoginActivity : ComponentActivity() {
     fun GreetingInLoginActivity() {
         var phoneField by rememberSaveable { mutableStateOf("") }
         var passwordField by rememberSaveable { mutableStateOf("") }
-        Column {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(0.dp, 100.dp, 0.dp, 0.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            )
-            {
-                mainFieldStyle(
-                    labelText = "Номер телефона",
-                    enable = true,
-                    maxLine = 1,
-                    phoneField
-                ) { phone ->
-                    phoneField = phone
-                }
-                Spacer(modifier = Modifier.padding(8.dp))
-                mainFieldStyle(
-                    labelText = "Пароль",
-                    enable = true,
-                    maxLine = 1,
-                    passwordField
-                ) { password->
-                    passwordField = password
-                }
 
-                Spacer(modifier = Modifier.padding(120.dp))
-                Button(
-                    onClick = {
-                        var pattern = Regex("[^\\d+]")
-                        var formattedPhone = phoneField.replace(pattern, "")
-                        formattedPhone =
-                            if (!formattedPhone.startsWith("+")) "+$formattedPhone" else formattedPhone
-                        pattern = Regex("(\\+\\d+)(\\d{3})(\\d{3})(\\d{4})")
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(top = 100.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            MainFieldStyle(
+                labelText = "Номер телефона",
+                enable = true,
+                maxLine = 1,
+                text = phoneField
+            ) { phoneField = it }
 
-                        formattedPhone = pattern.replace(formattedPhone) { match ->
-                            "${match.groups[1]?.value}" +
-                                    " ${match.groups[2]?.value}" +
-                                    "-${match.groups[3]?.value}" +
-                                    "-${match.groups[4]?.value}"
-                        }
-                        checkPhone(/*formattedPhone*/phoneField, passwordField)
+            Spacer(modifier = Modifier.height(8.dp))
+
+            MainFieldStyle(
+                labelText = "Пароль",
+                enable = true,
+                maxLine = 1,
+                text = passwordField
+            ) { passwordField = it }
+
+            Spacer(modifier = Modifier.height(120.dp))
+
+            Button(
+                onClick = {
+                    val pattern = Regex("[^\\d+]")
+                    var formattedPhone = phoneField.replace(pattern, "")
+                    formattedPhone = if (!formattedPhone.startsWith("+")) "+$formattedPhone" else formattedPhone
+
+                    val phoneFormat = Regex("(\\+\\d+)(\\d{3})(\\d{3})(\\d{4})")
+                    formattedPhone = phoneFormat.replace(formattedPhone) { match ->
+                        "${match.groups[1]?.value} ${match.groups[2]?.value}-${match.groups[3]?.value}-${match.groups[4]?.value}"
                     }
-                ) { Text("Sing in", fontSize = 18.sp) }
 
-                Box(
-                    contentAlignment = Alignment.BottomCenter, modifier = Modifier
-                        .fillMaxSize()
-                        .padding(0.dp, 0.dp, 0.dp, 40.dp)
-                ) { SingUpInLoginActivity() }
-
+                    checkPhone(phoneField, passwordField)
+                }
+            ) {
+                Text("Sign in", fontSize = 18.sp)
             }
-        }
 
+            Spacer(modifier = Modifier.weight(1f))
+
+            SignUpInLoginActivity()
+        }
     }
 
     @Composable
-    fun SingUpInLoginActivity() {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
+    fun SignUpInLoginActivity() {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 40.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
                 text = "У вас нет аккаунта?\nДавайте зарегистрируемся!",
-                modifier = Modifier.padding(10.dp, 0.dp, 0.dp, 0.dp)
+                modifier = Modifier.padding(horizontal = 16.dp),
+                textAlign = TextAlign.Center
             )
-            Row(
-                horizontalArrangement = Arrangement.End,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(0.dp, 0.dp, 35.dp, 0.dp)
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Button(
+                onClick = { goTo(SingUpActivity::class.java, context) }
             ) {
-                Button(
-                    onClick = {
-                        goTo(SingUpActivity::class.java, context)
-                    }
-                ) {
-                    Text("Sing up", fontSize = 18.sp)
-                }
+                Text("Sign up", fontSize = 18.sp)
             }
         }
     }

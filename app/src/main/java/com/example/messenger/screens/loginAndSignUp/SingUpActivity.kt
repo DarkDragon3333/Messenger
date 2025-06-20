@@ -26,7 +26,7 @@ import com.example.messenger.dataBase.firebaseFuns.AUTH
 import com.example.messenger.dataBase.firebaseFuns.authUser
 import com.example.messenger.utils.goTo
 import com.example.messenger.dataBase.firebaseFuns.initFirebase
-import com.example.messenger.utils.mainFieldStyle
+import com.example.messenger.utils.MainFieldStyle
 import com.example.messenger.utils.makeToast
 import com.example.messenger.utils.sign_in
 import com.google.firebase.FirebaseException
@@ -78,7 +78,7 @@ class SingUpActivity : ComponentActivity() {
                 horizontalAlignment = Alignment.CenterHorizontally
             )
             {
-                mainFieldStyle(
+                MainFieldStyle(
                     labelText = "Номер телефона",
                     enable = true,
                     maxLine = 1,
@@ -88,7 +88,7 @@ class SingUpActivity : ComponentActivity() {
                 }
 
                 Spacer(modifier = Modifier.padding(8.dp))
-                mainFieldStyle(
+                MainFieldStyle(
                     labelText = "Пароль",
                     enable = true,
                     maxLine = 1,
@@ -99,7 +99,7 @@ class SingUpActivity : ComponentActivity() {
                 }
 
                 Spacer(modifier = Modifier.padding(8.dp))
-                mainFieldStyle(
+                MainFieldStyle(
                     labelText = "Повторите пароль",
                     enable = true,
                     maxLine = 1,

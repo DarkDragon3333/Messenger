@@ -226,6 +226,7 @@ class ChatsViewModal : ViewModel() {
                     previousChildName: String?
                 ) {
                     val updateStatus = snapshot.getValue(ContactModal::class.java) ?: ContactModal()
+
                     Firebase.firestore
                         .collection("users_talkers").document(UID)
                         .collection("talkers").document(updateStatus.id)
@@ -289,11 +290,10 @@ class ChatsViewModal : ViewModel() {
                     }
 
                     DocumentChange.Type.MODIFIED -> {
-                        //val chatId = document.document.get("id")
-
                         val updateData = document.document.toObject<GroupChatModal>(
                             GroupChatModal::class.java
                         )
+
                         Firebase.firestore
                             .collection("users_talkers").document(UID)
                             .collection("talkers").document(updateData.id)

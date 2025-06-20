@@ -4,6 +4,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -20,28 +22,29 @@ import kotlin.collections.mutableListOf
 
 @Composable
 fun TextMsg(message: Pair<MessageModal, Any>) {
-    Box(contentAlignment = Alignment.BottomEnd) {
-        Row(
-            modifier = Modifier
-                .background(textMes)
-                .padding(8.dp)
-        )
-        {
-            Text(
-                text = message.first.info,
-                fontSize = 16.sp,
-                color = Color.Black,
-                modifier = Modifier.padding(end = 60.dp)
+    Box(
+        contentAlignment = Alignment.BottomEnd,
+        modifier = Modifier
+            .background(
+                color = MaterialTheme.colorScheme.surfaceVariant,
+                shape = MaterialTheme.shapes.medium
             )
+            .padding(8.dp)
+    ) {
+        Text(
+            text = message.first.info,
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.padding(end = 48.dp)
+        )
 
-        }
         Text(
             text = message.second.toString(),
-            fontSize = 10.sp,
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier
-                .background(textMes)
-                .padding(end = 6.dp, bottom = 2.dp)
                 .align(Alignment.BottomEnd)
+                .padding(end = 4.dp, bottom = 2.dp)
         )
     }
 }

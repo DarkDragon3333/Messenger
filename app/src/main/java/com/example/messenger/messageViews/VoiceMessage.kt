@@ -1,17 +1,23 @@
 package com.example.messenger.messageViews
 
+import android.content.Context
 import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableIntState
@@ -37,52 +43,48 @@ import com.example.messenger.utils.mainActivityContext
 import com.example.messenger.utils.makeToast
 
 @Composable
-fun VoiceMsg(
-    pair: Pair<MessageModal, Any>
-) {
+fun VoiceMsg(pair: Pair<MessageModal, Any>) {
     val clickOnButton = remember { mutableIntStateOf(0) }
-    var appVoicePlayer: AppVoicePlayer = remember { AppVoicePlayer().apply { initMediaPlayer() } }
+    val appVoicePlayer = remember { AppVoicePlayer().apply { initMediaPlayer() } }
 
-    Box(contentAlignment = Alignment.BottomEnd) {
-        Row(
-            modifier = Modifier
-                .background(textMes)
-                .padding(8.dp)
-        )
-        {
-            IconButton(
-                modifier = Modifier
-                    .size(50.dp)
-                    .clip(CircleShape)
-                    .border(1.dp, Color.Black, CircleShape)
-                    .background(Color.White),
-                onClick = {
-                    clickOnButton.intValue += 1
-                    controlVoiceButton(clickOnButton, appVoicePlayer, pair)
-                }
+    Surface(
+        shape = MaterialTheme.shapes.medium,
+        color = MaterialTheme.colorScheme.surfaceVariant,
+    ) {
+        Box(contentAlignment = Alignment.BottomEnd, modifier = Modifier.padding(8.dp)) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(end = 48.dp)
             ) {
-                ControlIconOfPlayButton(clickOnButton)
+                FilledIconButton(
+                    onClick = {
+                        clickOnButton.intValue += 1
+                        controlVoiceButton(clickOnButton, appVoicePlayer, pair)
+                    },
+                    modifier = Modifier.size(48.dp)
+                ) {
+                    ControlIconOfPlayButton(clickOnButton)
+                }
+
+                Spacer(modifier = Modifier.width(8.dp))
+
+                Text(
+                    text = "Голосовое сообщение",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
 
             Text(
-                text = "Это голосовое сообщение",
-                fontSize = 16.sp,
-                color = Color.Black,
-                modifier = Modifier.padding(end = 60.dp)
+                text = pair.second.toString(),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(end = 4.dp, bottom = 2.dp)
             )
-
         }
-
-        Text(
-            text = pair.second.toString(),
-            fontSize = 10.sp,
-            modifier = Modifier
-                .background(textMes)
-                .padding(end = 6.dp, bottom = 2.dp)
-                .align(Alignment.BottomEnd)
-        )
     }
-
 }
 
 @Composable
@@ -120,6 +122,7 @@ private fun controlVoiceButton(
     }
 }
 
+
 private fun playVoiceMsg(
     appVoicePlayer: AppVoicePlayer,
     messageModal: MessageModal,
@@ -142,6 +145,7 @@ private fun stopVoiceMsg(
 }
 
 fun startRecordVoiceMsg(
+    context: Context,
     changeColor: MutableState<Color>,
     receivingUserID: String,
     recordVoiceFlag: MutableState<Boolean>
@@ -149,7 +153,7 @@ fun startRecordVoiceMsg(
     try {
         changeColor.value = Color.Blue
         val messageKey = getMessageKey(receivingUserID)
-        appVoiceRecorder.startRecording(messageKey)
+        appVoiceRecorder.startRecording(messageKey, context)
         recordVoiceFlag.value = true
     } catch (e: Exception) {
         makeToast(e.message.toString() + " ошибка записи", mainActivityContext)

@@ -9,6 +9,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -18,6 +19,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
@@ -47,6 +49,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.res.painterResource
@@ -368,40 +371,42 @@ private fun SheetContent(
     infoArray: Array<String>,
     receivingUserID: String
 ) {
-    Row {
-        Button(onClick = {
-            attachImage(launcher)
-            coroutineScope.launch { sheetState.hide() }.invokeOnCompletion {
-                if (!sheetState.isVisible)
-                    showBottomSheetState.value = false
-            }
-            if (chatScreenState.isEmpty())
-                addChatToChatsList(infoArray)
-            LastMessageState.updateLastMessageInChat("Изображение", receivingUserID)
-        }) {
-            Text("Image")
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(24.dp),
+        horizontalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        Button(
+            onClick = {
+                attachImage(launcher)
+                coroutineScope.launch { sheetState.hide() }.invokeOnCompletion {
+                    if (!sheetState.isVisible)
+                        showBottomSheetState.value = false
+                }
+                if (chatScreenState.isEmpty())
+                    addChatToChatsList(infoArray)
+                LastMessageState.updateLastMessageInChat("Изображение", receivingUserID)
+            },
+            modifier = Modifier.weight(1f)
+        ) {
+            Text("Изображение")
         }
 
-        Button(onClick = {
-            attachFile(launcherFile)
-            coroutineScope.launch { sheetState.hide() }.invokeOnCompletion {
-                if (!sheetState.isVisible)
-                    showBottomSheetState.value = false
-            }
-            if (chatScreenState.isEmpty())
-                addChatToChatsList(infoArray)
-            LastMessageState.updateLastMessageInChat("Файл", receivingUserID)
-        }) {
-            Text("File")
-        }
-
-        Button(onClick = {
-            coroutineScope.launch { sheetState.hide() }.invokeOnCompletion {
-                if (!sheetState.isVisible)
-                    showBottomSheetState.value = false
-            }
-        }) {
-            Text("TO-DO")
+        Button(
+            onClick = {
+                attachFile(launcherFile)
+                coroutineScope.launch { sheetState.hide() }.invokeOnCompletion {
+                    if (!sheetState.isVisible)
+                        showBottomSheetState.value = false
+                }
+                if (chatScreenState.isEmpty())
+                    addChatToChatsList(infoArray)
+                LastMessageState.updateLastMessageInChat("Файл", receivingUserID)
+            },
+            modifier = Modifier.weight(1f)
+        ) {
+            Text("Файл")
         }
     }
 }
@@ -433,6 +438,7 @@ private fun SendMessageButton(
         onClick = {
         }
     ) {
+        val context = LocalContext.current
         ControlIconOfVoiceButton(fieldText)
 
         LaunchedEffect(interactionSource) {
@@ -446,9 +452,11 @@ private fun SendMessageButton(
                         isLongClick = true
                         appVoiceRecorder = AppVoiceRecorder()
                         startRecordVoiceMsg(
+                            context,
                             changeColor,
                             receivingUserID,
-                            recordVoiceFlag
+                            recordVoiceFlag,
+
                         )
                     }
 
@@ -460,7 +468,7 @@ private fun SendMessageButton(
                                 recordVoiceFlag,
                                 TYPE_CHAT
                             )
-                            appVoiceRecorder.releaseRecordedVoice()
+                            appVoiceRecorder.releaseRecorder()
                             if (chatScreenState.isNotEmpty())
                                 coroutineScope.launch {
                                     listState.animateScrollToItem(0)
@@ -482,7 +490,7 @@ private fun SendMessageButton(
                                 recordVoiceFlag,
                                 TYPE_CHAT
                             )
-                            appVoiceRecorder.releaseRecordedVoice()
+                            appVoiceRecorder.releaseRecorder()
                             if (chatScreenState.isNotEmpty())
                                 coroutineScope.launch {
                                     listState.animateScrollToItem(0)
@@ -502,9 +510,11 @@ private fun SendMessageButton(
                                     fieldText.value,
                                     receivingUserID
                                 )
+
                                 if (chatScreenState.isNotEmpty())
 
                                     coroutineScope.launch {
+
                                         listState.animateScrollToItem(0)
 
                                         val localToken = Firebase.messaging.token.await()
@@ -530,8 +540,10 @@ private fun SendMessageButton(
                                         onMessageSend()
 
                                     }
+
                                 if (chatScreenState.isEmpty())
                                     addChatToChatsList(infoArray)
+
                                 LastMessageState.updateLastMessageInChat(
                                     fieldText.value,
                                     receivingUserID

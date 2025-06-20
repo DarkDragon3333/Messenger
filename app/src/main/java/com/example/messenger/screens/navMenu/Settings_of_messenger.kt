@@ -26,7 +26,7 @@ import com.example.messenger.utils.UriImage
 import com.example.messenger.dataBase.firebaseFuns.USER
 import com.example.messenger.utils.goTo
 import com.example.messenger.utils.mainActivityContext
-import com.example.messenger.utils.mainFieldStyle
+import com.example.messenger.utils.MainFieldStyle
 import com.example.messenger.utils.makeToast
 
 @Composable
@@ -70,7 +70,7 @@ fun BodyOfSettings(navController: NavHostController) {
         Text(text = "Аккаунт", modifier = Modifier.padding(15.dp, 0.dp, 0.dp, 0.dp))
 
         Spacer(modifier = Modifier.padding(8.dp))
-        mainFieldStyle(
+        MainFieldStyle(
             labelText = "Нажмите, чтобы изменить номер",
             enable = false,
             3,
@@ -80,7 +80,7 @@ fun BodyOfSettings(navController: NavHostController) {
         }
 
         Spacer(modifier = Modifier.padding(8.dp))
-        mainFieldStyle(
+        MainFieldStyle(
             labelText = "Нажмите, чтобы изменить ваш ник",
             enable = false,
             1,
@@ -90,7 +90,7 @@ fun BodyOfSettings(navController: NavHostController) {
         }
 
         Spacer(modifier = Modifier.padding(8.dp))
-        mainFieldStyle(
+        MainFieldStyle(
             labelText = "Напишите немного о себе",
             enable = false,
             1,
@@ -99,7 +99,7 @@ fun BodyOfSettings(navController: NavHostController) {
             goTo(navController, Screens.ChangeBIO)
         }
     }
-    Spacer(modifier = Modifier.padding(16.dp))
+    Spacer(modifier = Modifier.padding(8.dp))
     HorizontalDivider(modifier = Modifier.padding(bottom = 10.dp), thickness = 5.dp)
 }
 

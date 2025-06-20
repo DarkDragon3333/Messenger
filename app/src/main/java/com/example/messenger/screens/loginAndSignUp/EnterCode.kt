@@ -8,7 +8,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -18,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -54,81 +57,104 @@ class EnterCode : ComponentActivity() {
         setContent {
             MessengerTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) {
-                    GreetingEnterCode(mod = Modifier.padding(it))
+                    GreetingEnterCode(modifier = Modifier.padding(it))
                 }
             }
         }
     }
 
     @Composable
-    fun GreetingEnterCode(mod: Modifier = Modifier) {
-        var code by remember { mutableStateOf("") }
+    fun GreetingEnterCode(modifier: Modifier = Modifier) {
+        var code by rememberSaveable { mutableStateOf("") }
         val context = LocalContext.current
         val maxCount = 6
         val testSTR = "111222"
 
-        Column(modifier = Modifier.fillMaxSize()) {
-            Spacer(modifier = Modifier.padding(100.dp))
-            Column(
-                modifier = Modifier.fillMaxSize(),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Image(
-                    bitmap = ImageBitmap.imageResource(R.drawable.sms100),
-                    contentDescription = "SMS_image"
-                )
-                Spacer(modifier = Modifier.padding(20.dp))
-                Text(
-                    text = "Мы отправили вам СМС с кодом на ваш номер телефона",
-                    textAlign = TextAlign.Center,
-                    fontSize = 12.sp
-                )
-                Spacer(modifier = Modifier.padding(40.dp))
+        Column(
+            modifier = modifier
+                .fillMaxSize()
+                .padding(horizontal = 24.dp, vertical = 32.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Spacer(modifier = Modifier.height(64.dp))
 
-                TextField(
-                    value = code,
-                    onValueChange = {
-                        if (it.length < maxCount)
-                            code = it
-                        else if (it.length == maxCount) {
-                            code = it
+            Image(
+                bitmap = ImageBitmap.imageResource(R.drawable.sms100),
+                contentDescription = "SMS_image"
+            )
 
-                            when (code == testSTR) {
-                                true -> {
-                                    codeFromField = code
-                                    enterCode()
-                                }
-                                false -> makeToast("Проверьте введёый код!", context)
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Text(
+                text = "Мы отправили вам СМС с кодом на ваш номер телефона",
+                textAlign = TextAlign.Center,
+                fontSize = 14.sp,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(48.dp))
+
+            TextField(
+                value = code,
+                onValueChange = {
+                    if (it.length <= maxCount) {
+                        code = it
+                        if (it.length == maxCount) {
+                            if (code == testSTR) {
+                                codeFromField = code
+                                enterCode()
+                            } else {
+                                makeToast("Проверьте введённый код!", context)
                             }
                         }
-                    },
-                    supportingText = {
-                        Text(
-                            text = "${code.length} / $maxCount",
-                            modifier = Modifier.fillMaxWidth(),
-                            textAlign = TextAlign.End,
-                        )
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    placeholder = { Text("------", textAlign = TextAlign.Center) },
-                    maxLines = 1,
-                    label = { Text(text = "СМС код", fontSize = 12.sp) },
-                    colors = TextFieldDefaults.colors(
-                        unfocusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                        unfocusedTextColor = MaterialTheme.colorScheme.tertiary,
-
-                        focusedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
-                        focusedTextColor = MaterialTheme.colorScheme.onTertiary,
-
-                        disabledContainerColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                        disabledTextColor = MaterialTheme.colorScheme.tertiaryContainer,
-                        disabledLabelColor = MaterialTheme.colorScheme.outline,
-                        disabledIndicatorColor = MaterialTheme.colorScheme.outlineVariant,
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(78.dp),
+                maxLines = 1,
+                singleLine = true,
+                textStyle = LocalTextStyle.current.copy(
+                    fontSize = 18.sp,
+                    textAlign = TextAlign.Center
+                ),
+                placeholder = {
+                    Text(
+                        text = "- - - - - -",
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.Center,
+                        fontSize = 20.sp
                     )
+                },
+                label = {
+                    Text(text = "СМС код", fontSize = 12.sp)
+                },
+                supportingText = {
+                    Text(
+                        text = "${code.length} / $maxCount",
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.End,
+                        fontSize = 12.sp
+                    )
+                },
+                colors = TextFieldDefaults.colors(
+                    unfocusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                    unfocusedTextColor = MaterialTheme.colorScheme.tertiary,
+                    unfocusedIndicatorColor = MaterialTheme.colorScheme.outline,
+
+                    focusedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
+                    focusedTextColor = MaterialTheme.colorScheme.onTertiary,
+                    focusedIndicatorColor = MaterialTheme.colorScheme.primary,
+
+                    disabledContainerColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                    disabledTextColor = MaterialTheme.colorScheme.tertiaryContainer,
+                    disabledIndicatorColor = MaterialTheme.colorScheme.outlineVariant,
+                    disabledLabelColor = MaterialTheme.colorScheme.outline
                 )
-            }
+            )
         }
     }
+
 
     private fun init() {
         dataFromSignUpData = intent.extras!!

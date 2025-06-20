@@ -15,9 +15,11 @@ import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
 private val LightColorScheme = lightColorScheme(
+    primary = unfocusedContainerColorLightMode, // Явно задаём
+    onPrimary = unfocusedTextColorLightMode,
     surface = unfocusedContainerColorLightMode,
     background = unfocusedContainerColorLightMode,
-    surfaceVariant = unfocusedContainerColorLightMode,
+
     inverseSurface = unfocusedContainerColorLightMode,
     inversePrimary = unfocusedContainerColorLightMode,
     surfaceTint = unfocusedContainerColorLightMode,
@@ -33,10 +35,13 @@ private val LightColorScheme = lightColorScheme(
     tertiaryContainer = disabledTextColorLightMode,
     outline = disabledLabelColorLightMode,
     outlineVariant = disabledIndicatorColorLightMode,
+
 )
 
 
 private val DarkColorScheme = darkColorScheme(
+    primary = unfocusedContainerColorDarkMode,
+    onPrimary = unfocusedTextColorDarkMode,
     primaryContainer = unfocusedContainerColorDarkMode,
     tertiary = unfocusedTextColorDarkMode,
 
@@ -54,7 +59,7 @@ private val DarkColorScheme = darkColorScheme(
 @Composable
 fun MessengerTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    dynamicColor: Boolean = true,
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {
