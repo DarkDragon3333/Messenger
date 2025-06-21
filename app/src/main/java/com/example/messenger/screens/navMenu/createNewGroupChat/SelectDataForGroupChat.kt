@@ -41,19 +41,18 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
 import com.example.messenger.R
+import com.example.messenger.dataBase.firebaseFuns.REF_DATABASE_ROOT
 import com.example.messenger.dataBase.firebaseFuns.REF_STORAGE_ROOT
 import com.example.messenger.dataBase.firebaseFuns.UID
 import com.example.messenger.dataBase.firebaseFuns.USER
 import com.example.messenger.dataBase.firebaseFuns.addGroupChatToChatsList
 import com.example.messenger.modals.ContactModal
 import com.example.messenger.modals.GroupChatModal
+import com.example.messenger.modals.User
 import com.example.messenger.navigation.Screens
 import com.example.messenger.screens.componentOfScreens.AddContactCard
 import com.example.messenger.utils.Constants.ADMINISTRATOR
@@ -64,6 +63,7 @@ import com.example.messenger.utils.Constants.CHILD_LAST_MESSAGE
 import com.example.messenger.utils.Constants.CHILD_PHOTO_URL
 import com.example.messenger.utils.Constants.CHILD_TYPE
 import com.example.messenger.utils.Constants.FOLDER_PHOTOS
+import com.example.messenger.utils.Constants.NODE_USERS
 import com.example.messenger.utils.Constants.TYPE_GROUP
 import com.example.messenger.utils.defaultImageUri
 import com.example.messenger.utils.goTo
@@ -206,8 +206,6 @@ fun SelectDataForGroupChat(
 }
 
 
-
-
 @Composable
 private fun GroupImagePreview(bitmap: Bitmap?) {
     if (bitmap != null && bitmap.width > 10 && bitmap.height > 10) {
@@ -234,7 +232,6 @@ private fun GroupImagePreview(bitmap: Bitmap?) {
 }
 
 
-
 private fun createGroupChat(
     contactList: MutableList<ContactModal>,
     mapInfo: HashMap<String, Any>,
@@ -247,7 +244,9 @@ private fun createGroupChat(
 ) {
     val contactListId = mutableListOf<String>()
 
-    contactList.forEach { contact -> contactListId.add(contact.id) }.apply { USER.id }
+    contactList.forEach { contact ->
+        contactListId.add(contact.id)
+    }
     contactListId.add(USER.id)
 
     mapInfo[CHILD_CHAT_NAME] = groupChatName
@@ -256,7 +255,6 @@ private fun createGroupChat(
     mapInfo[CHILD_LAST_MESSAGE] = "Чат создан"
     mapInfo["timeStamp"] = FieldValue.serverTimestamp()
     mapInfo[ADMINISTRATOR] = UID
-
 
     if (selectImage.value == null)
         takeDefaultPhotoForGroupChat(
@@ -270,23 +268,27 @@ private fun createGroupChat(
         pathToSelectPhoto = REF_STORAGE_ROOT.child(FOLDER_PHOTOS).child(mapInfo[CHILD_ID].toString())
         getYourImageForGroupChat(imageUri, mapInfo) {
             addGroupChatToChatsList(mapInfo, contactListId, context) { timeStamp ->
-                val groupChatModel = GroupChatModal(
-                    mapInfo[CHILD_CHAT_NAME].toString(),
-                    imageUri.toString(),
-                    mapInfo[CHILD_ID].toString(),
-                    "",
-                    mapInfo[CHILD_CONTACT_LIST] as MutableList<String>,
-                    UID,
-                    mapInfo[CHILD_TYPE].toString(),
-                    mapInfo[CHILD_LAST_MESSAGE].toString(),
-                    timeStamp
-                )
-                currentChatViewModel.setGroupChat(groupChatModel)
-                goTo(navController, Screens.GroupChat)
+                makeToast("Чат создан", mainActivityContext)
+
+                    val groupChatModel = GroupChatModal(
+                        mapInfo[CHILD_CHAT_NAME].toString(),
+                        imageUri.toString(),
+                        mapInfo[CHILD_ID].toString(),
+                        "",
+                        mapInfo[CHILD_CONTACT_LIST] as MutableList<String>,
+                        USER.id,
+                        mapInfo[CHILD_TYPE].toString(),
+                        mapInfo[CHILD_LAST_MESSAGE].toString(),
+                        timeStamp
+                    )
+                    currentChatViewModel.setGroupChat(groupChatModel)
+                    goTo(navController, Screens.GroupChat)
+
             }
         }
     }
 }
+
 
 fun createGroupChatId(): String {
     val groupId = Firebase.firestore.collection("users_groups").document().id
@@ -317,21 +319,19 @@ fun takeDefaultPhotoForGroupChat(
                                 mainActivityContext
                             ) { timeStamp ->
                                 makeToast("Чат создан", mainActivityContext)
-
-                                val groupChatModel = GroupChatModal(
-                                    mapInfo[CHILD_CHAT_NAME].toString(),
-                                    mapInfo[CHILD_PHOTO_URL].toString(),
-                                    mapInfo[CHILD_ID].toString(),
-                                    "",
-                                    mapInfo[CHILD_CONTACT_LIST] as MutableList<String>,
-                                    administrator = UID,
-                                    mapInfo[CHILD_TYPE].toString(),
-                                    mapInfo[CHILD_LAST_MESSAGE].toString(),
-                                    timeStamp
-                                )
-
-                                currentChatViewModel.setGroupChat(groupChatModel)
-                                goTo(navController, Screens.GroupChat)
+                                    val groupChatModel = GroupChatModal(
+                                        mapInfo[CHILD_CHAT_NAME].toString(),
+                                        mapInfo[CHILD_PHOTO_URL].toString(),
+                                        mapInfo[CHILD_ID].toString(),
+                                        "",
+                                        mapInfo[CHILD_CONTACT_LIST] as MutableList<String>,
+                                        USER.id,
+                                        mapInfo[CHILD_TYPE].toString(),
+                                        mapInfo[CHILD_LAST_MESSAGE].toString(),
+                                        timeStamp
+                                    )
+                                    currentChatViewModel.setGroupChat(groupChatModel)
+                                    goTo(navController, Screens.GroupChat)
                             }
                         }
 

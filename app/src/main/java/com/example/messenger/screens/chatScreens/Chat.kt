@@ -96,7 +96,7 @@ fun ChatScreen(
     onRemoteTokenChange: (String) -> Unit,
     onSubmit: () -> Unit,
     messageText: String,
-    onMessageChange: (String) -> Unit,
+    onMessageChange: (String, String) -> Unit,
     onMessageSend: () -> Unit,
     onMessageBroadcast: () -> Unit
 ) {
@@ -260,7 +260,7 @@ private fun PanelOfEnter(
     token: String,
     onTokenChange: (String) -> Unit,
     onSubmit: () -> Unit,
-    onMessageChange: (String) -> Unit,
+    onMessageChange: (String, String) -> Unit,
     onMessageSend: () -> Unit
 ) {
     Row(
@@ -426,7 +426,7 @@ private fun SendMessageButton(
     token: String,
     onTokenChange: (String) -> Unit,
     onSubmit: () -> Unit,
-    onMessageChange: (String) -> Unit,
+    onMessageChange: (String, String) -> Unit,
     onMessageSend: () -> Unit,
     cleanText: () -> Unit
 ) {
@@ -536,9 +536,8 @@ private fun SendMessageButton(
 
                                         onTokenChange(remoteToken.token.toString())
                                         onSubmit()
-                                        onMessageChange(tempText)
+                                        onMessageChange(tempText, infoArray[0].toString())
                                         onMessageSend()
-
                                     }
 
                                 if (chatScreenState.isEmpty())

@@ -12,6 +12,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
+import com.example.messenger.dataBase.firebaseFuns.REF_DATABASE_ROOT
 import com.example.messenger.dataBase.firebaseFuns.UID
 import com.example.messenger.screens.NavDrawer
 import com.example.messenger.ui.theme.MessengerTheme

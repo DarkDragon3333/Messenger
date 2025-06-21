@@ -39,12 +39,9 @@ fun ChangeBIO(navController: NavHostController) {
     {
         var bio by rememberSaveable { mutableStateOf(USER.bio) }
 
-
-
         Spacer(modifier = Modifier.padding(0.dp, 100.dp, 0.dp, 0.dp))
         Text(text = "Напишите о себе:")
         Spacer(modifier = Modifier.padding(0.dp, 40.dp, 0.dp, 0.dp))
-
 
             MainFieldStyle(
                 labelText = "О себе",

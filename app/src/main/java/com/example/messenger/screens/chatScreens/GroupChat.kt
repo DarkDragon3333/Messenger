@@ -9,6 +9,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -18,6 +19,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -55,6 +57,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.messenger.R
+import com.example.messenger.dataBase.firebaseFuns.addChatToChatsList
 import com.example.messenger.dataBase.firebaseFuns.getMessageKey
 import com.example.messenger.dataBase.firebaseFuns.uploadFileToStorage
 import com.example.messenger.dataBase.valueEventListenerClasses.LastMessageState
@@ -353,46 +356,50 @@ private fun SheetContent(
     showBottomSheetState: MutableState<Boolean>,
     receivingUserID: String
 ) {
-    Row {
-        Button(onClick = {
-            attachImage(launcher)
-            coroutineScope.launch { sheetState.hide() }.invokeOnCompletion {
-                if (!sheetState.isVisible)
-                    showBottomSheetState.value = false
-            }
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(24.dp),
+        horizontalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        Button(
+            onClick = {
+                attachImage(launcher)
+                coroutineScope.launch { sheetState.hide() }.invokeOnCompletion {
+                    if (!sheetState.isVisible)
+                        showBottomSheetState.value = false
+                }
 
-            LastMessageState.updateLastMessageInGroupChat(
-                "Изображение", receivingUserID,
-                currentChatHolderViewModal.currentGroupChat?.contactList ?: mutableListOf()
-            )
-        }) {
-            Text("Image")
+                LastMessageState.updateLastMessageInGroupChat(
+                    "Изображение", receivingUserID,
+                    currentChatHolderViewModal.currentGroupChat?.contactList ?: mutableListOf()
+                )
+            },
+            modifier = Modifier.weight(1f)
+        ) {
+            Text("Изображение")
         }
 
-        Button(onClick = {
-            attachFile(launcherFile)
-            coroutineScope.launch { sheetState.hide() }.invokeOnCompletion {
-                if (!sheetState.isVisible)
-                    showBottomSheetState.value = false
-            }
-            LastMessageState.updateLastMessageInGroupChat(
-                "Файл", receivingUserID,
-                currentChatHolderViewModal.currentGroupChat?.contactList ?: mutableListOf()
-            )
-        }) {
-            Text("File")
-        }
+        Button(
+            onClick = {
+                attachFile(launcherFile)
+                coroutineScope.launch { sheetState.hide() }.invokeOnCompletion {
+                    if (!sheetState.isVisible)
+                        showBottomSheetState.value = false
+                }
 
-        Button(onClick = {
-            coroutineScope.launch { sheetState.hide() }.invokeOnCompletion {
-                if (!sheetState.isVisible)
-                    showBottomSheetState.value = false
-            }
-        }) {
-            Text("TO-DO")
+                LastMessageState.updateLastMessageInGroupChat(
+                    "Файл", receivingUserID,
+                    currentChatHolderViewModal.currentGroupChat?.contactList ?: mutableListOf()
+                )
+            },
+            modifier = Modifier.weight(1f)
+        ) {
+            Text("Файл")
         }
     }
 }
+
 
 @Composable
 private fun SendMessageButton(

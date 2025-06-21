@@ -66,9 +66,10 @@ class ChatViewModal : ViewModel() {
         )
     }
 
-    fun onMessageChange(message: String) {
+    fun onMessageChange(message: String, title: String) {
         state = state.copy(
-            messageText = message
+            messageText = message,
+            titlePush = title
         )
     }
 
@@ -78,7 +79,7 @@ class ChatViewModal : ViewModel() {
             val messageDto = SendMessageDto(
                 to = if(isBroadcast) null else state.remoteToken,
                 notification = NotificationBody(
-                    title = "Залупа меесенджер",
+                    title = state.titlePush,
                     body = state.messageText
                 )
             )

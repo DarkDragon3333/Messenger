@@ -86,22 +86,6 @@ fun NavDrawer(
 
     val currentRBool = currentBackStackEntry?.destination?.route == Screens.Chats.route
 
-    fun Color.adjustBrightness(factor: Float): Color {
-        return Color(
-            red = (red * factor).coerceIn(0f, 1f),
-            green = (green * factor).coerceIn(0f, 1f),
-            blue = (blue * factor).coerceIn(0f, 1f),
-            alpha = alpha
-        )
-    }
-
-    // Основной фон
-    val mainBackground = MaterialTheme.colorScheme.onBackground
-    // Фон меню — чуть темнее
-    val drawerBackground = mainBackground.adjustBrightness(0.95f)
-    // Фон топ-бара — чуть прозрачнее и чуть светлее основного
-    val topBarBackground = mainBackground.copy(alpha = 0.85f)
-
     ModalNavigationDrawer(
         drawerState = drawerState,
         gesturesEnabled = currentRBool,
@@ -162,7 +146,7 @@ fun NavDrawer(
                         actionIconContentColor = MaterialTheme.colorScheme.onBackground
                     ),
                     actions = {
-                        if (navDrawerViewModal.isSettings || navDrawerViewModal.isGroupChat) {
+                        if (navDrawerViewModal.isSettings) {
                             DropdownMenuItems(
                                 drawerState,
                                 coroutineScope,
@@ -227,9 +211,12 @@ fun Title(
         GroupChatTitleView(currentChatHolderViewModal, groupChatViewModal)
     else
         Text(
-            text = currentRoute
-                .toString()
-                .replaceFirstChar { it.uppercase() })
+            text = if (currentRoute == "смена имени?t={t}") {
+                currentRoute.toString().take(11).replaceFirstChar { it.uppercase() }
+            } else {
+                currentRoute.toString().replaceFirstChar { it.uppercase() }
+            }
+        )
 
 
 }

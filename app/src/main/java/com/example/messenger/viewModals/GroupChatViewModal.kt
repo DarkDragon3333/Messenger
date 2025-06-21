@@ -62,23 +62,24 @@ class GroupChatViewModal : ViewModel() {
                 if (e != null) {
                     Log.e("Firestore", "Ошибка прослушивания", e)
                     return@addSnapshotListener
-                }
-
-                if (snapshot != null && snapshot.exists()) {
-                    val newData = snapshot.toObject(GroupChatModal::class.java)
-
-                    Firebase.firestore
-                        .collection("users_talkers").document(UID)
-                        .collection("talkers").document(newData?.id ?: "")
-                        .update("chatName", newData?.chatName)
-
-                    Firebase.firestore
-                        .collection("users_talkers").document(UID)
-                        .collection("talkers").document(newData?.id ?: "")
-                        .update("photoUrl", newData?.photoUrl)
-
                 } else {
-                    Log.d("Firestore", "Документ не найден")
+                    if (snapshot != null && snapshot.exists()) {
+                        val newData = snapshot.toObject(GroupChatModal::class.java)
+
+                        Firebase.firestore
+                            .collection("users_talkers").document(UID)
+                            .collection("talkers").document(newData?.id ?: "")
+                            .update("chatName", newData?.chatName)
+
+                        Firebase.firestore
+                            .collection("users_talkers").document(UID)
+                            .collection("talkers").document(newData?.id ?: "")
+                            .update("photoUrl", newData?.photoUrl)
+
+                    } else {
+                        Log.d("Firestore", "Документ не найден")
+                        makeToast("Тут 1", mainActivityContext)
+                    }
                 }
             }
 
@@ -99,6 +100,7 @@ class GroupChatViewModal : ViewModel() {
 
                 } else {
                     Log.d("Firestore", "Документ не найден")
+                    makeToast("Тут 2", mainActivityContext)
                 }
             }
 
@@ -139,6 +141,12 @@ class GroupChatViewModal : ViewModel() {
                         if (changeContactsList.contains(contactModal) == false)
                             changeContactsList.add(contactModal)
                     }
+                    else {
+                        makeToast(
+                            "Тут 3 " + result.exception?.message.toString(),
+                            mainActivityContext
+                        )
+                    }
                 }
         }
     }
@@ -155,7 +163,7 @@ class GroupChatViewModal : ViewModel() {
                     }
 
                     else -> makeToast(
-                        downloadTask.exception?.message.toString(),
+                        "Тут 3 " + downloadTask.exception?.message.toString(),
                         mainActivityContext
                     )
                 }

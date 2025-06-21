@@ -70,6 +70,7 @@ class SingUpActivity : ComponentActivity() {
         var phoneField by rememberSaveable { mutableStateOf("") }
         var passwordField by rememberSaveable { mutableStateOf("") }
         var rePasswordField by rememberSaveable { mutableStateOf("") }
+
             Column {
             Column(
                 modifier = Modifier

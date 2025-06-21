@@ -176,7 +176,7 @@ class EnterCode : ComponentActivity() {
             if (it.isSuccessful) {
                 if (sign_in) {
                     sign_in = false
-                    USER.id = verificationId
+                    //USER.id = verificationId
                     UID = AUTH.currentUser?.uid.toString()
                     goTo(MainActivity::class.java, context)
                 } else {
