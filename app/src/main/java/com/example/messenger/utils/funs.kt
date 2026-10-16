@@ -1,0 +1,351 @@
+package com.example.messenger.utils
+
+import android.app.Activity
+import android.content.ContentValues
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import android.os.Build
+import android.os.Environment
+import android.provider.ContactsContract
+import android.provider.MediaStore
+import android.provider.OpenableColumns
+import android.widget.Toast
+import androidx.activity.compose.ManagedActivityResultLauncher
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.material3.DrawerState
+import androidx.navigation.NavHostController
+import com.example.messenger.dataBase.firebaseFuns.REF_STORAGE_ROOT
+import com.example.messenger.dataBase.firebaseFuns.updateContactsForFirebase
+import com.example.messenger.modals.ChatModal
+import com.example.messenger.modals.CommonModal
+import com.example.messenger.modals.ContactModal
+import com.example.messenger.modals.GroupChatModal
+import com.example.messenger.modals.MessageModal
+import com.example.messenger.navigation.Screens
+import com.example.messenger.screens.loginAndSignUp.AddInfo
+import com.example.messenger.utils.Constants.FOLDER_PHOTOS
+import com.example.messenger.viewModals.ContactsViewModal
+import com.google.firebase.auth.PhoneAuthProvider
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.storage.FirebaseStorage
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
+import java.net.URLDecoder
+import java.net.URLEncoder
+
+/*
+Служебные функции приложения
+*/
+fun makeToast(msg: String, context: Context) {
+    Toast
+        .makeText(context, msg, Toast.LENGTH_LONG)
+        .show()
+}
+
+//Переопределённый метод перехода от одного активити к другому
+fun <templateActivity : Activity> goTo(
+    activity: Class<templateActivity>,
+    context: Context
+) {
+    val intent = Intent(context, activity)
+    context.startActivity(intent)
+}
+
+fun <templateActivity> goTo(
+    activity: Class<templateActivity>,
+    context: Activity,
+    dataOne: String,
+    token: PhoneAuthProvider.ForceResendingToken
+) {
+    val intent = Intent(context, activity)
+    intent.putExtra("verificationId", dataOne)
+    intent.putExtra("token", token)
+    context.startActivity(intent)
+}
+
+fun <templateActivity> goTo(
+    activity: Class<templateActivity>,
+    context: Activity,
+    dataOne: String,
+    dataTwo: String,
+    dataThree: String
+) {
+    val intent = Intent(context, activity)
+    intent.putExtra("verificationId", dataOne) //Id пользователя
+    intent.putExtra("phone", dataTwo) //Номер телефона
+    intent.putExtra("password", dataThree) //Пароль
+    context.startActivity(intent)
+}
+
+fun <templateActivity> goTo(
+    activity: Class<templateActivity>,
+    context: AddInfo,
+    verificationId: String,
+    fullname: String,
+    userName: String,
+    phone: String,
+    password: String
+) {
+    val intent = Intent(context, activity)
+    intent.putExtra("verificationId", verificationId) //Id пользователя
+    intent.putExtra("phone", phone) //Номер телефона
+    intent.putExtra("password", password) //Пароль
+    intent.putExtra("fullname", fullname) //Id пользователя
+    intent.putExtra("userName", userName) //Номер телефона
+    context.startActivity(intent)
+}
+
+fun goTo(
+    navController: NavHostController,
+    screen: Screens,
+    coroutineScope: CoroutineScope,
+    drawerState: DrawerState
+) {
+    coroutineScope.launch {
+        if (navController.currentDestination?.route != screen.route) {
+            navController.navigate(screen.route) {
+                popUpTo(navController.graph.startDestinationId) { saveState = true }
+                launchSingleTop = true
+                restoreState = true
+            }
+        }
+        drawerState.close()
+    }
+}
+
+fun goTo(
+    navController: NavHostController,
+    screen: Screens
+) {
+    val routeWithTime = "${screen.route}?t=${System.currentTimeMillis()}"
+    navController.navigate(routeWithTime) {
+        launchSingleTop = false
+        popUpTo(navController.graph.startDestinationId) {
+            inclusive = false
+            saveState = false
+        }
+    }
+}
+
+fun goTo(navController: NavHostController, user: CommonModal) {
+    val fullname = URLEncoder.encode(user.fullname, "UTF-8")
+    val status = URLEncoder.encode(user.status, "UTF-8")
+    val uri = URLEncoder.encode(user.photoUrl, "UTF-8")
+
+    //Используем navController для перемещения по экранам
+    navController.navigate("chatScreen/${fullname}/${status}/${uri}/{${user.id}}") {
+        launchSingleTop = true
+    }
+}
+
+fun goTo(navController: NavHostController, contact: ContactModal) {
+    val fullName = URLEncoder.encode(contact.fullname, "UTF-8")
+    val status = URLEncoder.encode(contact.status, "UTF-8")
+    val uri = URLEncoder.encode(contact.photoUrl, "UTF-8")
+
+    //Используем navController для перемещения по экранам
+    navController.navigate("chatScreen/${fullName}/${status}/${uri}/{${contact.id}}") {
+        launchSingleTop = true
+    }
+}
+
+fun goTo(navController: NavHostController, user: ChatModal, screen: Screens) {
+    navController.currentBackStackEntry?.savedStateHandle?.apply {
+        set("fullName", user.chatName)
+        set("status", user.status)
+        set("uri", user.photoUrl)
+        set("user.id", user.id)
+    }
+
+    navController.navigate(screen.route) {
+        launchSingleTop = true
+    }
+}
+
+fun goTo(navController: NavHostController, chatModal: GroupChatModal, screen: Screens) {
+
+    navController.currentBackStackEntry?.savedStateHandle?.apply {
+        set("groupChatModal", chatModal)
+    }
+
+    //Используем navController для перемещения по экранам
+    navController.navigate(screen.route) {
+        launchSingleTop = true
+    }
+}
+
+fun goTo(
+    navController: NavHostController,
+    screen: Screens,
+    contactList: MutableList<ContactModal>
+) {
+    navController.currentBackStackEntry?.savedStateHandle?.apply {
+        set("contactList", contactList)
+    }
+    navController.navigate(screen.route) {
+        launchSingleTop = true
+    }
+}
+
+fun attachImage(launcher: ManagedActivityResultLauncher<PickVisualMediaRequest, List<@JvmSuppressWildcards Uri>>) {
+    launcher.launch(
+        PickVisualMediaRequest(
+            mediaType = ActivityResultContracts.PickVisualMedia.ImageAndVideo
+        )
+    )
+}
+
+fun attachFile(launcherFile: ManagedActivityResultLauncher<String, List<@JvmSuppressWildcards Uri>>) {
+    launcherFile.launch("*/*")
+}
+
+fun getFileName(context: Context, uri: Uri): String? {
+    val returnCursor = context.contentResolver.query(uri, null, null, null, null)
+    returnCursor?.use { cursor ->
+        val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+        if (nameIndex != -1) {
+            cursor.moveToFirst()
+            return cursor.getString(nameIndex)
+        }
+    }
+    return null
+}
+
+fun getContactsFromSmartphone(contactsViewModal: ContactsViewModal) {
+    if (myCheckPermission(READ_CONTACTS) && myCheckPermission(SEND_PUSH)) {
+        val contactList = mutableListOf<ContactModal>()
+        val cursor = mainActivityContext.contentResolver.query(
+            ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+            null,
+            null,
+            null,
+            null
+        )
+
+        cursor?.let {
+            while (it.moveToNext()) {
+                val fullName =
+                    cursor.getString(
+                        cursor.getColumnIndexOrThrow(
+                            ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME
+                        )
+                    )
+                val phone =
+                    cursor.getString(
+                        cursor.getColumnIndexOrThrow(
+                            ContactsContract.CommonDataKinds.Phone.NUMBER
+                        )
+                    )
+
+                val newModal = ContactModal().apply { ContactModal().fullname = fullName }
+
+                var pattern = Regex("[^\\d+]")
+                var formattedPhone = phone.replace(pattern, "")
+
+                formattedPhone =
+                    if (!formattedPhone.startsWith("+")) "+$formattedPhone" else formattedPhone
+                pattern = Regex("(\\+\\d+)(\\d{3})(\\d{3})(\\d{4})")
+
+                formattedPhone = pattern.replace(formattedPhone) { match ->
+                    "${match.groups[1]?.value}" +
+                            " ${match.groups[2]?.value}" +
+                            "-${match.groups[3]?.value}" +
+                            "-${match.groups[4]?.value}"
+                }
+
+                newModal.phone = formattedPhone
+
+                contactList.add(newModal)
+            }
+        }
+        cursor?.close()
+
+        val uniqueUsers = contactList.distinctBy { it.phone }
+        contactList.clear()
+        contactList.addAll(uniqueUsers)
+
+        contactsViewModal.downloadContactsInfo(contactList)
+        updateContactsForFirebase(contactList)
+    }
+}
+
+fun parseInfo(string: String): Pair<String, String> {
+    val parts = string.split("__", limit = 2)
+    val info = parts.getOrNull(0) ?: ""
+    val fileName = parts.getOrNull(1) ?: ""
+    return fileName to info
+}
+
+fun whenSelect(bool: Boolean, funTrue: Unit, funFalse: Unit) {
+    when (bool) {
+        true -> funTrue
+        false -> funFalse
+    }
+}
+
+fun whenSelect(bool: Boolean, funTrue: () -> Unit, funFalse: () -> Unit) {
+    when (bool) {
+        true -> funTrue
+        false -> funFalse
+    }
+}
+
+suspend fun downloadFileToDownloads(
+    context: Context,
+    firebasePath: String,
+    fileName: String
+): Boolean = withContext(Dispatchers.IO) {
+    try {
+        val storageRef = FirebaseStorage.getInstance().reference.child(firebasePath)
+        val streamResult = storageRef.stream.await()
+        val inputStream = streamResult.stream
+
+        val resolver = context.contentResolver
+        val contentValues = ContentValues().apply {
+            put(MediaStore.Downloads.DISPLAY_NAME, fileName)
+            put(MediaStore.Downloads.MIME_TYPE, getMimeType(fileName))
+            put(MediaStore.Downloads.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
+            put(MediaStore.Downloads.IS_PENDING, 1)
+        }
+
+        val uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
+            ?: return@withContext false
+
+        resolver.openOutputStream(uri).use { outputStream ->
+            inputStream.copyTo(outputStream!!)
+        }
+
+        contentValues.clear()
+        contentValues.put(MediaStore.Downloads.IS_PENDING, 0)
+        resolver.update(uri, contentValues, null, null)
+
+        true
+    } catch (e: Exception) {
+        e.printStackTrace()
+        false
+    }
+}
+
+
+// Пример функции для определения MIME типа по имени файла
+fun getMimeType(fileName: String): String {
+    return when {
+        fileName.endsWith(".pdf") -> "application/pdf"
+        fileName.endsWith(".jpg") || fileName.endsWith(".jpeg") -> "image/jpeg"
+        fileName.endsWith(".png") -> "image/png"
+        fileName.endsWith(".txt") -> "text/plain"
+        else -> "*/*"
+    }
+}
+
+fun extractFirebasePathFromUrl(url: String): String? {
+    val decoded = URLDecoder.decode(url, "UTF-8")
+    val regex = Regex("/o/(.+)\\?alt")
+    val match = regex.find(decoded)
+    return match?.groups?.get(1)?.value?.replace("%2F", "/")
+}

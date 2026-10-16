@@ -11,5 +11,8 @@
 /build
 /captures
 .externalNativeBuild
+app/google-services.json
 .cxx
 local.properties
+src/main/res/mymessenger-73602-firebase-adminsdk-8ogzt-33709015c0.json
+
